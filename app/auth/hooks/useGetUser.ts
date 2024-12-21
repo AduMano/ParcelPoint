@@ -18,7 +18,6 @@ const useGetUser = (): UseGetUserResult => {
 
     try {
       const response = await GetUserByEmailAndPassword(username, password);
-      console.log(response);
 
       if (response.status === 200) {
         setData(response.data); // On success, set the returned data

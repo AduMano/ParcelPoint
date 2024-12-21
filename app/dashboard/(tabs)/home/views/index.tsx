@@ -13,6 +13,7 @@ import { TData, TMember, TParcel } from "../../../../utilities/home/types/type";
 import { ScrollView, TouchableOpacity, Image, Pressable } from "react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { router } from "expo-router";
+import React from "react";
 
 // Styles
 import {
