@@ -1,8 +1,9 @@
 // Components
 import { View, Text } from "./Themed";
+import Colors from "@/constants/Colors";
 
 // Library
-import { StyleSheet, TouchableOpacity, Animated, Dimensions, Image, Pressable } from "react-native";
+import { StyleSheet, TouchableOpacity, Animated, Dimensions, Pressable } from "react-native";
 import React, { useEffect, useRef } from 'react';
 
 // Helpers
@@ -20,21 +21,21 @@ import { TParcelDetail } from "@/app/utilities/home/types/type";
 // Dimension
 const { height } = Dimensions.get('screen');
 
-const PackageDeliveredModal = (props: { 
-  modalPackageState: boolean;
-  handleClosePackageModal: () => void;
+export const PackageLogDetailModal = (props: { 
+  modalPackageDetailState: boolean;
+  handleClosePackageDetailModal: () => void;
   modalData: TParcelDetail
 }) => {
   // Drilled Prop
-  const { modalPackageState, handleClosePackageModal, modalData: parcel } = props;
+  const { modalPackageDetailState, handleClosePackageDetailModal, modalData: parcel } = props;
   const slideAnim = useRef(new Animated.Value(height)).current; // Start off-screen
 
   // Toggler
   useEffect(() => {
-    if (modalPackageState) {
+    if (modalPackageDetailState) {
       openModal();
     }
-  }, [modalPackageState]);
+  }, [modalPackageDetailState]);
 
   // Handlers
   const openModal = () => {
@@ -51,13 +52,13 @@ const PackageDeliveredModal = (props: {
       duration: 200,
       useNativeDriver: true,
     }).start(() => {
-      handleClosePackageModal();
+      handleClosePackageDetailModal();
     });
   };
 
   return (
     <>
-      { modalPackageState && 
+      { modalPackageDetailState && 
         <View style={[ modalStyle.viewDefault, modalStyle.modalContainer ]}>
           {/* BackDrop */}
           <Pressable onPress={closeModal} style={[modalStyle.viewDefault, modalStyle.modalBackDrop]}>
@@ -70,40 +71,36 @@ const PackageDeliveredModal = (props: {
             </TouchableOpacity>
 
             {/* Body of Modal consists of: */}
-            {/* Image of Package */}
             {/* Header */}
             {/* Details */}
+            {/* Button */}
             <View style={[modalStyle.viewDefault, modalStyle.modalContent]}>
-              <View style={[modalStyle.viewDefault, {marginBottom: 0, paddingBottom: 0}]}>
-                <Image 
-                  source={require(`@/assets/images/dashboard/homepage/package.png`)}
-                  style={{
-                    position: "relative",
-                    width: 220, height: 220,
-                    padding: 0, margin: 0,
-                  }}
-                />
+
+              <View style={[modalStyle.viewDefault, { width: "80%", marginBottom: 20, marginTop: 20 }]}>
+                <Text style={[text.headingTwo]}>PARCEL DETAILS</Text>
+                <Text><Text style={[text.subHeading]}>Status</Text>: <Text style={text.bold}>{(parcel.status == "Picked Up") ? "Retrieved" : "Delivered"}</Text></Text>
               </View>
 
-              <View style={[modalStyle.viewDefault, { width: "80%", marginBottom: 20 }]}>
-                <Text style={[text.bold, text.center, {marginBottom: 10}]}>YOUR PARCEL IS READY FOR PICK-UP!</Text>
-                <Text style={[text.subHeading, text.center]}>Your parcel has been successfully Delivered and is now stored in the locker.</Text>
-              </View>
-
-              <View style={[modalStyle.viewDefault, {width: "80%", marginBottom: 40 }]}>
-                <Text style={[text.bold, {marginBottom: 10}]}>DELIVERY DETAILS:</Text>
+              <View style={[modalStyle.viewDefault, {width: "80%", marginBottom: 20 }]}>
+                <Text style={[text.bold, {marginBottom: 10}]}>DETAILS:</Text>
                 
                 <View style={styles.viewDefault}>
                   {/* Parcel ID */}
                   <Text><Text style={text.bold}>Parcel ID</Text>: {parcel.trackingId}</Text>
                   {/* Parcel Name */}
                   <Text><Text style={text.bold}>Parcel Name</Text>: {parcel.name}</Text>
+                  {/* Retrieved By */}
+                  {parcel.status !== "Not Picked Up" && <Text><Text style={text.bold}>Retrieved By</Text>: Aldwin Samano</Text>}
                   {/* Locker Number */}
                   <Text><Text style={text.bold}>Locker Number</Text>: #02</Text>
                   {/* Delivered On */}
                   <Text><Text style={text.bold}>Delivered On</Text>: November 28, 2024 at 3:45 PM</Text>
                 </View>
               </View>
+
+              <TouchableOpacity style={[modalStyle.button, { marginBottom: 30 }]} onPress={closeModal}>
+                <Text style={[text.headingTwo, {textAlign: "center"}]}>OK</Text>
+              </TouchableOpacity>
             </View>
           </Animated.View>
         </View>
@@ -157,7 +154,14 @@ const modalStyle = StyleSheet.create({
     gap: 10,
     justifyContent: "flex-start",
     alignItems: "center",
+  },
+
+  button: {
+    position: "relative",
+    width: "86%",
+    padding: 8,
+    backgroundColor: Colors["light"].buttonAction,
+
+    borderRadius: 10,
   }
 });
-
-export default PackageDeliveredModal;

@@ -9,7 +9,7 @@ import { FlatList, TouchableOpacity } from "react-native";
 import { useSearchParams } from "expo-router/build/hooks";
 
 // Types
-import { IData, INotificationItem } from "../types/types";
+import { INotificationItem } from "../types/types";
 import React from "react";
 
 // Styles

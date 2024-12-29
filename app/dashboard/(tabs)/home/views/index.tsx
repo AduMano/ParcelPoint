@@ -1,6 +1,6 @@
 // Components
 import { Text, View } from "@/components/Themed";
-import { PackageDeliveredModal } from "@/components/PackageDeliveredModal";
+import PackageDeliveredModal from "@/components/PackageDeliveredModal";
 
 import ParcelItem from "@/app/utilities/home/components/ParcelItem";
 import MemberItem from "@/app/utilities/home/components/MemberItem";
@@ -10,7 +10,7 @@ import { LogItem } from "@/app/utilities/home/components/LogItem";
 import { IonIconByName } from "@/helpers/IconsLoader";
 
 // Types
-import { TData, TMember, TParcel } from "../../../../utilities/home/types/type";
+import { TParcelDetail, TData, TMember, TParcel } from "../../../../utilities/home/types/type";
 import { INotificationItem } from "../../../../utilities/notification/types/types";
 
 // Library
@@ -27,6 +27,7 @@ import {
   scroller,
   buttons,
 } from "../../../../utilities/home/styles/styles";
+import { PackageLogDetailModal } from "@/components/PackageLogDetailModal";
 
 const index = () => {
   // Sample data for the time being
@@ -192,6 +193,12 @@ const index = () => {
 
   // For Modal
   const [modalPackageState, setModalPackageState] = useState<boolean>(false);
+  const [modalPackageLogState, setModalPackageLogState] = useState<boolean>(false);
+  const [selectedPackageData, setSelectedPackageData] = useState<TParcelDetail>({
+    name: "",
+    trackingId: "",
+    status: "",
+  });
 
   /// Event Handlers
   // For Debugging
@@ -199,12 +206,31 @@ const index = () => {
     setDataState(state);
   }, []);
 
-  // For Modal
-  const onOpenPackageModal = useCallback(() => {
+  // Modal for Parcel Status
+  const onOpenPackageModal = useCallback(({trackingId, name}: TParcelDetail) => {
+    setSelectedPackageData({
+      trackingId,
+      name
+    });
+    
     setModalPackageState(true);
   }, []);
   const onClosePackageModal = useCallback(() => {
     setModalPackageState(false);
+  }, []);
+
+  // Modal for Logs
+  const onOpenPackageLogModal = useCallback(({trackingId, name, status}: TParcelDetail) => {
+    setSelectedPackageData({
+      trackingId,
+      name,
+      status
+    });
+    
+    setModalPackageLogState(true);
+  }, []);
+  const onClosePackageLogModal = useCallback(() => {
+    setModalPackageLogState(false);
   }, []);
 
   /// For Debugging Purposes.
@@ -242,7 +268,17 @@ const index = () => {
     <>
       {/* Modals */}
       <Portal>
-        <PackageDeliveredModal modalPackageState={modalPackageState} handleClosePackageModal={onClosePackageModal} />
+        <PackageDeliveredModal 
+          modalPackageState={modalPackageState} 
+          handleClosePackageModal={onClosePackageModal}
+          modalData={selectedPackageData}  
+        />
+
+        <PackageLogDetailModal
+          modalPackageDetailState={modalPackageLogState} 
+          handleClosePackageDetailModal={onClosePackageLogModal}
+          modalData={selectedPackageData}  
+        />
       </Portal>
 
       {/* Content */}
@@ -322,7 +358,10 @@ const index = () => {
                   data.parcels.map((parcel: TParcel) => {
                     if (parcel.status == "Not Picked Up") {
                       return (
-                        <ParcelItem key={parcel.id} parcel={parcel} handleOpenPackageModal={onOpenPackageModal} />
+                        <ParcelItem key={parcel.id} parcel={parcel} handleOpenPackageModal={() => onOpenPackageModal({
+                          name: parcel.name,
+                          trackingId: parcel.trackingId
+                        })} />
                       );
                     }
                   })
@@ -392,8 +431,12 @@ const index = () => {
                 horizontal={false}
               >
                 {data.parcels.length != 0 ? (
-                  data.parcels.slice(0, 8).map((parcel) => (
-                    <LogItem key={parcel.id} parcel={parcel} />
+                  data.parcels.slice(0, 8).map((parcel: TParcel) => (
+                    <LogItem key={parcel.id} parcel={parcel} handleOpenPackageLogModal={() => onOpenPackageLogModal({
+                      name: parcel.name,
+                      trackingId: parcel.trackingId,
+                      status: parcel.status
+                    })} />
                   ))
                 ) : (
                   <Text style={text.subHeading}>No Recent Activity.</Text>

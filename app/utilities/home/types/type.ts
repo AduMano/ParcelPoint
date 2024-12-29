@@ -19,6 +19,11 @@ export type MemberItemProps = {
   member: TMember;
 };
 
+export type TParcelDetail = {
+  name: string;
+  trackingId: string;
+  status?: string;
+}
 
 export type TData = {
   parcels: TParcel[];

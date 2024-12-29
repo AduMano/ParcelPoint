@@ -15,31 +15,38 @@ import {
 import { EIconByName } from '@/helpers/IconsLoader';
 
 // Types
-import { ParcelItemProps } from '../types/type';
+import { TParcel } from '../types/type';
 
-export const LogItem = ({parcel}: ParcelItemProps) => {
+export const LogItem = (props: {
+    parcel: TParcel;
+    handleOpenPackageLogModal: () => void;
+}) => {
+
+    // Prop Drilling
+    const {parcel, handleOpenPackageLogModal} = props; 
+
   return (
     <View
         style={[styles.viewDefault, styles.historyItems]}
         key={parcel.id}
     >
         <View style={[styles.viewDefault, styles.historyInfo]}>
-        <Text style={text.headingTwo}>{parcel.name}</Text>
-        <Text>ID {parcel.id}</Text>
-        <Text>
-            {parcel.status == "Picked Up"
-            ? "Retrieved On"
-            : "Delivered On"}{" "}
-            <Text style={text.bold}>December 8, 2024</Text>
-        </Text>
+            <Text style={text.headingTwo}>{parcel.name}</Text>
+            <Text>ID {parcel.id}</Text>
+            <Text>
+                {parcel.status == "Picked Up"
+                ? "Retrieved On"
+                : "Delivered On"}{" "}
+                <Text style={text.bold}>December 8, 2024</Text>
+            </Text>
         </View>
 
-        <TouchableOpacity style={[styles.historyArrow]}>
-        <EIconByName
-            name="chevron-small-right"
-            size={30}
-            color={"black"}
-        />
+        <TouchableOpacity style={[styles.historyArrow]} onPress={handleOpenPackageLogModal}>
+            <EIconByName
+                name="chevron-small-right"
+                size={30}
+                color={"black"}
+            />
         </TouchableOpacity>
     </View>
   )
