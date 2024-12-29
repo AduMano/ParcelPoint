@@ -11,6 +11,15 @@ export type TParcel = {
   status: string;
 };
 
+export type ParcelItemProps = {
+  parcel: TParcel;
+};
+
+export type MemberItemProps = {
+  member: TMember;
+};
+
+
 export type TData = {
   parcels: TParcel[];
   members: TMember[];

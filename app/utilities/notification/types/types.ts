@@ -5,3 +5,7 @@ export type INotificationItem = {
   date: string;
   status: string;
 };
+
+export interface IData {
+  data?: string;
+}

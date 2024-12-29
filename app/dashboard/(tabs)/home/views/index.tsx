@@ -2,18 +2,23 @@
 import { Text, View } from "@/components/Themed";
 import { PackageDeliveredModal } from "@/components/PackageDeliveredModal";
 
+import ParcelItem from "@/app/utilities/home/components/ParcelItem";
+import MemberItem from "@/app/utilities/home/components/MemberItem";
+import { LogItem } from "@/app/utilities/home/components/LogItem";
+
 // Helpers
-import { EIconByName, IonIconByName } from "@/helpers/IconsLoader";
-import { shortenText } from "@/helpers/textFormatter";
+import { IonIconByName } from "@/helpers/IconsLoader";
 
 // Types
 import { TData, TMember, TParcel } from "../../../../utilities/home/types/type";
+import { INotificationItem } from "../../../../utilities/notification/types/types";
 
 // Library
-import { ScrollView, TouchableOpacity, Image, Pressable } from "react-native";
+import { ScrollView, TouchableOpacity } from "react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { router } from "expo-router";
 import React from "react";
+import { Portal } from "react-native-paper";
 
 // Styles
 import {
@@ -24,7 +29,7 @@ import {
 } from "../../../../utilities/home/styles/styles";
 
 const index = () => {
-  // Sample data for the carousel
+  // Sample data for the time being
   const parcels = useMemo<TParcel[]>(
     () => [
       {
@@ -93,12 +98,116 @@ const index = () => {
     []
   );
 
+  const notifications = useMemo<INotificationItem[]>(
+    () => [
+      {
+        id: "1",
+        title: "Your Parcel Has Been Delivered!",
+        description:
+          "Your parcel 11 has been successfully delivered and is ready to pickup in the locker.",
+        date: "11/30/2024 9:14 AM",
+        status: "Not Read",
+      },
+      {
+        id: "2",
+        title: "Reminder to Pick Up Your Parcel!",
+        description:
+          "Your Parcel 5 will expire in 5 hours. Please retrieve it before the expiration time to avoid issues.",
+        date: "11/30/2024 8:15 AM",
+        status: "Read",
+      },
+      {
+        id: "3",
+        title: "Your Parcel Has Been Retrieved",
+        description:
+          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
+        date: "11/09/2024 8:15 AM",
+        status: "Read",
+      },
+      {
+        id: "4",
+        title: "Your Parcel Has Been Retrieved",
+        description:
+          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
+        date: "11/09/2024 8:15 AM",
+        status: "Read",
+      },
+      {
+        id: "5",
+        title: "Your Parcel Has Been Retrieved",
+        description:
+          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
+        date: "11/09/2024 8:15 AM",
+        status: "Read",
+      },
+      {
+        id: "6",
+        title: "Your Parcel Has Been Retrieved",
+        description:
+          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
+        date: "11/09/2024 8:15 AM",
+        status: "Read",
+      },
+      {
+        id: "7",
+        title: "Your Parcel Has Been Retrieved",
+        description:
+          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
+        date: "11/09/2024 8:15 AM",
+        status: "Read",
+      },
+      {
+        id: "8",
+        title: "Your Parcel Has Been Retrieved",
+        description:
+          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
+        date: "11/09/2024 8:15 AM",
+        status: "Read",
+      },
+      {
+        id: "9",
+        title: "Your Parcel Has Been Retrieved",
+        description:
+          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
+        date: "11/09/2024 8:15 AM",
+        status: "Read",
+      },
+      {
+        id: "10",
+        title: "Your Parcel Has Been Retrieved",
+        description:
+          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
+        date: "11/09/2024 8:15 AM",
+        status: "Read",
+      },
+    ],
+    []
+  );
+
   const [dataState, setDataState] = useState<string>("all");
   const [data, setData] = useState<TData>({
     parcels: parcels,
     members: members,
   });
 
+  // For Modal
+  const [modalPackageState, setModalPackageState] = useState<boolean>(false);
+
+  /// Event Handlers
+  // For Debugging
+  const handleStateChange = useCallback((state: string) => {
+    setDataState(state);
+  }, []);
+
+  // For Modal
+  const onOpenPackageModal = useCallback(() => {
+    setModalPackageState(true);
+  }, []);
+  const onClosePackageModal = useCallback(() => {
+    setModalPackageState(false);
+  }, []);
+
+  /// For Debugging Purposes.
   useEffect(() => {
     switch (dataState) {
       case "all":
@@ -129,14 +238,12 @@ const index = () => {
     }
   }, [dataState]);
 
-  const handleStateChange = useCallback((state: string) => {
-    setDataState(state);
-  }, []);
-
   return (
     <>
       {/* Modals */}
-      <PackageDeliveredModal />
+      <Portal>
+        <PackageDeliveredModal modalPackageState={modalPackageState} handleClosePackageModal={onClosePackageModal} />
+      </Portal>
 
       {/* Content */}
       <View style={styles.container}>
@@ -179,10 +286,18 @@ const index = () => {
             </View>
 
             <TouchableOpacity
-              onPress={() => router.push("/utilities/notification/view")}
+              // Pass Data Notifications as Parameter
+              onPress={() => router.push({
+                pathname: "/utilities/notification/view",
+                params: {
+                  data: JSON.stringify(notifications)
+                },
+              })}
             >
               <IonIconByName name="notifications" size={30} color={"white"} />
-              <View style={styles.notificationDot} />
+            {
+              notifications.some((notif) => notif.status == "Not Read") && <View style={styles.notificationDot} />
+            }
             </TouchableOpacity>
           </View>
 
@@ -204,27 +319,10 @@ const index = () => {
                 {data.parcels.filter(
                   (parcel) => parcel.status == "Not Picked Up"
                 ).length != 0 ? (
-                  data.parcels.map((parcel) => {
+                  data.parcels.map((parcel: TParcel) => {
                     if (parcel.status == "Not Picked Up") {
                       return (
-                        <View key={parcel.id} style={scroller.card}>
-                          <View style={styles.viewDefault}>
-                            <Text style={scroller.cardTitle}>
-                              {shortenText(parcel.name, 15)}
-                            </Text>
-                            <Text style={scroller.cardSubtitle}>
-                              ID: {shortenText(parcel.trackingId, 10)}
-                            </Text>
-                          </View>
-
-                          <TouchableOpacity style={scroller.arrow}>
-                            <EIconByName
-                              name="chevron-small-right"
-                              size={30}
-                              color={"black"}
-                            />
-                          </TouchableOpacity>
-                        </View>
+                        <ParcelItem key={parcel.id} parcel={parcel} handleOpenPackageModal={onOpenPackageModal} />
                       );
                     }
                   })
@@ -255,16 +353,7 @@ const index = () => {
                 {data.members.length != 0 ? (
                   data.members.map((member) => {
                     return (
-                      <TouchableOpacity
-                        style={[styles.viewDefault, { marginHorizontal: 10 }]}
-                        key={member.id}
-                      >
-                        <Image
-                          source={require(`@/assets/images/icon.png`)} // Replace with your local image
-                          style={styles.memberImage}
-                        />
-                        <Text style={text.center}>{member.name}</Text>
-                      </TouchableOpacity>
+                      <MemberItem key={member.id} member={member} />
                     );
                   })
                 ) : (
@@ -304,29 +393,7 @@ const index = () => {
               >
                 {data.parcels.length != 0 ? (
                   data.parcels.slice(0, 8).map((parcel) => (
-                    <View
-                      style={[styles.viewDefault, styles.historyItems]}
-                      key={parcel.id}
-                    >
-                      <View style={[styles.viewDefault, styles.historyInfo]}>
-                        <Text style={text.headingTwo}>{parcel.name}</Text>
-                        <Text>ID {parcel.id}</Text>
-                        <Text>
-                          {parcel.status == "Picked Up"
-                            ? "Retrieved On"
-                            : "Delivered On"}{" "}
-                          <Text style={text.bold}>December 8, 2024</Text>
-                        </Text>
-                      </View>
-
-                      <TouchableOpacity style={[styles.historyArrow]}>
-                        <EIconByName
-                          name="chevron-small-right"
-                          size={30}
-                          color={"black"}
-                        />
-                      </TouchableOpacity>
-                    </View>
+                    <LogItem key={parcel.id} parcel={parcel} />
                   ))
                 ) : (
                   <Text style={text.subHeading}>No Recent Activity.</Text>

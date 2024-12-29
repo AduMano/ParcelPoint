@@ -57,6 +57,10 @@ function RootLayoutNav() {
       screenOptions={{
         headerShown: false,
       }}
-    />
+    >
+      <Stack.Screen name="utilities/notification/view/index" options={{
+        animation: "slide_from_right",
+      }} />
+    </Stack>
   );
 }
