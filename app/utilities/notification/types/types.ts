@@ -6,6 +6,17 @@ export type INotificationItem = {
   status: string;
 };
 
+export type TNotificationDetails = {
+  id: string;
+  modalTitle: string;
+  modalDescription: string;
+  dateTime: string;
+  
+  expirationDate?: string;
+  retrievedBy?: string;
+  lockerNumber?: string;
+}
+
 export interface IData {
   data?: string;
 }

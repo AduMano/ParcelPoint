@@ -139,7 +139,7 @@ const index = () => {
         description:
           "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
         date: "11/09/2024 8:15 AM",
-        status: "Read",
+        status: "Not Read",
       },
       {
         id: "6",
@@ -163,7 +163,7 @@ const index = () => {
         description:
           "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
         date: "11/09/2024 8:15 AM",
-        status: "Read",
+        status: "Not Read",
       },
       {
         id: "9",
