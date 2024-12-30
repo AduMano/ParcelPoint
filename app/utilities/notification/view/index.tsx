@@ -46,40 +46,41 @@ const Index = () => {
   }, []);
 
   // Modal Handler
-    const onOpenNotificationModal = useCallback(({
-      id, 
-      modalTitle, 
-      modalDescription, 
-      dateTime, 
+  const onOpenNotificationModal = useCallback(({
+    id, 
+    modalTitle, 
+    modalDescription, 
+    dateTime, 
+    expirationDate,
+    lockerNumber,
+    retrievedBy
+  }: TNotificationDetails) => {
+    setSelectedNotificationData({
+      id,
+      modalTitle,
+      modalDescription,
+      dateTime,
       expirationDate,
       lockerNumber,
       retrievedBy
-    }: TNotificationDetails) => {
-      setSelectedNotificationData({
-        id,
-        modalTitle,
-        modalDescription,
-        dateTime,
-        expirationDate,
-        lockerNumber,
-        retrievedBy
-      });
-      
-      setModalNotificationState(true);
-    }, []);
-    const onClosePackageLogModal = useCallback(() => {
-      setSelectedNotificationData({
-        id: "",
-        modalTitle: "",
-        modalDescription: "",
-        dateTime: "",
-        expirationDate: "",
-        lockerNumber: "",
-        retrievedBy: ""
-      })
+    });
+    
+    setModalNotificationState(true);
+  }, []);
+  
+  const onClosePackageLogModal = useCallback(() => {
+    setSelectedNotificationData({
+      id: "",
+      modalTitle: "",
+      modalDescription: "",
+      dateTime: "",
+      expirationDate: "",
+      lockerNumber: "",
+      retrievedBy: ""
+    })
 
-      setModalNotificationState(false);
-    }, []);
+    setModalNotificationState(false);
+  }, []);
 
   // Update Status
   const handleUpdateStatus = useCallback((item: INotificationItem) => {

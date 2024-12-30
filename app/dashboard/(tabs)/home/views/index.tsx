@@ -431,7 +431,7 @@ const index = () => {
                 horizontal={false}
               >
                 {data.parcels.length != 0 ? (
-                  data.parcels.slice(0, 8).map((parcel: TParcel) => (
+                  data.parcels.slice(0, 5).map((parcel: TParcel) => (
                     <LogItem key={parcel.id} parcel={parcel} handleOpenPackageLogModal={() => onOpenPackageLogModal({
                       name: parcel.name,
                       trackingId: parcel.trackingId,

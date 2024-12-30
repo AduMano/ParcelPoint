@@ -82,6 +82,10 @@ export default function ViewLayout() {
             tabBarIcon: ({ color, size }) => (
               <FAIconByName name="user" size={size} color={color} />
             ),
+            tabBarStyle: {
+              display: "none"
+            },
+            animation: "shift",
           }}
         />
       </Tabs>
