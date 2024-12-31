@@ -14,6 +14,9 @@ import { styles, text } from '../../home/styles/styles';
 import { manageAccessStyle } from '../style/style';
 import Colors from '@/constants/Colors';
 
+// Helper
+import { shortenText } from "@/helpers/textFormatter";
+
 const MemberItem = (props: {
   member: IMember;
 }) => {
@@ -41,17 +44,19 @@ const MemberItem = (props: {
               source={require(`@/assets/images/icon.png`)} // Replace with your local image
               style={[styles.memberImage, {
                 marginHorizontal: 10,
+                width: 45,
+                height: 45,
               }]}
           />
 
           <View>
-            <Text style={text.bold}>{`${member.firstName} ${member.lastName}`}</Text>
+            <Text style={text.bold}>{`${member.firstName} ${shortenText(member.lastName, 8)}`}</Text>
             <Text style={{color: Colors["light"].textMute}}>{member.relationship}</Text>
           </View>
         </View>
       </View>
 
-      <Text style={{color: Colors["light"].textMute}}>{member.isAuthorized}</Text>
+      <Text style={{color: Colors["light"].textMute, fontSize: 10}}>{member.isAuthorized}</Text>
     </View>
   )
 }
