@@ -161,6 +161,10 @@ export const text = StyleSheet.create({
   center: {
     textAlign: "center",
   },
+
+  white: {
+    color: "white",
+  },
 });
 
 export const scroller = StyleSheet.create({

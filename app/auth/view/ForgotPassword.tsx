@@ -8,16 +8,12 @@ import {
   setBackgroundColorAsync,
   setButtonStyleAsync,
 } from "expo-navigation-bar";
-import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { StatusBar, Image, StyleSheet } from "react-native";
 import ResetPassword from "../forms/ResetPassword";
 import CodeRequest from "../forms/CodeRequest";
 
 const ForgotPassword = () => {
-  // Init
-  const router = useRouter();
-
   // Phase State
   const [isVerified, setVerified] = useState<boolean>(false);
   const [headerText, setHeaderText] = useState<string>("");

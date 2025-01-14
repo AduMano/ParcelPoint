@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     position: "relative",
-    width: "100%",
+    width: "100%", height: "100%",
     flex: 1,
 
     backgroundColor: "#eee",
@@ -28,6 +28,10 @@ export const manageAccessStyle = StyleSheet.create({
     padding: 16,
     backgroundColor: Colors.light["backgroundDark"],
   },
+  routerBack: {
+    position: "absolute",
+    left: 16,
+  },
   headerTitle: {
     fontSize: 18,
     fontWeight: "bold",
@@ -38,7 +42,7 @@ export const manageAccessStyle = StyleSheet.create({
   memberList: {
     position: "relative",
     width: "100%",
-    height: "75%",
+    // height: "50%",
     alignItems: "center",
     backgroundColor: "transparent",
   },
@@ -72,7 +76,9 @@ export const manageAccessStyle = StyleSheet.create({
   },
 
   actionEditButton: {
+    position: "relative",
     width: 80,
+    height: "90%",
     marginVertical: 5,
     justifyContent: "center",
     alignItems: "center",
@@ -80,4 +86,57 @@ export const manageAccessStyle = StyleSheet.create({
     borderRadius: 10,
     boxShadow: "0 5px 10px lightgray",
   },
+
+
+  // Member Action
+  memberAction: {
+    position: "relative",
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent:"center",
+    backgroundColor: "transparent",
+    gap: 20,
+
+    // borderTopWidth: 1,
+  },
+
+  actionSubmitButton: {
+    position: "relative",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+
+  formGroup: {
+    position: "relative",
+    width: "90%",
+    backgroundColor: "transparent",
+    flexDirection: "row",
+    // gap: 20,
+    justifyContent: "space-between",
+  },
+
+
+  // BUTTON STYLES
+  btnFormHalf: {
+    width: "48%",
+  },
+  btnFormFull: {
+    width: "90%",
+    // marginTop: 12,
+  },
+
+  btnDanger: {
+    borderWidth: 1,
+    backgroundColor: Colors["light"].buttonDanger,
+  },
+  btnSecondary: {
+    borderWidth: 1,
+  },
+  btnPrimary: {
+    backgroundColor: Colors["light"].buttonAction,
+    borderBottomColor: "lightgray",
+    borderBottomWidth: 3,
+  }
 })

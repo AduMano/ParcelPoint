@@ -2,7 +2,7 @@
 import { Text, View } from '@/components/Themed';
 
 // Library
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Checkbox } from 'react-native-paper';
 import { Image } from 'react-native';
 
@@ -19,23 +19,45 @@ import { shortenText } from "@/helpers/textFormatter";
 
 const MemberItem = (props: {
   member: IMember;
+  resetFlag: boolean;
+  addToList: (id: string) => void;
+  removeToList: (id: string) => void;
 }) => {
   // Prop Drilling
-  const { member } = props;
+  const { member, resetFlag, addToList, removeToList } = props;
 
   // State
   const [isActive, setActive] = useState<IsActive>("unchecked");
+  const [justLoaded, setJustLoaded] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (justLoaded) {
+      addToList(member.id);
+      setActive("checked");
+    }
+  }, [resetFlag]);
+
+  useEffect(() => { setJustLoaded(true) }, []);
 
   // Handler
   const handleItemSelection = (() => {
-    setActive((current) => (current === "checked") ? "unchecked" : "checked" )
+    setActive((current) => {
+      if (current === "checked") {
+        removeToList(member.id);
+        return "unchecked";
+      }
+      else {
+        addToList(member.id);
+        return "checked";
+      }
+    });
   });
 
   return (
     <View style={manageAccessStyle.memberBodyListItem}>
       {/* CheckBox */}
       <View style={[manageAccessStyle.flexRow, manageAccessStyle.alignItemsCenter]}>
-        <Checkbox status={isActive} onPress={handleItemSelection} color={Colors["light"].buttonAction} />
+        <Checkbox status={isActive} onPress={handleItemSelection} color={Colors["light"].backgroundDark} />
 
         {/* Profile */}
         <View style={[manageAccessStyle.flexRow, manageAccessStyle.alignItemsCenter]}>

@@ -61,6 +61,9 @@ function RootLayoutNav() {
       <Stack.Screen name="utilities/notification/view/index" options={{
         animation: "slide_from_right",
       }} /> 
+      <Stack.Screen name="utilities/manageAccess/forms/MemberForm" options={{
+        animation: "slide_from_right",
+      }} /> 
     </Stack>
   );
 }
