@@ -13,8 +13,14 @@ export const styles = StyleSheet.create({
 
 export const manageAccessStyle = StyleSheet.create({
   // Global
+  view: {
+    backgroundColor: "transparent",
+  },
   flexRow: {
     flexDirection: "row",
+  },
+  alignItemsEnd: {
+    alignItems: "flex-end",
   },
   alignItemsCenter: {
     alignItems: "center",
@@ -127,12 +133,32 @@ export const manageAccessStyle = StyleSheet.create({
     // marginTop: 12,
   },
 
+  // MEMBER FORM
+  memberForm: {
+    position: "relative",
+    width: "90%",
+    marginHorizontal: "auto",
+    paddingVertical: 20,
+    flex: 1,
+    
+    // backgroundColor: "#ff000010",
+  },
+
+  MemberImage: {
+    position: 'relative',
+    width: 160, height: 160,
+    borderRadius: 100,
+    borderWidth: 5,
+  },
+
+
   btnDanger: {
     borderWidth: 1,
     backgroundColor: Colors["light"].buttonDanger,
   },
   btnSecondary: {
     borderWidth: 1,
+    backgroundColor: "white",
   },
   btnPrimary: {
     backgroundColor: Colors["light"].buttonAction,

@@ -5,6 +5,7 @@ import MemberItem from "./MemberItem";
 // Library
 import React from 'react'
 import { GestureHandlerRootView, Swipeable, TouchableOpacity } from 'react-native-gesture-handler';
+import { useRouter } from "expo-router";
 
 // Style
 import { manageAccessStyle } from "../style/style";
@@ -19,12 +20,26 @@ const MemberGestureItem = (props: {
   removeSelectedMember: (id: string) => void;
 }) => {
   const { item, resetFlag, addSelectedMember, removeSelectedMember } = props;
+  const router = useRouter();
 
   return (
     <GestureHandlerRootView style={manageAccessStyle.memberBody}>
       <Swipeable
         renderRightActions={() => (
-          <TouchableOpacity style={manageAccessStyle.actionEditButton}>
+          <TouchableOpacity 
+            style={manageAccessStyle.actionEditButton}
+            onPress={() => {
+              router.push(
+                {
+                  pathname: "/utilities/manageAccess/forms/MemberForm",
+                  params: {
+                    "type": "edit",
+                    "id": item.id,
+                  }
+                }
+              )
+            }}
+          >
             <Text style={[{color: "white", textAlign: "center"}]}>Edit</Text>
           </TouchableOpacity>
         )}

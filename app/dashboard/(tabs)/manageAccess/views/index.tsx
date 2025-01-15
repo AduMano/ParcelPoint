@@ -205,7 +205,10 @@ const index = () => {
               <TouchableOpacity 
                 style={[manageAccessStyle.actionSubmitButton, manageAccessStyle.btnFormHalf, manageAccessStyle.btnSecondary]}
                 onPress={() => {
-                  router.replace("/utilities/manageAccess/forms/MemberForm");
+                  router.push({
+                    pathname: "/utilities/manageAccess/forms/MemberForm",
+                    params: {"type": "add"}
+                  });
                 }}
               >
                 <Text style={text.bold}>Add Member</Text>
