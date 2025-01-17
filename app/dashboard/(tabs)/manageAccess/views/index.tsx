@@ -1,5 +1,6 @@
 // Components
 import { Text, View } from "@/components/Themed";
+import MemberGestureItem from "@/app/utilities/manageAccess/components/MemberGestureItem";
 
 // Library
 import React, { useState, useCallback } from "react";
@@ -12,7 +13,6 @@ import { IMember } from "@/app/utilities/manageAccess/types/types";
 // Styles
 import { styles, manageAccessStyle } from "@/app/utilities/manageAccess/style/style";
 import { text } from "@/app/utilities/home/styles/styles";
-import MemberGestureItem from "@/app/utilities/manageAccess/components/MemberGestureItem";
 
 const index = () => {
   /// Constants
@@ -20,27 +20,27 @@ const index = () => {
   /// States
   const [members, setMembers] = useState<IMember[]>(
     [
-      { id: "1", firstName: "Dan", lastName: "Dan", image: "icon.png", relationship: "Brother", isAuthorized: "Authorized" },
-      { id: "2", firstName: "Den", lastName: "Den", image: "icon.png", relationship: "Friend", isAuthorized: "Not Authorized" },
-      { id: "3", firstName: "Din", lastName: "Din", image: "icon.png", relationship: "Cousin", isAuthorized: "Authorized" },
-      { id: "4", firstName: "Don", lastName: "Don", image: "icon.png", relationship: "Father", isAuthorized: "Authorized" },
-      { id: "5", firstName: "Dun", lastName: "Dun", image: "icon.png", relationship: "Mother", isAuthorized: "Not Authorized" },
-      { id: "6", firstName: "Shane", lastName: "Smith", image: "icon.png", relationship: "Friend", isAuthorized: "Authorized" },
-      { id: "7", firstName: "Juvit", lastName: "Jones", image: "icon.png", relationship: "Aunt", isAuthorized: "Not Authorized" },
-      { id: "8", firstName: "Ferdinand", lastName: "Fischer", image: "icon.png", relationship: "Uncle", isAuthorized: "Authorized" },
-      { id: "9", firstName: "Lara", lastName: "Croft", image: "icon.png", relationship: "Sister", isAuthorized: "Authorized" },
-      { id: "10", firstName: "Tony", lastName: "Starks", image: "icon.png", relationship: "Friend", isAuthorized: "Not Authorized" },
-      { id: "11", firstName: "Clark", lastName: "Kent", image: "icon.png", relationship: "Brother", isAuthorized: "Authorized" },
-      { id: "12", firstName: "Bruce", lastName: "Wayne", image: "icon.png", relationship: "Cousin", isAuthorized: "Not Authorized" },
-      { id: "13", firstName: "Diana", lastName: "Prince", image: "icon.png", relationship: "Sister", isAuthorized: "Authorized" },
-      { id: "14", firstName: "Steve", lastName: "Rogers", image: "icon.png", relationship: "Friend", isAuthorized: "Authorized" },
-      { id: "15", firstName: "Natasha", lastName: "Romanoff", image: "icon.png", relationship: "Cousin", isAuthorized: "Not Authorized" },
-      { id: "16", firstName: "Peter", lastName: "Parker", image: "icon.png", relationship: "Nephew", isAuthorized: "Authorized" },
-      { id: "17", firstName: "Wanda", lastName: "Maximoff", image: "icon.png", relationship: "Sister", isAuthorized: "Not Authorized" },
-      { id: "18", firstName: "Thor", lastName: "Odinson", image: "icon.png", relationship: "Brother", isAuthorized: "Authorized" },
-      { id: "19", firstName: "Loki", lastName: "Laufeyson", image: "icon.png", relationship: "Cousin", isAuthorized: "Not Authorized" },
-      { id: "20", firstName: "Pepper", lastName: "Potts", image: "icon.png", relationship: "Friend", isAuthorized: "Authorized" }
-    ]
+      { id: "1", firstName: "Dan", lastName: "Danny", image: "icon.png", relationship: "Brother", isAuthorized: "Authorized", username: "dandan" },
+      { id: "2", firstName: "Den", lastName: "Den", image: "icon.png", relationship: "Friend", isAuthorized: "Not Authorized", username: "denden" },
+      { id: "3", firstName: "Din", lastName: "Din", image: "icon.png", relationship: "Cousin", isAuthorized: "Authorized", username: "dindin" },
+      { id: "4", firstName: "Don", lastName: "Don", image: "icon.png", relationship: "Father", isAuthorized: "Authorized", username: "dondon" },
+      { id: "5", firstName: "Dun", lastName: "Dun", image: "icon.png", relationship: "Mother", isAuthorized: "Not Authorized", username: "dundun" },
+      { id: "6", firstName: "Shane", lastName: "Smith", image: "icon.png", relationship: "Friend", isAuthorized: "Authorized", username: "shanesmith" },
+      { id: "7", firstName: "Juvit", lastName: "Jones", image: "icon.png", relationship: "Aunt", isAuthorized: "Not Authorized", username: "juvitjones" },
+      { id: "8", firstName: "Ferdinand", lastName: "Fischer", image: "icon.png", relationship: "Uncle", isAuthorized: "Authorized", username: "ferdinandfischer" },
+      { id: "9", firstName: "Lara", lastName: "Croft", image: "icon.png", relationship: "Sister", isAuthorized: "Authorized", username: "laracroft" },
+      { id: "10", firstName: "Tony", lastName: "Starks", image: "icon.png", relationship: "Friend", isAuthorized: "Not Authorized", username: "tonystarks" },
+      { id: "11", firstName: "Clark", lastName: "Kent", image: "icon.png", relationship: "Brother", isAuthorized: "Authorized", username: "clarkkent" },
+      { id: "12", firstName: "Bruce", lastName: "Wayne", image: "icon.png", relationship: "Cousin", isAuthorized: "Not Authorized", username: "brucewayne" },
+      { id: "13", firstName: "Diana", lastName: "Prince", image: "icon.png", relationship: "Sister", isAuthorized: "Authorized", username: "dianaprince" },
+      { id: "14", firstName: "Steve", lastName: "Rogers", image: "icon.png", relationship: "Friend", isAuthorized: "Authorized", username: "steverogers" },
+      { id: "15", firstName: "Natasha", lastName: "Romanoff", image: "icon.png", relationship: "Cousin", isAuthorized: "Not Authorized", username: "natasharomanoff" },
+      { id: "16", firstName: "Peter", lastName: "Parker", image: "icon.png", relationship: "Nephew", isAuthorized: "Authorized", username: "peterparker" },
+      { id: "17", firstName: "Wanda", lastName: "Maximoff", image: "icon.png", relationship: "Sister", isAuthorized: "Not Authorized", username: "wandamaximoff" },
+      { id: "18", firstName: "Thor", lastName: "Odinson", image: "icon.png", relationship: "Brother", isAuthorized: "Authorized", username: "thorodinson" },
+      { id: "19", firstName: "Loki", lastName: "Laufeyson", image: "icon.png", relationship: "Cousin", isAuthorized: "Not Authorized", username: "lokilaufeyson" },
+      { id: "20", firstName: "Pepper", lastName: "Potts", image: "icon.png", relationship: "Friend", isAuthorized: "Authorized", username: "pepperpotts" }
+    ]    
   );
   const [resetFlag, setResetFlag] = useState<boolean>(false);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
@@ -68,6 +68,7 @@ const index = () => {
       resetFlag={resetFlag} 
       addSelectedMember = {handleAddSelectedMember}
       removeSelectedMember = {handleRemoveSelectedMember}
+      members = {members}
     />
   ), [resetFlag]);
 
@@ -184,8 +185,8 @@ const index = () => {
                 backgroundColor: "transparent"
               }}
               ListEmptyComponent={(
-                <View style={{backgroundColor: "transparent"}}>
-                  <Text style={[text.bold, text.center, text.heading]}>No Member List.</Text>
+                <View style={{backgroundColor: "transparent", width: "80%"}}>
+                  <Text style={[text.bold, text.center, text.heading, text.mute, {marginVertical: 20,}]}>You currently don't share access with other users.</Text>
                 </View>
               )}
             />
@@ -196,8 +197,11 @@ const index = () => {
 
             <View style={manageAccessStyle.formGroup}>
               <TouchableOpacity 
-                style={[manageAccessStyle.actionSubmitButton, manageAccessStyle.btnFormHalf, manageAccessStyle.btnDanger]}
+                style={[manageAccessStyle.actionSubmitButton, manageAccessStyle.btnFormHalf, manageAccessStyle.btnDanger, {
+                  filter: selectedMembers.length > 0 ?  "contrast(100%)" : "contrast(50%)",
+                }]}
                 onPress={handleRemoveMemberAction}
+                disabled={selectedMembers.length > 0 ? false : true}
               >
                 <Text style={[text.bold, text.white]}>Remove</Text>
               </TouchableOpacity>
@@ -207,7 +211,10 @@ const index = () => {
                 onPress={() => {
                   router.push({
                     pathname: "/utilities/manageAccess/forms/MemberForm",
-                    params: {"type": "add"}
+                    params: {
+                      "type": "add",
+                      "memberList": JSON.stringify(members)
+                    }
                   });
                 }}
               >
@@ -216,15 +223,21 @@ const index = () => {
             </View>
               
             <TouchableOpacity 
-              style={[manageAccessStyle.actionSubmitButton, manageAccessStyle.btnFormFull, manageAccessStyle.btnSecondary]}
+              style={[manageAccessStyle.actionSubmitButton, manageAccessStyle.btnFormFull, manageAccessStyle.btnSecondary, {
+                filter: selectedMembers.length > 0 ?  "contrast(100%)" : "contrast(50%)",
+              }]}
               onPress={() => handleModifyMemberAuthorizationAction("remove")}
+              disabled={selectedMembers.length > 0 ? false : true}
             >
               <Text style={text.bold}>Remove Authorization</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
-              style={[manageAccessStyle.actionSubmitButton, manageAccessStyle.btnFormFull, manageAccessStyle.btnPrimary]}
+              style={[manageAccessStyle.actionSubmitButton, manageAccessStyle.btnFormFull, manageAccessStyle.btnPrimary, {
+                filter: selectedMembers.length > 0 ?  "contrast(100%)" : "contrast(50%)",
+              }]}
               onPress={() => handleModifyMemberAuthorizationAction("add")}
+              disabled={selectedMembers.length > 0 ? false : true}
             >
               <Text style={text.bold}>Authorize</Text>
             </TouchableOpacity>

@@ -18,8 +18,9 @@ const MemberGestureItem = (props: {
   resetFlag: boolean;
   addSelectedMember: (id: string) => void;
   removeSelectedMember: (id: string) => void;
+  members: IMember[]
 }) => {
-  const { item, resetFlag, addSelectedMember, removeSelectedMember } = props;
+  const { item, resetFlag, addSelectedMember, removeSelectedMember, members } = props;
   const router = useRouter();
 
   return (
@@ -35,6 +36,7 @@ const MemberGestureItem = (props: {
                   params: {
                     "type": "edit",
                     "id": item.id,
+                    "memberList": JSON.stringify(members)
                   }
                 }
               )
@@ -44,6 +46,8 @@ const MemberGestureItem = (props: {
           </TouchableOpacity>
         )}
         shouldCancelWhenOutside={true}
+        cancelsTouchesInView={true}
+        rightThreshold={50}
       >
         <MemberItem 
           member={item} 

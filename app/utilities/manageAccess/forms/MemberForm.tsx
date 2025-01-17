@@ -4,69 +4,156 @@ import { Text, View } from '@/components/Themed';
 // Library
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { PaperProvider, Portal, Searchbar, TextInput, Menu, Button, RadioButton } from 'react-native-paper';
-import { TouchableOpacity, Image } from 'react-native';
+import { TouchableOpacity, Image, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 // Styles
 import { styles, manageAccessStyle } from '../style/style';
+import { text } from '../../home/styles/styles';
 
 // Helpers
 import { FA6IconByName } from '@/helpers/IconsLoader';
 
 // Constants
 import Colors from '@/constants/Colors';
-import { text } from '../../home/styles/styles';
+
+// Types
+import { IMember } from '../types/types';
 
 const MemberForm = () => {
+  /// Global Hooks
   // Router
   const router = useRouter();
-  const { type, id } = useLocalSearchParams();
+  const { type, id, memberList } = useLocalSearchParams();
+
+  // Init Var
+  const [members, setMembers] = useState<IMember[] | null>(null);
+  const [selectedMember, setSelectedMember] = useState<IMember | undefined>();
 
   // ID State
-  const userID = useMemo(() => id || null, []);
+  const userID = useMemo(() => id?.toString() || null, []);
   
-  // Fetch if edit
+  // OnLoad
   useEffect(() => {
-    if (userID != null) console.log(userID);
-  }, [userID]);
+    setMembers(JSON.parse(memberList.toString()));
+  }, []);
 
   // Displaay States
   const [searchValue, setSearchValue] = useState<string>("");
 
   // Menu State
+  const [submitBtnStatusDisabled, setSubmitButtonStatusDisabled] = useState<boolean>(true);
   const [isMenuVisible, setMenuVisibility] = useState<boolean>(false);
   const [selectedRelationship, setRelationship] = useState<number>(0);
-  const [selectedRelationshipText, setRelationshipText] = useState<string>("Select Relationship");
+  const [selectedRelationshipText, setRelationshipText] = useState<string | undefined>("Select Relationship");
   const options = useMemo(() => {
     return [
       { text: "Select Relationship", value: 0 },
-      { text: "Brother", value: 1 },
-      { text: "Sister", value: 2 },
-      { text: "Mother", value: 3 },
-      { text: "Father", value: 4 },
-      { text: "Grandmother", value: 5 },
-      { text: "Grandfather", value: 6 },
       { text: "Aunt", value: 7 },
-      { text: "Uncle", value: 8 },
+      { text: "Brother", value: 1 },
+      { text: "Colleague", value: 13 },
       { text: "Cousin", value: 9 },
-      { text: "Niece", value: 10 },
-      { text: "Nephew", value: 11 },
+      { text: "Father", value: 4 },
       { text: "Friend", value: 12 },
-      { text: "Colleague", value: 13 }
-    ]
+      { text: "Grandfather", value: 6 },
+      { text: "Grandmother", value: 5 },
+      { text: "Mother", value: 3 },
+      { text: "Nephew", value: 11 },
+      { text: "Niece", value: 10 },
+      { text: "Sister", value: 2 },
+      { text: "Uncle", value: 8 }
+    ]    
   }, []);
 
   // Radio Button State
   const [selectedAuthorization, setAuthorization] = useState<boolean>(false);
 
   // Handlers 
+  const handleSearchAction = useCallback(() => {
+    const result = members?.find((member) => member.username === searchValue);
+
+    // Guard Clause
+    if (result === undefined || result === null) {
+      setSelectedMember(undefined);
+      Alert.alert("Notice", "No User Found. Make sure you typed it correctly or if the user really does exist.");
+      return;
+    }
+
+    setSelectedMember(result);
+  }, [searchValue]);
+
   const handleSelectRelationship = (item: {text: string; value: number}) => {
     setRelationship(item.value); // Store value
     setRelationshipText(item.text); // Store value
     setMenuVisibility(false);
   };
 
+  const handleSettingAuthorization = (status: boolean) => {
+    setAuthorization(status);
+  }
+
+  const getSelectedMember = (value: string, type: string) => {
+    if (type === "id") {
+      return members?.find((member) => member.id === value) || undefined
+    }
+    else if (type === "username") {
+      return members?.find((member) => member.username === value) || undefined;
+    }
+  }
+
+  // On Edit (Would be useEffect later)
+  const [onLoad, setLoad] = useState<boolean>(false);
+  const onEdit = async () => {
+    if (userID !== null && !onLoad) {
+      const member = await getSelectedMember(userID, "id");
+      setSelectedMember(member);
+      setRelationshipText(member?.relationship);
+      setRelationship(() => options.find((relation) => relation.text === member?.relationship)?.value || 0);
+      setAuthorization(() => member?.isAuthorized === "Authorized" ? true : false);
+      setLoad(true);
+    }
+  }
+
+  onEdit();
+
+  // On Edit Changes
+  useEffect(() => {
+    // Check if Authorization and Relationship matches with current selected user
+    const getCurrentAuthorization = (selectedAuthorization) ? "Authorized" : "Not Authorized";
+    const relationshipComparison = selectedMember?.relationship === selectedRelationshipText;
+    const authorizationComparison = selectedMember?.isAuthorized === getCurrentAuthorization;
+
+    // Debug
+    // console.log(`
+    // Relationship:
+    //   A: ${selectedMember?.relationship}
+    //   B: ${selectedRelationshipText}
+    //   (A == B): ${relationshipComparison}
+      
+    // Authorization: 
+    //   A: ${selectedMember?.isAuthorized}
+    //   B: ${getCurrentAuthorization}
+    //   (A == B): ${authorizationComparison}
+    // `);
+
+    setSubmitButtonStatusDisabled(type === 'edit' && relationshipComparison && authorizationComparison);
+  }, [selectedRelationship, selectedAuthorization, selectedMember]);
+  
+
   const handleSubmitForm = useCallback(() => {
+    // Validation
+    if (selectedMember === undefined) {
+      Alert.alert("Notice", "Select a user in able to do this action")
+      return;
+    }
+
+    // Confirmation
+    Alert.alert("Notice", `Are you sure you want to ${type} this user?`, [
+      { text: "No" },
+      { text: "Yes", onPress: () => router.back() }
+    ]);
+
+    // Submission
     switch(type) {
       case "add":
 
@@ -75,7 +162,7 @@ const MemberForm = () => {
 
       break;
     }
-  }, []);
+  }, [selectedMember]);
   
   return (
     <PaperProvider>
@@ -106,7 +193,7 @@ const MemberForm = () => {
                 <Searchbar 
                   value={searchValue} 
                   onChangeText={setSearchValue} 
-                  onSubmitEditing={() => {}}
+                  onSubmitEditing={handleSearchAction}
                   placeholder='Search Username' 
                   style={{
                     height: 50,
@@ -118,6 +205,7 @@ const MemberForm = () => {
                     minHeight: 0,
                     color: "black"
                   }}
+                  onClearIconPress={() => setSelectedMember(undefined)}
                 />
               </View>
             )
@@ -132,7 +220,7 @@ const MemberForm = () => {
               }>
                 {/* Image */}
                 <Image
-                  source={require(`@/assets/images/icon.png`)} // Replace with your local image
+                  source={(selectedMember !== undefined) ? require(`@/assets/images/icon.png`) : require(`@/assets/images/dashboard/homepage/package.png`)} // Replace with your local image
                   style={[manageAccessStyle.MemberImage]}
                 />
                 
@@ -140,11 +228,11 @@ const MemberForm = () => {
                 <View style={[manageAccessStyle.view, {flex: 1}]}>
                   <View style={[manageAccessStyle.view]}>
                     <Text>User ID</Text>
-                    <TextInput value={"Test"} contentStyle={{color: "black"}} readOnly={true} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
+                    <TextInput value={(selectedMember !== undefined) ? selectedMember?.id : ""} contentStyle={{color: "black"}} readOnly={true} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
                   </View>
                   <View style={[manageAccessStyle.view]}>
                     <Text>Username</Text>
-                    <TextInput value={"Test"} contentStyle={{color: "black"}} readOnly={true} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
+                    <TextInput value={(selectedMember !== undefined) ? selectedMember?.username : ""} contentStyle={{color: "black"}} readOnly={true} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
                   </View>
                 </View>
               </View>
@@ -152,11 +240,11 @@ const MemberForm = () => {
               {/* First Name and Last Name */}
               <View style={[manageAccessStyle.view]}>
                 <Text>First Name</Text>
-                <TextInput value={"Test"} contentStyle={{color: "black"}} readOnly={true} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
+                <TextInput value={(selectedMember !== undefined) ? selectedMember?.firstName : ""} contentStyle={{color: "black"}} readOnly={true} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
               </View>
               <View style={[manageAccessStyle.view]}>
                 <Text>Last Name</Text>
-                <TextInput value={"Test"} contentStyle={{color: "black"}} readOnly={true} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
+                <TextInput value={(selectedMember !== undefined) ? selectedMember?.lastName : ""} contentStyle={{color: "black"}} readOnly={true} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
               </View>
 
               {/* Relationship */}
@@ -191,7 +279,9 @@ const MemberForm = () => {
                   {options.map((item, index) => (
                     <Menu.Item 
                       key={index}
-                      onPress={() => handleSelectRelationship(item)}
+                      onPress={() => {
+                        handleSelectRelationship(item);
+                      }}
                       title={item.text}
                     />
                   ))}
@@ -212,7 +302,7 @@ const MemberForm = () => {
                   <RadioButton 
                     value='Yes' 
                     status={(selectedAuthorization === true) ? "checked" : "unchecked"} 
-                    onPress={() => setAuthorization(true)}
+                    onPress={() => handleSettingAuthorization(true)}
                     color={Colors['light'].backgroundDark}
                   />
                   <Text>Yes </Text>
@@ -224,7 +314,7 @@ const MemberForm = () => {
                   <RadioButton 
                     value='No' 
                     status={(selectedAuthorization === false) ? "checked" : "unchecked"} 
-                    onPress={() => setAuthorization(false)}
+                    onPress={() => handleSettingAuthorization(false)}
                     color={Colors['light'].backgroundDark}
                   />
                   <Text>No </Text>
@@ -241,8 +331,17 @@ const MemberForm = () => {
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                  style={[manageAccessStyle.actionSubmitButton, manageAccessStyle.btnFormHalf, manageAccessStyle.btnPrimary]}
+                  style={[
+                    manageAccessStyle.actionSubmitButton, 
+                    manageAccessStyle.btnFormHalf, 
+                    manageAccessStyle.btnPrimary,
+                    {
+                      filter: submitBtnStatusDisabled && type === "edit" || 
+                      selectedMember === undefined && type === "add" ? "contrast(60%)" : "contrast(100%)",
+                    }
+                  ]}
                   onPress={handleSubmitForm}
+                  disabled={(type === "edit") ? submitBtnStatusDisabled : (selectedMember === undefined) ? true : false }
                 >
                   <Text style={[text.bold]}>{(type === "add") ? "Add" : "Save"}</Text>
                 </TouchableOpacity>

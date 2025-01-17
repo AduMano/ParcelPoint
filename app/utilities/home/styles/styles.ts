@@ -165,6 +165,10 @@ export const text = StyleSheet.create({
   white: {
     color: "white",
   },
+
+  mute: {
+    color: "#00000055",
+  }
 });
 
 export const scroller = StyleSheet.create({

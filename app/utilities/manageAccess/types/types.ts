@@ -18,6 +18,7 @@ export interface IMember {
   image: string;
   relationship: Relationship;
   isAuthorized: AuthorizationStatus;
+  username: string;
 }
 
 export type IsActive = "checked" | "unchecked";
