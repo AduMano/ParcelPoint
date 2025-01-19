@@ -48,7 +48,7 @@ export const historyStyle = StyleSheet.create({
   // Date Picker
   rangedDatePicker: {
     position: "relative",
-    width: "90%",
+    width: "100%",
     marginHorizontal: "auto",
     marginVertical: 20,
     backgroundColor: "#ffffffcc",
@@ -154,7 +154,7 @@ export const buttons = StyleSheet.create({
     borderWidth: 2,
   },
   btnStatusWidth: {
-    width: 180,
+    width: 150,
   }
 });
 

@@ -256,7 +256,6 @@ const index = () => {
                         ]} 
                         onPress={() => setMenuVisibility(true)}
                       >
-                        {selectedStatus !== "All" && <FIconByName name="check" size={24} color="black" />}
                         <Text style={{color: selectedStatus === "All" ? "white" : "black"}}>
                           {selectedStatus === "All" ? "Status Filter" : selectedStatus}
                         </Text>
