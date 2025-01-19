@@ -122,20 +122,7 @@ const MemberForm = () => {
     const getCurrentAuthorization = (selectedAuthorization) ? "Authorized" : "Not Authorized";
     const relationshipComparison = selectedMember?.relationship === selectedRelationshipText;
     const authorizationComparison = selectedMember?.isAuthorized === getCurrentAuthorization;
-
-    // Debug
-    // console.log(`
-    // Relationship:
-    //   A: ${selectedMember?.relationship}
-    //   B: ${selectedRelationshipText}
-    //   (A == B): ${relationshipComparison}
-      
-    // Authorization: 
-    //   A: ${selectedMember?.isAuthorized}
-    //   B: ${getCurrentAuthorization}
-    //   (A == B): ${authorizationComparison}
-    // `);
-
+    
     setSubmitButtonStatusDisabled(type === 'edit' && relationshipComparison && authorizationComparison);
   }, [selectedRelationship, selectedAuthorization, selectedMember]);
   

@@ -95,6 +95,8 @@ export const PackageLogDetailModal = (props: {
                   <Text><Text style={text.bold}>Locker Number</Text>: #02</Text>
                   {/* Delivered On */}
                   <Text><Text style={text.bold}>Delivered On</Text>: November 28, 2024 at 3:45 PM</Text>
+                  {/* Time Remaining */}
+                  {parcel.status !== "Picked Up" && <Text><Text style={text.bold}>Time Remaining</Text>: 5 hours before expiration</Text>}
                 </View>
               </View>
 

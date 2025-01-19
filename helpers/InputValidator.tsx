@@ -1,4 +1,7 @@
-export const validate_email = (email: string) => {
+// Helpers
+import { getMonthNameDayYearByDate } from "./textFormatter";
+
+export const validate_email = (email: string): {status: boolean; title: string; message: string;} => {
   const result = {
     status: false,
     title: "",
@@ -18,3 +21,7 @@ export const validate_email = (email: string) => {
 
   return result;
 };
+
+export const isDateMonthNameDayYearEqual = (date_one: Date, date_two: Date): boolean => {
+  return getMonthNameDayYearByDate(date_one) === getMonthNameDayYearByDate(date_two);
+}
