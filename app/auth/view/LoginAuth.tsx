@@ -204,12 +204,12 @@ const styles = StyleSheet.create({
   },
   headerImage: {
     position: "absolute",
-    top: "56%",
+    top: 20,
     left: "50%",
-    width: "90%",
-    height: "90%",
+    width: 400,
+    height: 400,
     resizeMode: "contain",
-    transform: [{ translateX: "-50%" }, { translateY: "-60%" }],
+    transform: [{ translateX: "-50%" }],
   },
 
   label: {

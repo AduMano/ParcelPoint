@@ -4,7 +4,7 @@ import { Text } from "@/components/Themed";
 
 // Library
 import { Alert, TextInput, TouchableOpacity } from "react-native";
-import { useState } from "react";
+import React, { useState } from "react";
 
 const CodeRequest = (props: {
   styles: any;

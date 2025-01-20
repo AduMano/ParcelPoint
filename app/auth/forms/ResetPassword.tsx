@@ -59,7 +59,7 @@ const ResetPassword = (props: { styles: any }) => {
     // Go back to login
     Alert.alert("Success", "You have successfully changed your password", [
       {
-        text: "Okay, Sign In",
+        text: "Okay",
         onPress: () => router.back(),
       },
     ]);

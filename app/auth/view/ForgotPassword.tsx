@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     color: Colors.light["textMute"],
   },
   headerImage: {
-    position: "absolute",
+    position: "relative",
     top: "50%",
     left: "50%",
     width: 270,
@@ -161,16 +161,16 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   gradient: {
-    width: "120%",
-    height: "60%",
-    marginBottom: 40,
-    overflow: "hidden",
-    transform: [
-      { skewY: "-10deg" },
-      { skewX: "20deg" },
-      { translateY: -40 },
-      { translateX: -20 },
-    ], // Skewing effect
+    position: "absolute",
+    top: -260, left: "50%",
+    width: "250%",
+    height: 400,
+
+    backgroundColor: Colors["light"].backgroundDark,
+
+    transform: [{translateX: "-50%"}, { rotate: '-20deg' }],
+    transformOrigin: "center center",
+    zIndex: 0,
   },
 });
 
