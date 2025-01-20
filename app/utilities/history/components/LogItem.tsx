@@ -36,7 +36,7 @@ export const LogItem = (props: {
             <Text>ID {parcel.id}</Text>
             <Text>
               <Text style={[text.mute]}>Status: </Text>
-              <Text style={[text.bold]}>{parcel.status === "Picked Up" ? "Claimed" : "Delivered"}</Text>
+              <Text style={[text.bold]}>{parcel.status === "Picked Up" ? "Retrieved" : "Delivered"}</Text>
             </Text>
             <Text>
               <Text style={[text.mute]}>Delivered on: </Text>

@@ -6,7 +6,7 @@ import { LogItem } from "@/app/utilities/history/components/LogItem";
 // Library
 import React, { useCallback, useMemo, useState } from "react";
 import { ScrollView, TouchableOpacity } from "react-native";
-import { Menu } from "react-native-paper";
+import { Menu, Portal } from "react-native-paper";
 import { registerTranslation } from 'react-native-paper-dates'
 registerTranslation('en', {
   save: 'Save',
@@ -122,7 +122,7 @@ const index = () => {
 
   // Status Filter Values
   const statusFilterOptions = useMemo<TStatusOptions[]>(() => {
-    return ["Claimed", "Delivered"];
+    return ["Retrieved", "Delivered"];
   }, []);
 
   /// States
@@ -179,29 +179,31 @@ const index = () => {
   return (
     <>
       {/* Modals */}
-      {/* Date Picker */}
-      <DatePickerModal
-        locale="en"
-        mode="range"
-        visible={isDateModalVisible}
-        onDismiss={handleDateOnDismiss}
-        startDate={dateRange.startDate}
-        endDate={dateRange.endDate}
-        onConfirm={handleDateOnConfirm}
-        saveLabel="Done Filtering"
-        label="Select Range"
-        startLabel="From"
-        endLabel="To"
-        presentationStyle="pageSheet"
-        dateMode="start"
-      />
+      <Portal>
+        {/* Date Picker */}
+        <DatePickerModal
+          locale="en"
+          mode="range"
+          visible={isDateModalVisible}
+          onDismiss={handleDateOnDismiss}
+          startDate={dateRange.startDate}
+          endDate={dateRange.endDate}
+          onConfirm={handleDateOnConfirm}
+          saveLabel="Done Filtering"
+          label="Select Range"
+          startLabel="From"
+          endLabel="To"
+          presentationStyle="pageSheet"
+          dateMode="start"
+        />
       
-      {/* Package Log Modal */}
-      <PackageLogDetailModal
-        modalPackageDetailState={modalPackageLogState} 
-        handleClosePackageDetailModal={handleClosePackageLogModal}
-        modalData={selectedPackageData} 
-      />
+        {/* Package Log Modal */}
+        <PackageLogDetailModal
+          modalPackageDetailState={modalPackageLogState} 
+          handleClosePackageDetailModal={handleClosePackageLogModal}
+          modalData={selectedPackageData} 
+        />
+      </Portal>
 
       {/* Container */}
       <View style={[historyStyle.view, historyStyle.fillFlex]}>
