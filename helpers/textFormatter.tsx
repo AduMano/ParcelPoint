@@ -12,3 +12,9 @@ export const getMonthNameDayYearByDate = (date: Date): string => {
     year: 'numeric', // Year
   });
 }
+
+export const stringDatetoObjectDate = (dateString: string): Date => {
+  // Try parsing with the Date constructor
+  const date = new Date(dateString);
+  return date;
+}

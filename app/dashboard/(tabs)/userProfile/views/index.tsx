@@ -5,25 +5,53 @@ import { Text, View } from "@/components/Themed";
 import { EIconByName, FA6IconByName } from "@/helpers/IconsLoader";
 
 // Library
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { TouchableOpacity, Image, ScrollView } from "react-native";
 import { router } from "expo-router"; 
+import { Portal, TextInput } from "react-native-paper";
 
 // Styles
 import { styles, userProfileStyle, text, buttons, padding } from "@/app/utilities/userProfile/style/style";
-import { TextInput } from "react-native-paper";
+import EditProfileForm from "@/app/utilities/userProfile/components/EditProfileForm";
+
+// Types
+import { IUserInformation } from "@/app/utilities/userProfile/types/types";
 
 const index = () => {
   /// Init Values
-  const name = useMemo(() => "Aldwin Samano", []);
+  const firstName = useMemo(() => "Aldwin Dylan", []);
+  const lastName = useMemo(() => "Samano", []);
+  const name = useMemo(() => `${firstName} ${lastName}`, []);
   const username = useMemo(() => "AldoMano", []);
   const email = useMemo(() => "samano.aldwindylan.07292003@gmail.com", []);
   const phone = useMemo(() => "09934135833", []);
   const birthDate = useMemo(() => "August 15, 2003", []);
   const address = useMemo(() => "#0 Di-Mahanap St. Barangay Di-Matagpuan, Q.C.", []);
 
+  /// States
+  const [modalEditState, setModalEditState] = useState<boolean>(false);
+  const [userInformation, setUserInformation] = useState<IUserInformation>({
+    firstName, lastName, username, email,
+    phone, address, birthDate: "2003-08-15"
+  });
+
+  /// Handlers
+  const handleOnCloseEditModal = useCallback(() => {
+    setModalEditState(false);
+  }, []);
+
   return (
     <>
+      {/* Modal */}
+      <Portal>
+        <EditProfileForm 
+          modalEditProfileState={modalEditState}
+          modalData={userInformation}
+          handleCloseEditModal={handleOnCloseEditModal}
+        />
+      </Portal>
+
+      {/* Content */}
       <View style={styles.container}>
         {/* Header */}
         <View style={userProfileStyle.header}>
@@ -37,7 +65,7 @@ const index = () => {
           <Text style={userProfileStyle.headerTitle}>User Profile</Text>
           
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPress={() => setModalEditState(true)}
             style={userProfileStyle.editButton}
           >
             <FA6IconByName name="edit" size={28} color={"white"} />
@@ -52,7 +80,7 @@ const index = () => {
           {/* User Profile */}
           <View style={[userProfileStyle.view, userProfileStyle.profile]}>
             {/* Image */}
-            <View style={[userProfileStyle.view]}>
+            <View style={[userProfileStyle.view, {margin: "auto",}]}>
               <Image
                 source={require(`@/assets/images/dashboard/homepage/package.png`)} // Replace with your local image
                 style={[styles.userImage, {backgroundColor: "gray"}]}
