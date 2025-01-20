@@ -10,8 +10,8 @@ export const styles = StyleSheet.create({
   
   userImage: {
     position: "relative",
-    width: 200,
-    height: 200,
+    width: 180,
+    height: 180,
     marginBottom: 10,
 
     borderRadius: 100,

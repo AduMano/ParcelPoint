@@ -62,7 +62,7 @@ const index = () => {
                 style={[userProfileStyle.cameraIcon]}
                 onPress={() => {}}
               >
-                <EIconByName name="camera" size={30} color="black" />
+                <EIconByName name="camera" size={24} color="black" />
               </TouchableOpacity>
             </View>
             {/* Name */}
@@ -83,22 +83,22 @@ const index = () => {
             >
               {/* Email */}
               <View style={[userProfileStyle.view]}>
-                <TextInput label="E-mail" value={email} readOnly={true} style={{height: 10, width: "100%", paddingVertical: 6, marginBottom: 10, backgroundColor: "white", fontSize: 14, fontWeight: "bold"}} />
+                <TextInput label="E-mail" value={email} readOnly={true} contentStyle={{color: "black"}} style={{height: 10, width: "100%", paddingVertical: 6, marginBottom: 10, backgroundColor: "white", fontSize: 14, fontWeight: "bold"}} />
               </View>
 
               {/* Phone */}
               <View style={[userProfileStyle.view]}>
-                <TextInput label="Phone" value={phone} readOnly={true} style={{height: 10, width: "100%", paddingVertical: 6, marginBottom: 10, backgroundColor: "white", fontSize: 14, fontWeight: "bold"}} />
+                <TextInput label="Phone" value={phone} readOnly={true} contentStyle={{color: "black"}} style={{height: 10, width: "100%", paddingVertical: 6, marginBottom: 10, backgroundColor: "white", fontSize: 14, fontWeight: "bold"}} />
               </View>
 
               {/* Birth Date */}
               <View style={[userProfileStyle.view]}>
-                <TextInput label="Birth Date" value={birthDate} readOnly={true} style={{height: 10, width: "100%", paddingVertical: 6, marginBottom: 10, backgroundColor: "white", fontSize: 14, fontWeight: "bold"}} />
+                <TextInput label="Birth Date" value={birthDate} readOnly={true} contentStyle={{color: "black"}} style={{height: 10, width: "100%", paddingVertical: 6, marginBottom: 10, backgroundColor: "white", fontSize: 14, fontWeight: "bold"}} />
               </View>
 
               {/* Address */}
               <View style={[userProfileStyle.view]}>
-                <TextInput label="Address" multiline={true} value={address} readOnly={true} style={{width: "100%", paddingVertical: 6, marginBottom: 10, backgroundColor: "white", fontSize: 14, fontWeight: "bold"}} />
+                <TextInput label="Address" multiline={true} value={address} readOnly={true} contentStyle={{color: "black"}} style={{width: "100%", paddingVertical: 6, marginBottom: 10, backgroundColor: "white", fontSize: 14, fontWeight: "bold"}} />
               </View>
             </ScrollView>
 
@@ -109,15 +109,15 @@ const index = () => {
                 style={[buttons.btnSecondary, buttons.actionSubmitButton]}
                 onPress={() => {router.navigate("/auth/view/ForgotPassword")}}
               >
-                <Text style={[]}>Change Password</Text>
+                <Text style={[text.bold]}>Change Password</Text>
               </TouchableOpacity>
 
               {/* Logout */}
               <TouchableOpacity
                 style={[buttons.btnPrimary, buttons.actionSubmitButton]}
-                onPress={() => {router.navigate("/auth/view/LoginAuth")}}
+                onPress={() => {router.dismissTo("/auth/view/LoginAuth")}}
               >
-                <Text style={[]}>Logout</Text>
+                <Text style={[text.bold]}>Logout</Text>
               </TouchableOpacity>
             </View>
           </View>

@@ -8,10 +8,12 @@ import { useRouter } from "expo-router";
 import {
   Alert,
   Image,
+  KeyboardAvoidingView,
   StatusBar,
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import {
   setBackgroundColorAsync,
@@ -163,30 +165,24 @@ const styles = StyleSheet.create({
   container: {
     position: "relative",
     width: "100%",
-    height: "100%",
-
     flex: 1,
+
     justifyContent: "flex-start",
     alignItems: "center",
+    gap: 40,
 
     fontFamily: "Roboto",
   },
   viewHeader: {
     position: "relative",
     width: "100%",
-    height: "60%",
+    height: "55%",
     top: 0,
-
-    // borderColor: "red",
-    // borderWidth: 1,
   },
   form: {
     position: "relative",
     width: "100%",
-    height: "37%",
-
-    // borderWidth: 1,
-    // backgroundColor: "#00000000",
+    // flex: 1,
   },
 
   // Components
@@ -200,16 +196,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     color: "#555",
-    marginBottom: 0,
+    marginBottom: 20,
   },
   headerImage: {
-    position: "absolute",
-    top: 20,
-    left: "50%",
-    width: 400,
-    height: 400,
-    resizeMode: "contain",
-    transform: [{ translateX: "-50%" }],
+    position: "relative",
+    marginHorizontal: "auto",
+    resizeMode: "cover",
+    transform: [{ scale: 0.9 }],
   },
 
   label: {
@@ -232,6 +225,7 @@ const styles = StyleSheet.create({
   forgotPassword: {
     width: "86%",
     margin: "auto",
+    marginBottom: 10,
     color: "gray",
     textAlign: "right",
     fontSize: 14,
@@ -252,6 +246,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   gradient: {
+    position: "absolute",
+    top: 0, left: 0,
     width: "120%",
     height: "70%",
     marginBottom: 40,
