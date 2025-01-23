@@ -1,5 +1,6 @@
 // Components 
 import { Text, View } from '@/components/Themed';
+import { LabeledTextInput } from '@/components/LabeledTextInput';
 
 // Library
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -213,26 +214,39 @@ const MemberForm = () => {
                 
                 {/* Two Inputs User Info */}
                 <View style={[manageAccessStyle.view, {flex: 1}]}>
-                  <View style={[manageAccessStyle.view]}>
-                    <Text>User ID</Text>
-                    <TextInput value={(selectedMember !== undefined) ? selectedMember?.id : ""} contentStyle={{color: "black"}} readOnly={true} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
-                  </View>
-                  <View style={[manageAccessStyle.view]}>
-                    <Text>Username</Text>
-                    <TextInput value={(selectedMember !== undefined) ? selectedMember?.username : ""} contentStyle={{color: "black"}} readOnly={true} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
-                  </View>
+                  <LabeledTextInput 
+                    label='User ID'
+                    textBoxStyle={manageAccessStyle.textInput}
+                    value={(selectedMember !== undefined) ? selectedMember?.id : ""}
+                    viewStyle={manageAccessStyle.view}
+                    readonly={true}
+                  />
+                  
+                  <LabeledTextInput 
+                    label='Username'
+                    textBoxStyle={manageAccessStyle.textInput}
+                    value={(selectedMember !== undefined) ? selectedMember?.username : ""}
+                    viewStyle={manageAccessStyle.view}
+                    readonly={true}
+                  />
                 </View>
               </View>
               
-              {/* First Name and Last Name */}
-              <View style={[manageAccessStyle.view]}>
-                <Text>First Name</Text>
-                <TextInput value={(selectedMember !== undefined) ? selectedMember?.firstName : ""} contentStyle={{color: "black"}} readOnly={true} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
-              </View>
-              <View style={[manageAccessStyle.view]}>
-                <Text>Last Name</Text>
-                <TextInput value={(selectedMember !== undefined) ? selectedMember?.lastName : ""} contentStyle={{color: "black"}} readOnly={true} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
-              </View>
+              <LabeledTextInput 
+                label='First Name'
+                textBoxStyle={manageAccessStyle.textInput}
+                value={(selectedMember !== undefined) ? selectedMember?.firstName : ""}
+                viewStyle={manageAccessStyle.view}
+                readonly={true}
+              />
+              
+              <LabeledTextInput 
+                label='Last Name'
+                textBoxStyle={manageAccessStyle.textInput}
+                value={(selectedMember !== undefined) ? selectedMember?.lastName : ""}
+                viewStyle={manageAccessStyle.view}
+                readonly={true}
+              />
 
               {/* Relationship */}
               <View style={[manageAccessStyle.view]}>

@@ -2,23 +2,21 @@
 import { View, Text } from '@/components/Themed';
 
 // Library
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, Pressable, TouchableOpacity, StyleSheet } from 'react-native';
-import { Portal, TextInput } from 'react-native-paper';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, Dimensions, Pressable, TouchableOpacity, Alert } from 'react-native';
+import { Portal } from 'react-native-paper';
 import { DatePickerModal } from 'react-native-paper-dates';
 
 // Styles
-import { userProfileStyle, text, buttons, styles } from '../style/style';
+import { userProfileStyle, text, modalStyle } from '../style/style';
 
 // Helpers
 import { IonIconByName } from '@/helpers/IconsLoader';
 import { getMonthNameDayYearByDate, stringDatetoObjectDate } from '@/helpers/textFormatter';
 
-// Constants
-import Colors from '@/constants/Colors';
-
 // Types
-import { IDate, IUserInformation } from '../types/types';
+import { IUserInformation } from '../types/types';
+import { LabeledTextInput } from '@/components/LabeledTextInput';
 
 // Dimension
 const { height } = Dimensions.get('screen');
@@ -38,11 +36,17 @@ const EditProfileForm = (props: {
   const [lastName, setLastName] = useState<string>(userProfile.lastName);
   const [username, setUsername] = useState<string>(userProfile.username);
   const [birthDate, setBirthDate] = useState<string>(userProfile.birthDate);
+  const [getBirthDate, setBirth] = useState<Date>(stringDatetoObjectDate(birthDate));
   const [address, setAddress] = useState<string>(userProfile.address);
+  const defaultInformation = useMemo(() => {
+    return { firstName, lastName, username, getBirthDate, address };
+  }, []);
 
   // Date Modal
   const [isDateModalVisible, setDateModalVisibility] = useState<boolean>(false);
-  const [getBirthDate, setBirth] = useState<Date>(stringDatetoObjectDate(birthDate));
+
+  // Changes
+  const [isChanged, setChangeStatus] = useState<boolean>(false);
 
   // Toggler
   useEffect(() => {
@@ -50,6 +54,17 @@ const EditProfileForm = (props: {
       openModal();
     }
   }, [modalEditProfileState]);
+
+  // Changes
+  useEffect(() => {
+    setChangeStatus(
+      defaultInformation.firstName === firstName &&
+      defaultInformation.lastName === lastName &&
+      defaultInformation.username === username &&
+      defaultInformation.getBirthDate === getBirthDate &&
+      defaultInformation.address === address
+    );
+  }, [firstName, lastName, username, getBirthDate, address]);
 
   /// Handlers
   // Edit Modal Handler
@@ -80,6 +95,31 @@ const EditProfileForm = (props: {
   const handleDateOnDismiss = useCallback(() => {
     setDateModalVisibility(false);
   }, [setDateModalVisibility]);
+
+  // Save Changes Handler
+  const handleSaveChanges = useCallback(() => {
+    // Save Changes
+
+    // Close Modal
+    closeModal();
+  }, [firstName, lastName, username, getBirthDate, address]);
+
+  const handleSaveAction = useCallback(() => {
+    /// Validate
+    // Check forms if empty
+    if ([firstName, lastName, username, address].some((value) => value.trim() === "" )) {
+      Alert.alert("Notice", "All input fields must NOT be empty");
+      return;
+    }
+
+    // Check if username exists
+
+    // If all is satisfied, Save Changes
+    Alert.alert("Notice", "Are you sure you want to update your profile information?", [
+      { text: "No" },
+      { text: "Yes", onPress: () => handleSaveChanges()}
+    ]);
+  }, [firstName, lastName, username, getBirthDate, address]);
 
   return (
     <>
@@ -123,37 +163,66 @@ const EditProfileForm = (props: {
               {/* Details */}
               <View style={[modalStyle.viewDefault, {width: "80%", marginBottom: 20 }]}>
                 {/* Name */}
-                <View style={[userProfileStyle.view]}>
-                  <Text style={[text.mute]}>First Name</Text>
-                  <TextInput value={firstName} contentStyle={{color: "black"}} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
-                </View>
+                <LabeledTextInput 
+                  label='First Name'
+                  onChange={setFirstName}
+                  textBoxStyle={userProfileStyle.textInput}
+                  textStyle={text.mute}
+                  value={firstName}
+                  viewStyle={userProfileStyle.view}
+                />
 
-                <View style={[userProfileStyle.view]}>
-                  <Text style={[text.mute]}>Last Name</Text>
-                  <TextInput value={lastName} contentStyle={{color: "black"}} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
-                </View>
+                
+                <LabeledTextInput 
+                  label='Last Name'
+                  onChange={setLastName}
+                  textBoxStyle={userProfileStyle.textInput}
+                  textStyle={text.mute}
+                  value={lastName}
+                  viewStyle={userProfileStyle.view}
+                />
                 
                 {/* Username */}
-                <View style={[userProfileStyle.view]}>
-                  <Text style={[text.mute]}>Username</Text>
-                  <TextInput value={username} contentStyle={{color: "black"}} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
-                </View>
+                <LabeledTextInput 
+                  label='Username'
+                  onChange={setUsername}
+                  textBoxStyle={userProfileStyle.textInput}
+                  textStyle={text.mute}
+                  value={username}
+                  viewStyle={userProfileStyle.view}
+                />
 
                 {/* BirthDate */}
-                <View style={[userProfileStyle.view]}>
-                  <Text style={[text.mute]}>Birth Date</Text>
-                  <TextInput value={getMonthNameDayYearByDate(getBirthDate)} onPress={() => setDateModalVisibility(true)} style={{height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
-                </View>
+                <LabeledTextInput 
+                  label='Birth Date'
+                  textBoxStyle={userProfileStyle.textInput}
+                  textStyle={text.mute}
+                  value={getMonthNameDayYearByDate(getBirthDate)}
+                  viewStyle={userProfileStyle.view}
+                  onPress={() => setDateModalVisibility(true)}
+                />
 
                 {/* Addresss */}
-                <View style={[userProfileStyle.view]}>
-                  <Text style={[text.mute]}>Address</Text>
-                  <TextInput value={address} multiline={true} contentStyle={{color: "black"}} style={{width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"}} />
-                </View>
+                <LabeledTextInput 
+                  label='Address'
+                  onChange={setAddress}
+                  textBoxStyle={userProfileStyle.addressInput}
+                  textStyle={text.mute}
+                  value={address}
+                  viewStyle={userProfileStyle.view}
+                  multiline={true}
+                />
               </View>
               
               {/* Okay Button */}
-              <TouchableOpacity style={[modalStyle.button, { marginBottom: 30 }]} onPress={closeModal}>
+              <TouchableOpacity 
+                style={[modalStyle.button, { 
+                  marginBottom: 30,  
+                  filter: isChanged ? "contrast(60%)" : "contrast(100%)",
+                }]} 
+                onPress={handleSaveAction}
+                disabled={isChanged}
+              >
                   <Text style={[text.headingTwo, text.center]}>Save</Text>
               </TouchableOpacity>
             </View>
@@ -163,62 +232,5 @@ const EditProfileForm = (props: {
     </>
   );
 };
-      
-      
-const modalStyle = StyleSheet.create({
-  viewDefault: {
-    backgroundColor: "transparent",
-  },
-  
-  modalContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    zIndex: 999,
-  },
-  modalBackDrop: {
-    position: "absolute",
-    width: "100%", height: "100%",
-    top: 0, left: 0,
-    backgroundColor: "#00000055",
-  },
-  
-  modal: {
-    position: "absolute",
-    bottom: 0, left: 0,
-    backgroundColor: "white",
-    width: "100%", 
-    // height: "60%",
-    
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  
-  closeButton: {
-    position: "absolute",
-    top: 15,
-    right: 15,
-    textAlign: "right",
-  },
-  
-  modalContent: {
-    position: 'relative',
-    flex: 1,
-    gap: 10,
-    justifyContent: "flex-start",
-    alignItems: "center",
-  },
-  
-  button: {
-    position: "relative",
-    width: "86%",
-    padding: 8,
-    backgroundColor: Colors["light"].buttonAction,
-
-    borderRadius: 10,
-  }
-});
 
 export default EditProfileForm;

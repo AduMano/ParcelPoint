@@ -83,6 +83,10 @@ export const userProfileStyle = StyleSheet.create({
     width: "90%",
     marginHorizontal: "auto",
   },
+
+  // Edit Form
+  textInput: {height: 20, width: "100%", paddingVertical: 8, marginBottom: 10, backgroundColor: "white"},
+  addressInput: {width: "100%", marginBottom: 10, backgroundColor: "white"}
 });
 
 export const text = StyleSheet.create({
@@ -165,5 +169,61 @@ export const padding = StyleSheet.create({
   six: {
     paddingHorizontal: 18,
     paddingVertical: 14,
+  }
+});
+
+export const modalStyle = StyleSheet.create({
+  viewDefault: {
+    backgroundColor: "transparent",
+  },
+  
+  modalContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    zIndex: 999,
+  },
+  modalBackDrop: {
+    position: "absolute",
+    width: "100%", height: "100%",
+    top: 0, left: 0,
+    backgroundColor: "#00000055",
+  },
+  
+  modal: {
+    position: "absolute",
+    bottom: 0, left: 0,
+    backgroundColor: "white",
+    width: "100%", 
+    // height: "60%",
+    
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  
+  closeButton: {
+    position: "absolute",
+    top: 15,
+    right: 15,
+    textAlign: "right",
+  },
+  
+  modalContent: {
+    position: 'relative',
+    flex: 1,
+    gap: 10,
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
+  
+  button: {
+    position: "relative",
+    width: "86%",
+    padding: 8,
+    backgroundColor: Colors["light"].buttonAction,
+
+    borderRadius: 10,
   }
 });

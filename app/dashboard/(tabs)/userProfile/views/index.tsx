@@ -6,7 +6,7 @@ import { EIconByName, FA6IconByName } from "@/helpers/IconsLoader";
 
 // Library
 import React, { useCallback, useMemo, useState } from "react";
-import { TouchableOpacity, Image, ScrollView } from "react-native";
+import { TouchableOpacity, Image, ScrollView, Alert } from "react-native";
 import { router } from "expo-router"; 
 import { Portal, TextInput } from "react-native-paper";
 
@@ -36,8 +36,30 @@ const index = () => {
   });
 
   /// Handlers
+  // On Close edit Modal
   const handleOnCloseEditModal = useCallback(() => {
     setModalEditState(false);
+  }, []);
+
+
+  // Logout Handle
+  const removeSession = useCallback(() => {
+    // Remove session data.
+  }, []);
+
+  const handleUserLogout = useCallback(() => {
+    Alert.alert("Notice", "Are you sure you want to logout?", [
+      {
+        text: "No",
+      },
+      {
+        text: "Yes",
+        onPress: async () => {
+          await removeSession();
+          router.dismissTo("/auth/view/LoginAuth");
+        }
+      }
+    ]);
   }, []);
 
   return (
@@ -143,7 +165,7 @@ const index = () => {
               {/* Logout */}
               <TouchableOpacity
                 style={[buttons.btnPrimary, buttons.actionSubmitButton]}
-                onPress={() => {router.dismissTo("/auth/view/LoginAuth")}}
+                onPress={handleUserLogout}
               >
                 <Text style={[text.bold]}>Logout</Text>
               </TouchableOpacity>

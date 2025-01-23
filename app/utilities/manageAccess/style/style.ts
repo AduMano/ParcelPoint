@@ -119,9 +119,11 @@ export const manageAccessStyle = StyleSheet.create({
     width: "90%",
     backgroundColor: "transparent",
     flexDirection: "row",
-    // gap: 20,
     justifyContent: "space-between",
   },
+
+  // Form input Style
+  textInput: {height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"},
 
 
   // BUTTON STYLES

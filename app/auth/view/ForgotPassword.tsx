@@ -33,7 +33,7 @@ const ForgotPassword = () => {
       return;
     }
 
-    setHeaderText("FORGOT PASSWORD \nVERIFICATION");
+    setHeaderText("USER \nVERIFICATION");
     setSubText("Enter your E-Mail to get Verification Code");
   }, [isVerified]);
 
