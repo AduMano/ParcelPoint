@@ -8,12 +8,10 @@ import { useRouter } from "expo-router";
 import {
   Alert,
   Image,
-  KeyboardAvoidingView,
   StatusBar,
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  Platform,
 } from "react-native";
 import {
   setBackgroundColorAsync,
@@ -21,19 +19,23 @@ import {
 } from "expo-navigation-bar";
 import { useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
+import { ActivityIndicator } from "react-native-paper";
 
 // Hooks
-import useGetUser from "../hooks/useGetUser";
+import useLoginUser from "../hooks/useLoginUser";
+
+// Helpers
+import { isNotEmpty, minLength, validateInput } from "@/helpers/InputValidator";
 
 const index = () => {
   // Init
   const router = useRouter();
-
+  
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-
+  
   // Login Module
-  const { data, loading, getUser } = useGetUser();
+  const { login, data, isLoading, error } = useLoginUser();
 
   // Set Navigation Style
   useEffect(() => {
@@ -43,57 +45,65 @@ const index = () => {
 
   // Functions
   const handleSubmit = async () => {
-    // Validation
-    if (username.trim() == "" || password.trim() == "") {
-      // Display toast or pop up component that fields cannot be empty
-      Alert.alert("Invalid", "Input Fields cannot be empty.", [
-        {
-          text: "I Understand",
-          isPreferred: true,
-        },
-      ]);
+    /// Validation
+    const usernameValidation = validateInput(username, [isNotEmpty, minLength(2)]);
+    const passwordValidation = validateInput(password, [isNotEmpty, minLength(8)]);
+
+    if (usernameValidation) {
+      showAlert("Invalid", usernameValidation);
       return;
     }
 
-    if (username.trim().length < 2) {
-      // Display toast or pop up component that username must be atleast 2 characters
-      Alert.alert("Invalid", "Username must contain at least 2 characters.", [
-        {
-          text: "I Understand",
-          isPreferred: true,
-        },
-      ]);
+    if (passwordValidation) {
+      showAlert("Invalid", passwordValidation);
       return;
     }
 
-    if (password.trim().length < 8) {
-      // Display toast or pop up component that passwor dmust be atleast 8 characters
-      Alert.alert("Invalid", "Password must contain at least 8 characters.", [
-        {
-          text: "I Understand",
-          isPreferred: true,
-        },
-      ]);
-      return;
-    }
+    const cred = { username, password };
 
-    // POST Request pass the username and password to the API to check if authentication is true
-    // If not true, display toast or pop up component
-    // else, ROUTER: GO TO HOME PAGE.
-    Alert.alert(
-      "Success",
-      "You have successfully Logged In! \nPress okay to continue.",
-      [
-        {
-          text: "Okay",
-          style: "default",
-          onPress: () => {
-            router.replace("/dashboard/(tabs)/home/views");
-          },
-        },
-      ]
-    );
+    try {
+      await login(cred);
+    } 
+    catch (error) {
+      console.error("Login error:", error);
+      showAlert("Oops!", "An unexpected error occurred. Please try again later.");
+    }
   };
+
+  const showAlert = (title: string, message: string) => {
+    Alert.alert(title, message, [{ text: "I Understand", style: "default" }]);
+  };
+  
+  const handleLoginError = (error: string) => {
+    const lowerError = error.toLowerCase();
+  
+    if (lowerError === "invalid type. must be 'admin' or 'user'.") {
+      showAlert("Oops!", "Invalid Request.");
+    } else if (lowerError.includes("error retrieving user")) {
+      showAlert("Oops!", "There seems to be an error. Please try again later.");
+    } else if (lowerError === "user not found.") {
+      showAlert("Invalid Credentials", "Invalid Username or Password. Please try again.");
+    } else {
+      showAlert("Oops!", "An error occurred. Please try again later.");
+    }
+  };
+  
+  const handleLoginSuccess = (username: string) => {
+    Alert.alert("Success", `You have successfully logged in, ${username}!`, [
+      {
+        text: "Okay",
+        style: "default",
+        onPress: () => router.replace("/dashboard/(tabs)/home/views"),
+      },
+    ]);
+  };
+
+  useEffect(() => {
+    if (data) { handleLoginSuccess(data.username); } 
+    else if (error) { 
+      handleLoginError(error); 
+    }
+  }, [data, error]);
 
   return (
     <View style={[styles.container]}>
@@ -152,8 +162,21 @@ const index = () => {
         </TouchableOpacity>
 
         {/* Login Button */}
-        <TouchableOpacity style={styles.loginButton} onPress={handleSubmit}>
-          <Text style={styles.loginButtonText}>Login</Text>
+        <TouchableOpacity 
+          style={[styles.loginButton, {
+            filter: isLoading ? "contrast(60%) saturate(0)" : "contrast(100%) saturate(1)",
+          }]} 
+          disabled={isLoading}
+          onPress={handleSubmit}
+        >
+          <View style={{backgroundColor: "transparent"}}>
+            { isLoading ? (
+                <ActivityIndicator />
+              ) : (
+                <Text style={styles.loginButtonText}>Login</Text>
+              )}
+            
+          </View>
         </TouchableOpacity>
       </View>
     </View>

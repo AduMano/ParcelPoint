@@ -1,34 +1,35 @@
 import axios from "axios";
+import { API_URL } from '@/actions/config';
 
-const API_URL = "http://localhost:5064/api"; // Put actual URL
-
-interface GetUserResponse {
-  status: number;
-  message: string;
-  data: any;
+export interface LoginRequest {
+  username: string;
+  password: string;
 }
 
-export const GetUserByEmailAndPassword = async (
-  username: string,
-  password: string
-): Promise<GetUserResponse> => {
-  try {
-    const response = await axios.post(`http://localhost:5064/api/Movies`, {
-      username,
-      password,
-    });
+export interface LoginResponse {
+  token: string;
+  userId: number;
+  username: string;
+}
 
-    return {
-      status: response.status,
-      message: response.data.message,
-      data: response.data.data,
-    };
-  } catch (error: any) {
-    // Return a structured error if request fails
-    return {
-      status: error.response?.status || 500,
-      message: error.response?.data?.message || "Unknown error occurred",
-      data: null,
-    };
+export interface ApiResponse<T> {
+  data: T | null;
+  error: string | null;
+}
+
+export const loginUser = async ( loginData: LoginRequest ): Promise<ApiResponse<LoginResponse>> => {
+  try {
+    const { data } = await axios.post<LoginResponse>(API_URL + "Auth/login",
+      { ...loginData, type: "user" },
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+
+    return { data, error: null };
+  } 
+  catch (error: any) {
+    console.log(error);
+    const errorMessage = axios.isAxiosError(error)
+      ? error.response?.data : "An unknown error had occured";
+    return { data: null, error: errorMessage };
   }
 };
