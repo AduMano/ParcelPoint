@@ -20,11 +20,12 @@ import { shortenText } from "@/helpers/textFormatter";
 const MemberItem = (props: {
   member: IMember;
   resetFlag: boolean;
+  resetFlagVersion: number;
   addToList: (id: string) => void;
   removeToList: (id: string) => void;
 }) => {
   // Prop Drilling
-  const { member, resetFlag, addToList, removeToList } = props;
+  const { member, resetFlag, resetFlagVersion, addToList, removeToList } = props;
 
   // State
   const [isActive, setActive] = useState<IsActive>("unchecked");
@@ -40,7 +41,7 @@ const MemberItem = (props: {
         setActive("unchecked");
       }
     }
-  }, [resetFlag]);
+  }, [resetFlagVersion]);
 
   useEffect(() => { setJustLoaded(true) }, []);
 

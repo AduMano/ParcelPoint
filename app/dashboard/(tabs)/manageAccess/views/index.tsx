@@ -3,7 +3,7 @@ import { Text, View } from "@/components/Themed";
 import MemberGestureItem from "@/app/utilities/manageAccess/components/MemberGestureItem";
 
 // Library
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Alert, FlatList, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 
@@ -47,35 +47,44 @@ const index = () => {
   // If false, then it must be "Select All", if true then it must be "De-Select All"
   const [resetFlag, setResetFlag] = useState<boolean>(false);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [resetFlagVersion, setResetFlagVersion] = useState<number>(0);
+  const [isQuickSelectionDisabled, setQuickSelectionState] = useState<boolean>(false);
 
   /// Handlers
-  const handleSelectAllMembers = useCallback(() => {
+  const handleSelectAllMembers = () => {
+    if (isQuickSelectionDisabled) return;
+
     const flag = selectedMembers.length === 0 ? false : true;
-    if (flag) setSelectedMembers([]);
+    setQuickSelectionState(true);
+    setResetFlagVersion(prev => prev + 1);
     setResetFlag(flag);
-  }, [selectedMembers]);
+      
+    if (flag) setSelectedMembers([]);
+    setTimeout(() => setQuickSelectionState(false), 1000);
+  };
 
   const handleAddSelectedMember = useCallback((id: string) => {
     setSelectedMembers((current) => {
       return[...current, id];
     });
-  }, []);
+  }, [selectedMembers, resetFlagVersion]);
 
   const handleRemoveSelectedMember = useCallback((val_id: string) => {
     setSelectedMembers((current) => {
       return current.filter(id => id != val_id);
     })
-  }, []);
+  }, [selectedMembers, resetFlagVersion]);
 
   const renderMemberItems = useCallback(({item}: {item: IMember}) => (
     <MemberGestureItem 
       item={item} 
       resetFlag={resetFlag} 
+      resetFlagVersion={resetFlagVersion}
       addSelectedMember = {handleAddSelectedMember}
       removeSelectedMember = {handleRemoveSelectedMember}
       members = {members}
     />
-  ), [resetFlag]);
+  ), [resetFlag, resetFlagVersion]);
 
   const isSelectedMemberListEmpty = useCallback(() => {
     if (selectedMembers.length === 0) {
@@ -93,17 +102,10 @@ const index = () => {
 
     // Show confirmation alert
     Alert.alert("Notice:", `Are you sure you want to remove these members?`, [
+      { text: "No" },
       {
-        text: "No", // Option to cancel the action
+        text: "Yes",
         onPress: () => {
-          // Do nothing if the user cancels
-          return;
-        },
-      },
-      {
-        text: "Yes", // Option to confirm the removal
-        onPress: () => {
-          // Update the members list, removing the selected members
           setMembers((current) =>
             current.filter((member) => !selectedMembers.includes(member.id))
           );
@@ -119,17 +121,10 @@ const index = () => {
 
     // Show confirmation alert
     Alert.alert("Notice:", `Are you sure you want to ${action} authorization from these members?`, [
+      { text: "No" },
       {
-        text: "No", // Option to cancel the action
+        text: "Yes",
         onPress: () => {
-          // Do nothing if the user cancels
-          return;
-        },
-      },
-      {
-        text: "Yes", // Option to confirm the removal
-        onPress: () => {
-          // Update the members list, updating the isAuthorized from the selected members
           if (action === "add") {
             setMembers((current) =>
               current.map((member) => {
@@ -174,7 +169,11 @@ const index = () => {
                 <Text style={text.subHeading}>(Swipe Left to Edit)</Text>
               </Text>
 
-              <TouchableOpacity onPress={handleSelectAllMembers}>
+              <TouchableOpacity 
+                onPress={handleSelectAllMembers} 
+                disabled={isQuickSelectionDisabled} 
+                style={{filter: isQuickSelectionDisabled ? "opacity(0.2)" : "opacity(1)"}}
+              >
                 <Text>{selectedMembers.length === 0 ? "Select All" : "De-Select All"}</Text>
               </TouchableOpacity>
             </View>

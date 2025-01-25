@@ -16,11 +16,12 @@ import { IMember } from "../types/types";
 const MemberGestureItem = (props: {
   item: IMember;
   resetFlag: boolean;
+  resetFlagVersion: number;
   addSelectedMember: (id: string) => void;
   removeSelectedMember: (id: string) => void;
   members: IMember[]
 }) => {
-  const { item, resetFlag, addSelectedMember, removeSelectedMember, members } = props;
+  const { item, resetFlag, resetFlagVersion, addSelectedMember, removeSelectedMember, members } = props;
   const router = useRouter();
 
   return (
@@ -52,6 +53,7 @@ const MemberGestureItem = (props: {
         <MemberItem 
           member={item} 
           resetFlag={resetFlag} 
+          resetFlagVersion={resetFlagVersion}
           addToList={addSelectedMember}
           removeToList={removeSelectedMember}
         />
