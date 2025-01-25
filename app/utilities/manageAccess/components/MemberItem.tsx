@@ -32,8 +32,13 @@ const MemberItem = (props: {
 
   useEffect(() => {
     if (justLoaded) {
-      addToList(member.id);
-      setActive("checked");
+      if (!resetFlag) {
+        addToList(member.id);
+        setActive("checked");
+      }
+      else {
+        setActive("unchecked");
+      }
     }
   }, [resetFlag]);
 

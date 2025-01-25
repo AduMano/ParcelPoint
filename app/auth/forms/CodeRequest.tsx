@@ -1,6 +1,6 @@
 // Components
 import EmailFieldRequestCode from "@/components/EmailFieldRequestCode";
-import { Text } from "@/components/Themed";
+import { Text, View } from "@/components/Themed";
 
 // Library
 import { Alert, TextInput, TouchableOpacity } from "react-native";
@@ -48,35 +48,39 @@ const CodeRequest = (props: {
   };
 
   return (
-    <>
+    <View style={{ justifyContent: "flex-start", width: "100%", gap: 20, }}>
       {/* E-Mail Field */}
-      <Text style={styles.label}>E-mail</Text>
-      <EmailFieldRequestCode
-        btnText="Send Code"
-        email={email}
-        setEmail={setEmail}
-        style={styles.textField}
-      />
+      <View>
+        <Text style={styles.label}>Email</Text>
+        <EmailFieldRequestCode
+          btnText="Send Code"
+          email={email}
+          setEmail={setEmail}
+          style={styles.textField}
+        />
+      </View>
 
       {/* 6 Digit Field */}
-      <Text style={styles.label}>6 Digit Code</Text>
-      <TextInput
-        keyboardType="number-pad"
-        maxLength={6}
-        numberOfLines={1}
-        style={styles.textField}
-        value={pinCode}
-        onChangeText={(text) => {
-          const numericValue = text.replace(/[^0-9]/g, "");
-          setPinCode(numericValue);
-        }}
-      />
+      <View>
+        <Text style={styles.label}>6 Digit Code</Text>
+        <TextInput
+          keyboardType="number-pad"
+          maxLength={6}
+          numberOfLines={1}
+          style={styles.textField}
+          value={pinCode}
+          onChangeText={(text) => {
+            const numericValue = text.replace(/[^0-9]/g, "");
+            setPinCode(numericValue);
+          }}
+        />
+      </View>
 
       {/* Login Button */}
       <TouchableOpacity style={styles.submit} onPress={handleSubmit}>
         <Text style={styles.submitText}>Verify Code</Text>
       </TouchableOpacity>
-    </>
+    </View>
   );
 };
 

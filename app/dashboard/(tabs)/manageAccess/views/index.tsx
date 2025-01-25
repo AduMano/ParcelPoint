@@ -42,13 +42,18 @@ const index = () => {
       { id: "20", firstName: "Pepper", lastName: "Potts", image: "icon.png", relationship: "Friend", isAuthorized: "Authorized", username: "pepperpotts" }
     ]    
   );
+
+  // When false, it means it doesnt have items, If true it means user had already selected items
+  // If false, then it must be "Select All", if true then it must be "De-Select All"
   const [resetFlag, setResetFlag] = useState<boolean>(false);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
 
   /// Handlers
   const handleSelectAllMembers = useCallback(() => {
-    setResetFlag((current) => !current);
-  }, []);
+    const flag = selectedMembers.length === 0 ? false : true;
+    if (flag) setSelectedMembers([]);
+    setResetFlag(flag);
+  }, [selectedMembers]);
 
   const handleAddSelectedMember = useCallback((id: string) => {
     setSelectedMembers((current) => {
@@ -159,7 +164,7 @@ const index = () => {
         </View>
 
         {/* Body */}
-        <View style={{backgroundColor: "transparent", height: "44%"}}>
+        <View style={{backgroundColor: "transparent", flex: 1}}>
           {/* Member List */}
           <View style={manageAccessStyle.memberList}>
             {/* Header */}
@@ -170,7 +175,7 @@ const index = () => {
               </Text>
 
               <TouchableOpacity onPress={handleSelectAllMembers}>
-                <Text>Select All</Text>
+                <Text>{selectedMembers.length === 0 ? "Select All" : "De-Select All"}</Text>
               </TouchableOpacity>
             </View>
 

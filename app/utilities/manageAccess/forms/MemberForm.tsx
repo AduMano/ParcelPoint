@@ -151,6 +151,24 @@ const MemberForm = () => {
       break;
     }
   }, [selectedMember]);
+
+  const handleCancelForm = useCallback(() => {
+    // Check if theres any changes
+    if ((type === "edit" && !submitBtnStatusDisabled) || (type === "add" &&  selectedMember !== undefined)) {
+      handleConfirmExitDialog();
+      return;
+    }
+
+    router.back();
+
+  }, [submitBtnStatusDisabled, selectedMember]);
+
+  const handleConfirmExitDialog = useCallback(() => {
+    Alert.alert("Notice", "Are you sure you want to cancel this form? Your progress will be discarded", [
+      {text: "No"},
+      {text: "Yes", onPress: () => router.back() }
+    ]);
+  }, []);
   
   return (
     <PaperProvider>
@@ -326,7 +344,7 @@ const MemberForm = () => {
               <View style={[manageAccessStyle.view, manageAccessStyle.formGroup, {width: "100%"}]}>
                 <TouchableOpacity 
                   style={[manageAccessStyle.actionSubmitButton, manageAccessStyle.btnFormHalf, manageAccessStyle.btnSecondary]}
-                  onPress={() => router.back()}
+                  onPress={handleCancelForm}
                 >
                   <Text style={[text.bold]}>Cancel</Text>
                 </TouchableOpacity>

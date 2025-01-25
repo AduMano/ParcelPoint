@@ -295,7 +295,7 @@ const index = () => {
                 }]}
                 onPress={handleResetFilter}
               >
-                <Text>Reset Filter</Text>
+                <Text>Reset back to default</Text>
               </TouchableOpacity>
             )}
           </View>

@@ -62,7 +62,11 @@ const index = () => {
     const cred = { username, password };
 
     try {
-      await login(cred);
+      // Temporary Staging Test:
+      handleLoginSuccess(username);
+
+      // The Login
+      // await login(cred);
     } 
     catch (error) {
       console.error("Login error:", error);
@@ -137,22 +141,26 @@ const index = () => {
       {/* FORM */}
       <View style={styles.form}>
         {/* Username Field */}
-        <Text style={styles.label}>Username</Text>
-        <TextInput
-          numberOfLines={1}
-          style={styles.textField}
-          value={username}
-          onChangeText={(text) => setUsername(text)}
-        />
+        <View>
+          <Text style={styles.label}>Username</Text>
+          <TextInput
+            numberOfLines={1}
+            style={styles.textField}
+            value={username}
+            onChangeText={(text) => setUsername(text)}
+          />
+        </View>
 
         {/* Password Field */}
-        <Text style={styles.label}>Password</Text>
-        <PasswordField
-          password={password}
-          setPassword={setPassword}
-          canToggleVisibility={true}
-          style={styles.textField}
-        />
+        <View>
+          <Text style={styles.label}>Password</Text>
+          <PasswordField
+            password={password}
+            setPassword={setPassword}
+            canToggleVisibility={true}
+            style={styles.textField}
+          />
+        </View>
 
         {/* Forgot Password Link */}
         <TouchableOpacity
@@ -204,8 +212,9 @@ const styles = StyleSheet.create({
   },
   form: {
     position: "relative",
-    width: "100%",
-    // flex: 1,
+    justifyContent: "flex-start", 
+    width: "100%", 
+    gap: 20,
   },
 
   // Components
@@ -237,12 +246,11 @@ const styles = StyleSheet.create({
   },
   textField: {
     width: "86%",
-    marginHorizontal: "auto",
+    margin: "auto",
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
-    marginBottom: 15,
     backgroundColor: "#fff",
   },
   forgotPassword: {

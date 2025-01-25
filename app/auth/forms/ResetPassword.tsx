@@ -1,6 +1,6 @@
 // Components
 import PasswordField from "@/components/PasswordField";
-import { Text } from "@/components/Themed";
+import { Text, View } from "@/components/Themed";
 
 // Library
 import { Alert, TouchableOpacity } from "react-native";
@@ -66,30 +66,34 @@ const ResetPassword = (props: { styles: any }) => {
   };
 
   return (
-    <>
+    <View style={{ justifyContent: "flex-start", width: "100%", gap: 20, }}>
       {/* Password Field */}
-      <Text style={styles.label}>New Password</Text>
-      <PasswordField
-        password={newPassword}
-        setPassword={setNewPassword}
-        canToggleVisibility={true}
-        style={styles.textField}
-      />
+      <View>
+        <Text style={styles.label}>New Password</Text>
+        <PasswordField
+          password={newPassword}
+          setPassword={setNewPassword}
+          canToggleVisibility={true}
+          style={styles.textField}
+        />
+      </View>
 
       {/* Password Field */}
-      <Text style={styles.label}>Confirm Password</Text>
-      <PasswordField
-        password={confirmPassword}
-        setPassword={setConfirmPassword}
-        canToggleVisibility={true}
-        style={styles.textField}
-      />
+      <View>
+        <Text style={styles.label}>Confirm Password</Text>
+        <PasswordField
+          password={confirmPassword}
+          setPassword={setConfirmPassword}
+          canToggleVisibility={true}
+          style={styles.textField}
+        />
+      </View>
 
       {/* Login Button */}
       <TouchableOpacity style={styles.submit} onPress={handleSubmit}>
         <Text style={styles.submitText}>Change Password</Text>
       </TouchableOpacity>
-    </>
+    </View>
   );
 };
 

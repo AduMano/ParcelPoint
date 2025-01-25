@@ -96,7 +96,7 @@ export const PackageLogDetailModal = (props: {
                   {/* Delivered On */}
                   <Text><Text style={text.bold}>Delivered On</Text>: November 28, 2024 at 3:45 PM</Text>
                   {/* Time Remaining */}
-                  {parcel.status !== "Picked Up" && <Text><Text style={text.bold}>Time Remaining</Text>: 5 hours before expiration</Text>}
+                  {parcel.status !== "Picked Up" && <><Text><Text style={text.bold}>Time Remaining</Text>: 5 Hours Left</Text> <Text style={[text.mute]}>{"(Pick up before admin removes for space)"}</Text></>}
                 </View>
               </View>
 

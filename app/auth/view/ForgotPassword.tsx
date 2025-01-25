@@ -34,7 +34,7 @@ const ForgotPassword = () => {
     }
 
     setHeaderText("USER \nVERIFICATION");
-    setSubText("Enter your E-Mail to get Verification Code");
+    setSubText("Enter your email to get Verification Code");
   }, [isVerified]);
 
   return (
@@ -95,14 +95,14 @@ const styles = StyleSheet.create({
   viewHeader: {
     position: "relative",
     width: "100%",
-    height: "50%",
     top: 0,
   },
   form: {
-    position: "absolute",
+    position: "relative",
     width: "100%",
-    height: "35%",
-    bottom: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
   },
 
   // Components
@@ -132,7 +132,6 @@ const styles = StyleSheet.create({
     margin: "auto",
     fontSize: 16,
     color: "#333",
-    marginBottom: 5,
   },
   textField: {
     width: "86%",
@@ -141,7 +140,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
-    marginBottom: 15,
     backgroundColor: "#fff",
   },
   submit: {

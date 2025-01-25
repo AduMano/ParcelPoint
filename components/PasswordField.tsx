@@ -23,14 +23,11 @@ const PasswordField = (props: {
         style={{
           position: "relative",
           width: props.style.width,
-          margin: "auto",
-          alignItems: "center",
+          marginHorizontal: "auto",
+          marginVertical: 0, paddingVertical: 0,
+          gap: 0,
+          alignItems: "flex-end",
           justifyContent: "center",
-
-          // For Debugging
-          // borderColor: "red",
-          // borderWidth: 2,
-          //
         }}
       >
         <TextInput
@@ -73,9 +70,7 @@ const styles = StyleSheet.create({
   },
   eye: {
     position: "absolute",
-    right: 0, // Position eye icon to the right of the input
-    top: "50%",
-    transform: [{ translateY: -20 }, { translateX: -10 }], // Center the icon vertically
+    transform: [{ translateX: -10 }], // Center the icon vertically
   },
 });
 

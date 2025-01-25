@@ -71,7 +71,7 @@ const CodeRequest = (props: {
 
     Alert.alert(
       "Code Sent",
-      "Please copy the 6-digit pin code thats been sent to your E-Mail.",
+      "Please copy the 6-digit pin code thats been sent to your email.",
       [
         {
           text: "Okay",

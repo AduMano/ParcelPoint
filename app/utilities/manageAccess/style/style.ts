@@ -48,9 +48,9 @@ export const manageAccessStyle = StyleSheet.create({
   memberList: {
     position: "relative",
     width: "100%",
-    // height: "50%",
     alignItems: "center",
     backgroundColor: "transparent",
+    flex: 1,
   },
   memberHeader: {
     position: "relative",
@@ -93,18 +93,15 @@ export const manageAccessStyle = StyleSheet.create({
     boxShadow: "0 5px 10px lightgray",
   },
 
-
   // Member Action
   memberAction: {
     position: "relative",
     width: "100%",
-    height: "100%",
     alignItems: "center",
-    justifyContent:"center",
+    justifyContent:"flex-end",
     backgroundColor: "transparent",
+    marginVertical: 20,
     gap: 20,
-
-    // borderTopWidth: 1,
   },
 
   actionSubmitButton: {
