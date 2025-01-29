@@ -17,9 +17,10 @@ import {
   setBackgroundColorAsync,
   setButtonStyleAsync,
 } from "expo-navigation-bar";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { ActivityIndicator } from "react-native-paper";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Hooks
 import useLoginUser from "../hooks/useLoginUser";
@@ -63,16 +64,20 @@ const index = () => {
 
     try {
       // Temporary Staging Test:
-      handleLoginSuccess(username);
+      // handleLoginSuccess(username);
 
       // The Login
-      // await login(cred);
+      await login(cred);
     } 
     catch (error) {
       console.error("Login error:", error);
       showAlert("Oops!", "An unexpected error occurred. Please try again later.");
     }
   };
+
+  const handleDataStorage = useCallback(async (user_id: string) => {
+    await AsyncStorage.setItem("USER_ID", user_id);
+  }, []); 
 
   const showAlert = (title: string, message: string) => {
     Alert.alert(title, message, [{ text: "I Understand", style: "default" }]);
@@ -81,13 +86,19 @@ const index = () => {
   const handleLoginError = (error: string) => {
     const lowerError = error.toLowerCase();
   
-    if (lowerError === "invalid type. must be 'admin' or 'user'.") {
-      showAlert("Oops!", "Invalid Request.");
-    } else if (lowerError.includes("error retrieving user")) {
-      showAlert("Oops!", "There seems to be an error. Please try again later.");
-    } else if (lowerError === "user not found.") {
+    if (lowerError === "user not found.") {
       showAlert("Invalid Credentials", "Invalid Username or Password. Please try again.");
-    } else {
+    } 
+    else if (lowerError === "this account is deactivated.") {
+      showAlert("Notice", "This account is deactivated. Contact the administrator for further action.")
+    }
+    else if (lowerError === "invalid type. must be 'admin' or 'user'.") {
+      showAlert("Oops!", "Invalid Request.");
+    } 
+    else if (lowerError.includes("error retrieving user")) {
+      showAlert("Oops!", "There seems to be an error. Please try again later.");
+    } 
+    else {
       showAlert("Oops!", "An error occurred. Please try again later.");
     }
   };
@@ -103,10 +114,17 @@ const index = () => {
   };
 
   useEffect(() => {
-    if (data) { handleLoginSuccess(data.username); } 
-    else if (error) { 
-      handleLoginError(error); 
+    const loginProcess = async () => {
+      if (data) { 
+        await handleDataStorage(data.userId);
+        await handleLoginSuccess(data.username); 
+      } 
+      else if (error) { 
+        handleLoginError(error); 
+      }
     }
+
+    loginProcess();
   }, [data, error]);
 
   return (

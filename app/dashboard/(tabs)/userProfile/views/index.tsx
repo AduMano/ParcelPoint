@@ -3,37 +3,51 @@ import { Text, View } from "@/components/Themed";
 
 // Helper
 import { EIconByName, FA6IconByName } from "@/helpers/IconsLoader";
+import { getMonthNameDayYearByDate } from "@/helpers/textFormatter";
 
 // Library
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { TouchableOpacity, Image, ScrollView, Alert } from "react-native";
 import { router } from "expo-router"; 
-import { Portal, TextInput } from "react-native-paper";
+import { ActivityIndicator, Portal, TextInput } from "react-native-paper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRecoilState, useRecoilValue } from "recoil";
 
 // Styles
 import { styles, userProfileStyle, text, buttons, padding } from "@/app/utilities/userProfile/style/style";
 import EditProfileForm from "@/app/utilities/userProfile/components/EditProfileForm";
 
+// Recoil
+import { userInformation as AUserInfo, userID as AUID } from "@/app/utilities/home/atoms/atom"
+
+// Hooks
+import useUpdateUserInformation from "@/app/utilities/userProfile/hooks/useUpdateUserInformation";
+
 // Types
-import { IUserInformation } from "@/app/utilities/userProfile/types/types";
+import { IUserUpdateInformation } from "@/app/utilities/userProfile/types/types";
+import Colors from "@/constants/Colors";
 
 const index = () => {
   /// Init Values
-  const firstName = useMemo(() => "Aldwin Dylan", []);
-  const lastName = useMemo(() => "Samano", []);
-  const name = useMemo(() => `${firstName} ${lastName}`, []);
-  const username = useMemo(() => "AldoMano", []);
-  const email = useMemo(() => "samano.aldwindylan.07292003@gmail.com", []);
-  const phone = useMemo(() => "09934135833", []);
-  const birthDate = useMemo(() => "August 15, 2003", []);
-  const address = useMemo(() => "#0 Di-Mahanap St. Barangay Di-Matagpuan, Q.C.", []);
+  // Hooks
+  const { updateUserInfo, isLoading: UUILoading, data: UUIData, error: UUIError } = useUpdateUserInformation();
 
   /// States
+  const [isLoading, setLoadingState] = useState<boolean>(false);
   const [modalEditState, setModalEditState] = useState<boolean>(false);
-  const [userInformation, setUserInformation] = useState<IUserInformation>({
-    firstName, lastName, username, email,
-    phone, address, birthDate: "2003-08-15"
-  });
+  const [userInformation, setUserInformation] = useRecoilState(AUserInfo);
+  const userID = useRecoilValue(AUID);
+  const userInfo = useMemo<IUserUpdateInformation>(() => {
+    return { 
+      firstName: userInformation.firstName, 
+      lastName: userInformation.lastName, 
+      username: userInformation.username, 
+      birthDate: userInformation.birthDate, 
+      address: userInformation.address
+    };
+  }, [userInformation]);
+  const {firstName, lastName, username, birthDate, address} = userInfo;
+  const { suffix, email, contactNumber } = userInformation
 
   /// Handlers
   // On Close edit Modal
@@ -41,36 +55,89 @@ const index = () => {
     setModalEditState(false);
   }, []);
 
-
   // Logout Handle
-  const removeSession = useCallback(() => {
+  const handleLoggingOut = useCallback(async (callbackFunction: () => void) => {
     // Remove session data.
+    await AsyncStorage.removeItem("USER_ID");
+    callbackFunction();
   }, []);
 
   const handleUserLogout = useCallback(() => {
     Alert.alert("Notice", "Are you sure you want to logout?", [
-      {
-        text: "No",
-      },
-      {
-        text: "Yes",
-        onPress: async () => {
-          await removeSession();
-          router.dismissTo("/auth/view/LoginAuth");
-        }
+      { text: "No" },
+      { text: "Yes",
+        onPress: async () => { await handleLoggingOut(() => router.dismissTo("/auth/view/LoginAuth")); }
       }
     ]);
   }, []);
+
+  const handleUpdateUserInformation = useCallback(async (credentials: IUserUpdateInformation) => {
+    await updateUserInfo(credentials);
+  }, []);
+
+  const handleSetUserInformation = useCallback((userData: IUserUpdateInformation) => {
+    setUserInformation(current => {
+      return {
+        ...current,     
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        birthDate: userData.birthDate,
+        address: userData.address,
+        username: userData.username
+      }
+    })
+  }, []);
+
+  // If Update is Success
+  useEffect(() => {
+    if (UUIData === null) return;
+
+    const setNewInformation = async () => {
+      await handleSetUserInformation(UUIData);
+      await setLoadingState(false);
+
+      Alert.alert("Success", "You have updated your information", [{ text: "Okay", onPress: () => handleOnCloseEditModal() }]);
+    }
+
+    setNewInformation();
+  }, [UUIData]);
+
+  // If Update has Errors
+  useEffect(() => {
+    if (UUIError === null) return;
+
+    setLoadingState(false);
+    const errors: Record<string, string> = {
+      "existing username": "This username is already taken. Please choose a different one.",
+      "update username failed": "We couldn’t update your username. Please try again later.",
+      "update info failed": "We couldn’t update your information. Please try again later."
+    };
+
+    Alert.alert(
+      UUIError === "existing username" ? "Invalid" : "Oops!",
+      errors[UUIError],
+      [ { text: "I Understand" } ]
+    );
+  }, [UUIError])
 
   return (
     <>
       {/* Modal */}
       <Portal>
         <EditProfileForm 
+          setIsLoading={setLoadingState}
+          userID={userID ?? ""}
           modalEditProfileState={modalEditState}
           modalData={userInformation}
-          handleCloseEditModal={handleOnCloseEditModal}
+          handleUpdateUserInformation={handleUpdateUserInformation}
+          defaultInformation={userInfo}
         />
+        {/* Loading Screen */}
+        { isLoading && (
+          <View style={styles.loading}>
+            <ActivityIndicator size={100} color={Colors["light"].buttonAction} />
+          </View>
+        )}
       </Portal>
 
       {/* Content */}
@@ -116,7 +183,7 @@ const index = () => {
               </TouchableOpacity>
             </View>
             {/* Name */}
-            <Text style={[text.heading, text.center]}>{name}</Text>
+            <Text style={[text.heading, text.center]}>{firstName} {lastName} {suffix}</Text>
             {/* Username */}
             <Text style={[text.center]}>@{username}</Text>
           </View>
@@ -138,12 +205,12 @@ const index = () => {
 
               {/* Phone */}
               <View style={[userProfileStyle.view]}>
-                <TextInput label="Phone" value={phone} readOnly={true} contentStyle={{color: "black"}} style={{height: 10, width: "100%", paddingVertical: 6, marginBottom: 10, backgroundColor: "white", fontSize: 14, fontWeight: "bold"}} />
+                <TextInput label="Phone" value={contactNumber} readOnly={true} contentStyle={{color: "black"}} style={{height: 10, width: "100%", paddingVertical: 6, marginBottom: 10, backgroundColor: "white", fontSize: 14, fontWeight: "bold"}} />
               </View>
 
               {/* Birth Date */}
               <View style={[userProfileStyle.view]}>
-                <TextInput label="Birth Date" value={birthDate} readOnly={true} contentStyle={{color: "black"}} style={{height: 10, width: "100%", paddingVertical: 6, marginBottom: 10, backgroundColor: "white", fontSize: 14, fontWeight: "bold"}} />
+                <TextInput label="Birth Date" value={getMonthNameDayYearByDate(new Date(birthDate))} readOnly={true} contentStyle={{color: "black"}} style={{height: 10, width: "100%", paddingVertical: 6, marginBottom: 10, backgroundColor: "white", fontSize: 14, fontWeight: "bold"}} />
               </View>
 
               {/* Address */}

@@ -12,22 +12,29 @@ import { userProfileStyle, text, modalStyle } from '../style/style';
 
 // Helpers
 import { IonIconByName } from '@/helpers/IconsLoader';
-import { getMonthNameDayYearByDate, stringDatetoObjectDate } from '@/helpers/textFormatter';
+import { getMonthNameDayYearByDate } from '@/helpers/textFormatter';
 
 // Types
-import { IUserInformation } from '../types/types';
+import { IUserInformation, IUserUpdateInformation } from '../types/types';
 import { LabeledTextInput } from '@/components/LabeledTextInput';
 
 // Dimension
 const { height } = Dimensions.get('screen');
 
 const EditProfileForm = (props: {
-  modalEditProfileState: boolean;
-  handleCloseEditModal: () => void;
+  userID: string;
   modalData: IUserInformation;
+  defaultInformation: IUserUpdateInformation;
+  modalEditProfileState: boolean;
+  
+  handleUpdateUserInformation: (userData: IUserUpdateInformation) => void;
+  setIsLoading: (value: boolean) => void;
 }) => {
   // Drilled Prop
-  const { modalEditProfileState, handleCloseEditModal, modalData: userProfile } = props;
+  const { userID, modalData: userProfile, defaultInformation, modalEditProfileState } = props;
+  const { setIsLoading, handleUpdateUserInformation } = props;
+
+  // Animation
   const slideAnim = useRef(new Animated.Value(height)).current; // Start off-screen
 
   /// States
@@ -35,12 +42,8 @@ const EditProfileForm = (props: {
   const [firstName, setFirstName] = useState<string>(userProfile.firstName);
   const [lastName, setLastName] = useState<string>(userProfile.lastName);
   const [username, setUsername] = useState<string>(userProfile.username);
-  const [birthDate, setBirthDate] = useState<string>(userProfile.birthDate);
-  const [getBirthDate, setBirth] = useState<Date>(stringDatetoObjectDate(birthDate));
+  const [getBirthDate, setBirth] = useState<Date | string>(userProfile.birthDate);
   const [address, setAddress] = useState<string>(userProfile.address);
-  const defaultInformation = useMemo(() => {
-    return { firstName, lastName, username, getBirthDate, address };
-  }, []);
 
   // Date Modal
   const [isDateModalVisible, setDateModalVisibility] = useState<boolean>(false);
@@ -51,19 +54,17 @@ const EditProfileForm = (props: {
   // Toggler
   useEffect(() => {
     if (modalEditProfileState) {
+      setChangeStatus(handleCheckChanges());
       openModal();
+    }
+    else {
+      closeModal();
     }
   }, [modalEditProfileState]);
 
   // Changes
   useEffect(() => {
-    setChangeStatus(
-      defaultInformation.firstName === firstName &&
-      defaultInformation.lastName === lastName &&
-      defaultInformation.username === username &&
-      defaultInformation.getBirthDate === getBirthDate &&
-      defaultInformation.address === address
-    );
+    setChangeStatus(handleCheckChanges());
   }, [firstName, lastName, username, getBirthDate, address]);
 
   /// Handlers
@@ -79,17 +80,27 @@ const EditProfileForm = (props: {
   const closeModal = () => {
     Animated.timing(slideAnim, {
       toValue: height, 
-      duration: 200,
+      duration: 400,
       useNativeDriver: true,
-    }).start(() => {
-      handleCloseEditModal();
-    });
+    }).start();
   };
+
+  // Change Checker Handler
+  const handleCheckChanges = useCallback(() => {
+    return defaultInformation.firstName === firstName &&
+    defaultInformation.lastName === lastName &&
+    defaultInformation.username === username &&
+    defaultInformation.birthDate === getBirthDate &&
+    defaultInformation.address === address;
+  }, [firstName, lastName, username, getBirthDate, address, modalEditProfileState]);
 
   // Date Modal Handler
   const handleDateOnConfirm = useCallback((params: any) => {
     setDateModalVisibility(false);
-    setBirth(params.date);
+    const date = new Date(params.date);
+    date.setDate(date.getDate() + 1);
+    
+    setBirth(date.toISOString().split("T")[0]);
   }, [setDateModalVisibility, setBirth]);
 
   const handleDateOnDismiss = useCallback(() => {
@@ -97,11 +108,17 @@ const EditProfileForm = (props: {
   }, [setDateModalVisibility]);
 
   // Save Changes Handler
-  const handleSaveChanges = useCallback(() => {
+  const handleSaveChanges = useCallback(async () => {
     // Save Changes
-
-    // Close Modal
-    closeModal();
+    setIsLoading(true);
+    await handleUpdateUserInformation({
+      firstName,
+      lastName,
+      username,
+      address,
+      birthDate: getBirthDate,
+      id: userID
+    });
   }, [firstName, lastName, username, getBirthDate, address]);
 
   const handleSaveAction = useCallback(() => {
@@ -111,8 +128,6 @@ const EditProfileForm = (props: {
       Alert.alert("Notice", "All input fields must NOT be empty");
       return;
     }
-
-    // Check if username exists
 
     // If all is satisfied, Save Changes
     Alert.alert("Notice", "Are you sure you want to update your profile information?", [
@@ -126,15 +141,16 @@ const EditProfileForm = (props: {
       {/* Modal */}
       <Portal>
         <DatePickerModal
-          locale="en"
           mode="single"
+          locale="en"
           visible={isDateModalVisible}
           onDismiss={handleDateOnDismiss}
-          date={getBirthDate}
+          date={new Date(getBirthDate)}
           onConfirm={handleDateOnConfirm}
           validRange={{endDate: new Date()}}
           saveLabel="Select"
           label="Select your Birth Date"
+          
         />
       </Portal>
 
@@ -197,7 +213,7 @@ const EditProfileForm = (props: {
                   label='Birth Date'
                   textBoxStyle={userProfileStyle.textInput}
                   textStyle={text.mute}
-                  value={getMonthNameDayYearByDate(getBirthDate)}
+                  value={getMonthNameDayYearByDate(new Date(getBirthDate))}
                   viewStyle={userProfileStyle.view}
                   onPress={() => setDateModalVisibility(true)}
                 />

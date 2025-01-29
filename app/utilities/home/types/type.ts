@@ -1,3 +1,18 @@
+// User Information
+export interface IUserInformation {
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  suffix?: string | null;
+  birthDate: Date | string;
+  address: string;
+  contactNumber: string;
+  photoUrl: string;
+  email: string;
+  username: string;
+}
+
+// Others
 export type TMember = {
   id: string;
   name: string;

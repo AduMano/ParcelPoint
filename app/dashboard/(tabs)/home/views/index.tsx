@@ -1,6 +1,7 @@
 // Components
 import { Text, View } from "@/components/Themed";
 import PackageDeliveredModal from "@/components/PackageDeliveredModal";
+import { PackageLogDetailModal } from "@/components/PackageLogDetailModal";
 
 import ParcelItem from "@/app/utilities/home/components/ParcelItem";
 import MemberItem from "@/app/utilities/home/components/MemberItem";
@@ -18,7 +19,9 @@ import { ScrollView, TouchableOpacity } from "react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { router } from "expo-router";
 import React from "react";
-import { Portal } from "react-native-paper";
+import { ActivityIndicator, Portal } from "react-native-paper";
+import { useRecoilState } from "recoil";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Styles
 import {
@@ -27,7 +30,13 @@ import {
   scroller,
   buttons,
 } from "../../../../utilities/home/styles/styles";
-import { PackageLogDetailModal } from "@/components/PackageLogDetailModal";
+
+// Recoil
+import { userInformation as AUserInformation, userID as AUserID } from '@/app/utilities/home/atoms/atom';
+
+// Hooks
+import useGetUserInfo from "@/app/utilities/home/hooks/useGetUserInfo";
+import Colors from "@/constants/Colors";
 
 const index = () => {
   // Sample data for the time being
@@ -191,6 +200,17 @@ const index = () => {
     members: members,
   });
 
+  /// Init Data
+  const { fetchUserInfo, data: UIData, isLoading: UILoading, error: UIError } = useGetUserInfo();
+
+  /// States
+  // Initial States
+  const [isLoading, setLoadingState] = useState<boolean>(false);
+
+  // User Information
+  const [userID, setUserID] = useRecoilState(AUserID);
+  const [userInformation, setUserInformation] = useRecoilState(AUserInformation);
+  
   // For Modal
   const [modalPackageState, setModalPackageState] = useState<boolean>(false);
   const [modalPackageLogState, setModalPackageLogState] = useState<boolean>(false);
@@ -208,11 +228,7 @@ const index = () => {
 
   // Modal for Parcel Status
   const onOpenPackageModal = useCallback(({trackingId, name}: TParcelDetail) => {
-    setSelectedPackageData({
-      trackingId,
-      name
-    });
-    
+    setSelectedPackageData({ trackingId, name });
     setModalPackageState(true);
   }, []);
   const onClosePackageModal = useCallback(() => {
@@ -221,17 +237,39 @@ const index = () => {
 
   // Modal for Logs
   const onOpenPackageLogModal = useCallback(({trackingId, name, status}: TParcelDetail) => {
-    setSelectedPackageData({
-      trackingId,
-      name,
-      status
-    });
-    
+    setSelectedPackageData({ trackingId, name, status });
     setModalPackageLogState(true);
   }, []);
   const onClosePackageLogModal = useCallback(() => {
     setModalPackageLogState(false);
   }, []);
+  
+  /// Use Effect
+  // Get User ID
+  useEffect(() => {
+    // Loading State
+    setLoadingState(true);
+
+    const getUserId = async () => {
+      const id = await AsyncStorage.getItem("USER_ID");
+      await fetchUserInfo(id ?? "");
+
+      setUserID(id);
+    };
+
+    getUserId();
+  }, []);
+
+  useEffect(() => {
+    if (UIData === null) return;
+
+    const getUserInformation = async () => {
+      setUserInformation(UIData);
+      setLoadingState(false);
+    }
+
+    getUserInformation();
+  }, [UIData]);
 
   /// For Debugging Purposes.
   useEffect(() => {
@@ -279,6 +317,13 @@ const index = () => {
           handleClosePackageDetailModal={onClosePackageLogModal}
           modalData={selectedPackageData}  
         />
+
+        {/* Loading Screen */}
+        { isLoading && (
+          <View style={styles.loading}>
+            <ActivityIndicator size={100} color={Colors["light"].buttonAction} />
+          </View>
+        )}
       </Portal>
 
       {/* Content */}
@@ -291,30 +336,23 @@ const index = () => {
           <View style={[styles.flex, styles.viewDefault]}>
             <View style={styles.viewDefault}>
               <Text style={[text.heading, { color: "white" }]}>
-                <Text
-                  style={{ color: "White" }}
-                  onPress={() => handleStateChange("all")}
-                >
+                <Text style={{ color: "White" }}>
+                  Hi, {userInformation?.firstName} {userInformation?.lastName} {userInformation?.suffix}
+                </Text>
+              {/*                 
+                <Text style={{ color: "White" }} onPress={() => handleStateChange("all")}>
                   Hi,
                 </Text>{" "}
-                <Text
-                  style={{ color: "White" }}
-                  onPress={() => handleStateChange("parcels")}
-                >
+                <Text style={{ color: "White" }} onPress={() => handleStateChange("parcels")}>
                   Jane
                 </Text>{" "}
-                <Text
-                  style={{ color: "White" }}
-                  onPress={() => handleStateChange("members")}
-                >
+                <Text style={{ color: "White" }} onPress={() => handleStateChange("members")}>
                   Dela
                 </Text>{" "}
-                <Text
-                  style={{ color: "White" }}
-                  onPress={() => handleStateChange("empty")}
-                >
+                <Text style={{ color: "White" }} onPress={() => handleStateChange("empty")}>
                   Cruz
-                </Text>
+                </Text> 
+              */}
               </Text>
               <Text style={text.subHeading}>
                 Have a great day managing your deliveries!

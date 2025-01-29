@@ -4,7 +4,7 @@ import { PackageLogDetailModal } from "@/components/PackageLogDetailModal";
 import { LogItem } from "@/app/utilities/history/components/LogItem";
 
 // Library
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollView, TouchableOpacity } from "react-native";
 import { Menu, Portal } from "react-native-paper";
 import { registerTranslation } from 'react-native-paper-dates'
@@ -37,7 +37,6 @@ import { FIconByName } from "@/helpers/IconsLoader";
 // Types
 import { IRangedDate, TStatusOptions } from "@/app/utilities/history/types/types";
 import { TParcel, TParcelDetail } from "@/app/utilities/home/types/type";
-import { INotificationItem } from "@/app/utilities/notification/types/types";
 
 // Constants
 import Colors from "@/constants/Colors";

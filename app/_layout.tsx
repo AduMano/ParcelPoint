@@ -1,9 +1,15 @@
+// MISC
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
-import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
 import "react-native-reanimated";
+
+// Library
+import { useEffect, useState } from "react";
+import { Stack, useRouter } from "expo-router";
+
+// Helper
+import { checkIfItemExists } from "@/helpers/LocalStorageHelper";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -43,14 +49,27 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const isAuthenticated = false;
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>();
+  const [justLoaded, setLoaded] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace("/auth/view/LoginAuth");
+    const checkIfAuthenticated = async () => {
+      const hasItem = await checkIfItemExists("USER_ID");
+      setIsAuthenticated(hasItem);
     }
+
+    checkIfAuthenticated();
+  }, []);
+
+  useEffect(() => {
+    if (!justLoaded) return;
+
+    if (isAuthenticated) router.replace("/dashboard/(tabs)/home/views");
+    else router.replace("/auth/view/LoginAuth");
   }, [isAuthenticated]);
+
+  useEffect(() => setLoaded(true), []);
 
   return (
     <Stack

@@ -8,6 +8,17 @@ import { Dimensions, StyleSheet } from "react-native";
 const screenWidth = Dimensions.get("window").width;
 
 export const styles = StyleSheet.create({
+  loading: {
+    position: "absolute", 
+    top: 0, left: 0, 
+    width: "100%", 
+    height: "100%", 
+    flex: 1, 
+    backgroundColor: "#ffffffee", 
+    justifyContent: "center", 
+    alignItems: "center",
+    zIndex: 9999, 
+  },
   viewDefault: {
     backgroundColor: "transparent",
   },

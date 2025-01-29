@@ -6,7 +6,9 @@ export const shortenText = (input: string, maxLength: number = 17): string => {
 };
 
 export const getMonthNameDayYearByDate = (date: Date): string => {
-  return date.toLocaleDateString('en-US', {
+  const newDate = new Date(date);
+
+  return newDate.toLocaleDateString('en-US', {
     month: 'long', // Full month name
     day: 'numeric', // Day of the month
     year: 'numeric', // Year
