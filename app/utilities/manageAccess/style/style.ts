@@ -2,6 +2,17 @@ import Colors from "@/constants/Colors";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
+  loading: {
+    position: "absolute", 
+    top: 0, left: 0, 
+    width: "100%", 
+    height: "100%", 
+    flex: 1, 
+    backgroundColor: "#ffffffaa", 
+    justifyContent: "center", 
+    alignItems: "center",
+    zIndex: 9999, 
+  },
   container: {
     position: "relative",
     width: "100%", height: "100%",
@@ -120,7 +131,13 @@ export const manageAccessStyle = StyleSheet.create({
   },
 
   // Form input Style
-  textInput: {height: 20, width: "100%", paddingVertical: 10, marginBottom: 10, backgroundColor: "white"},
+  textInput: {
+    height: 20, 
+    width: "100%", 
+    paddingVertical: 10, 
+    marginBottom: 10, 
+    backgroundColor: "white",
+  },
 
 
   // BUTTON STYLES

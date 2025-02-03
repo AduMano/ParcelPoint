@@ -1,24 +1,28 @@
 import axios from "axios";
 import { API_URL } from '@/actions/config';
-import { IUserInformation } from "@/app/utilities/home/types/type";
+import { IUpdateMemberRequest } from "@/app/utilities/manageAccess/types/types"; 
 
 export interface ApiResponse<T> {
   data: T | null;
   error: string | null;
 }
 
-export const getUserInformation = async ( userID: string ): Promise<ApiResponse<IUserInformation>> => {
+export const updateMemberAction = async (creds: IUpdateMemberRequest[]): Promise<ApiResponse<IUpdateMemberRequest[]>> => {
   try {
-    const { data } = await axios.get<IUserInformation>(API_URL + "Users/GetUserInformation/" + userID,
+    const param = { Members: creds };
+
+    const { data } = await axios.put<IUpdateMemberRequest[]>(API_URL + "UserGroups/UpdateMember",
+      param,
       { headers: { 'Content-Type': 'application/json' } }
     );
 
     return { data, error: null };
   } 
   catch (error: any) {
-    console.log("Home: ", error);
+    console.log("ManageAccess | UpdateMember: ", error);
     const errorMessage = axios.isAxiosError(error)
       ? error.response?.data : "An unknown error had occured";
+      console.log(errorMessage);
     return { data: null, error: errorMessage };
   }
 };

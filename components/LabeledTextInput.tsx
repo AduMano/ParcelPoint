@@ -19,18 +19,28 @@ export const LabeledTextInput = (props: {
   
   readonly?: boolean;
   multiline?: boolean;
+  scrollable?: boolean;
   onPress?: () => void;
   onChange?: (query: string) => void;
 }) => {
   // Drilled Props
   const { label, value } = props;
-  const { viewStyle, textStyle, textBoxStyle } = props
+  const { viewStyle, textStyle, textBoxStyle, scrollable = false } = props
   const { readonly, onPress, onChange, multiline } = props;
 
   return (
     <View style={[viewStyle]}>
       <Text style={[textStyle]}>{label}</Text>
-      <TextInput value={value} multiline={multiline || false} readOnly={readonly || false} onPress={onPress} onChangeText={onChange} contentStyle={{color: "black"}} style={textBoxStyle} />
+      <TextInput 
+        value={value} 
+        multiline={multiline || false} 
+        readOnly={readonly || false} 
+        onPress={onPress} 
+        onChangeText={onChange} 
+        contentStyle={{color: "black"}} 
+        style={textBoxStyle}
+        scrollEnabled={scrollable}
+      />
     </View>
   )
 }

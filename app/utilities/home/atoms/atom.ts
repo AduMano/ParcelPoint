@@ -3,6 +3,7 @@ import { atom } from 'recoil';
 
 // Types
 import { IUserInformation } from '../types/type';
+import { IMember } from '../../manageAccess/types/types';
 
 export const userID = atom<string | null>({
   key: 'userID',
@@ -24,3 +25,13 @@ export const userInformation = atom<IUserInformation>({
     username: ""
   }
 });
+
+export const memberList = atom<IMember[]>({
+  key: "memberList",
+  default: []
+});
+
+export const userList = atom<IUserInformation[]>({
+  key: "userList",
+  default: []
+})

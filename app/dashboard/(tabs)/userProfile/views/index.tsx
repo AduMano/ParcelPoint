@@ -131,6 +131,7 @@ const index = () => {
           modalData={userInformation}
           handleUpdateUserInformation={handleUpdateUserInformation}
           defaultInformation={userInfo}
+          closeEditForm={handleOnCloseEditModal}
         />
         {/* Loading Screen */}
         { isLoading && (

@@ -1,3 +1,15 @@
+interface Relationship  {
+  id: string,
+  name: string,
+  createdAt: string,
+  createdBy: string,
+  modifiedAt: Date,
+  modifiedBy: string | null,
+  userGroupMembers?: []
+}
+
+type AuthorizationStatus = "Authorized" | "Not Authorized";
+
 export interface IUserInformation {
   firstName: string;
   middleName: string;
@@ -9,6 +21,12 @@ export interface IUserInformation {
   photoUrl: string;
   email: string;
   username: string;
+}
+
+export interface IMember extends IUserInformation {
+  relationship: Relationship;
+  isAuthorized: AuthorizationStatus;
+  GroupMemberId: string;
 }
 
 export interface IDate {

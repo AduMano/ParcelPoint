@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { PaperProvider, Portal, Searchbar, TextInput, Menu, Button, RadioButton } from 'react-native-paper';
 import { TouchableOpacity, Image, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRecoilState, useRecoilValue } from 'recoil';
 
 // Styles
 import { styles, manageAccessStyle } from '../style/style';
@@ -14,30 +15,71 @@ import { text } from '../../home/styles/styles';
 
 // Helpers
 import { FA6IconByName } from '@/helpers/IconsLoader';
+import { shortenText } from '@/helpers/textFormatter';
 
 // Constants
 import Colors from '@/constants/Colors';
 
 // Types
-import { IMember } from '../types/types';
+import { IUpdateMemberRequest, IUserGroupMember, IUserRelationship } from '../types/types';
+
+// Atoms
+import { 
+  userRelationship as AUserRelationship,
+  selectedMember as ASelectedMember,
+} from "../atoms/atom";
+import { memberList as AMemberList, userList as AUserList, memberList, userID as AUserID } from "@/app/utilities/home/atoms/atom";
+
+// Hooks
+import useGetAllUserRelationships from '../hooks/useGetAllRelationships';
+import useAddMember from '../hooks/useAddMember';
+import useUpdateMember from '../hooks/useUpdateMember';
 
 const MemberForm = () => {
   /// Global Hooks
   // Router
   const router = useRouter();
-  const { type, id, memberList } = useLocalSearchParams();
+  const { type } = useLocalSearchParams();
 
   // Init Var
-  const [members, setMembers] = useState<IMember[] | null>(null);
-  const [selectedMember, setSelectedMember] = useState<IMember | undefined>();
+  const { 
+    fetchUserRelationships: URFetch, 
+    isLoading: URLoading, 
+    data: URData, 
+    error: URError
+  } = useGetAllUserRelationships();
+
+  const { addMember, isLoading: AMLoading, data: AMData, error: AMError } = useAddMember();
+  const { updateMember, isLoading: UMLoading, data: UMData, error: UMError } = useUpdateMember();
+
+  const [members, setMembers] = useRecoilState(AMemberList);
+  const [selectedMember, setSelectedMember] = useRecoilState(ASelectedMember);
+  const [options, setUserRelationships] = useRecoilState<IUserRelationship[]>(AUserRelationship);
+  const [users, setUsers] = useRecoilState(AUserList);
 
   // ID State
-  const userID = useMemo(() => id?.toString() || null, []);
+  const AUID = useRecoilValue(AUserID);
+  const userID = useMemo(() => selectedMember?.id?.toString() || null, []);
   
   // OnLoad
   useEffect(() => {
-    setMembers(JSON.parse(memberList.toString()));
+    // Set Relationships
+    URFetch();
   }, []);
+
+  // Load Fetched Datas
+  useEffect(() => {
+    if (URData === null) return;
+
+    setUserRelationships(URData);
+  }, [URData]);
+
+  // Error Fetched Datas
+  useEffect(() => {
+    if (URError === null) return;
+
+    Alert.alert("Error", URError, [{text: "I Understand"}]);
+  }, [URError]);
 
   // Displaay States
   const [searchValue, setSearchValue] = useState<string>("");
@@ -45,87 +87,78 @@ const MemberForm = () => {
   // Menu State
   const [submitBtnStatusDisabled, setSubmitButtonStatusDisabled] = useState<boolean>(true);
   const [isMenuVisible, setMenuVisibility] = useState<boolean>(false);
-  const [selectedRelationship, setRelationship] = useState<number>(0);
+  const [selectedRelationship, setRelationship] = useState<string>("");
   const [selectedRelationshipText, setRelationshipText] = useState<string | undefined>("Select Relationship");
-  const options = useMemo(() => {
-    return [
-      { text: "Select Relationship", value: 0 },
-      { text: "Aunt", value: 7 },
-      { text: "Brother", value: 1 },
-      { text: "Colleague", value: 13 },
-      { text: "Cousin", value: 9 },
-      { text: "Father", value: 4 },
-      { text: "Friend", value: 12 },
-      { text: "Grandfather", value: 6 },
-      { text: "Grandmother", value: 5 },
-      { text: "Mother", value: 3 },
-      { text: "Nephew", value: 11 },
-      { text: "Niece", value: 10 },
-      { text: "Sister", value: 2 },
-      { text: "Uncle", value: 8 }
-    ]    
-  }, []);
 
   // Radio Button State
   const [selectedAuthorization, setAuthorization] = useState<boolean>(false);
 
   // Handlers 
   const handleSearchAction = useCallback(() => {
-    const result = members?.find((member) => member.username === searchValue);
+    const result = users?.find((member) => member.username === searchValue);
+    console.log(members.map(mim => mim.username)); 
 
     // Guard Clause
     if (result === undefined || result === null) {
-      setSelectedMember(undefined);
+      setSelectedMember(null);
       Alert.alert("Notice", "No User Found. Make sure you typed it correctly or if the user really does exist.");
+      return;
+    }
+    else if (members.map(member => member.username).includes(searchValue)) {
+      setSearchValue("");
+      setSelectedMember(null);
+      Alert.alert("Notice", "The user you entered is already in your member list.");
       return;
     }
 
     setSelectedMember(result);
   }, [searchValue]);
 
-  const handleSelectRelationship = (item: {text: string; value: number}) => {
-    setRelationship(item.value); // Store value
-    setRelationshipText(item.text); // Store value
+  const handleSelectRelationship = (item: IUserRelationship) => {
+    setRelationship(item.id); // Store value
+    setRelationshipText(item.name); // Store value
     setMenuVisibility(false);
+
+    console.log(item.id);
   };
 
   const handleSettingAuthorization = (status: boolean) => {
     setAuthorization(status);
   }
 
-  const getSelectedMember = (value: string, type: string) => {
-    if (type === "id") {
-      return members?.find((member) => member.id === value) || undefined
-    }
-    else if (type === "username") {
-      return members?.find((member) => member.username === value) || undefined;
-    }
-  }
-
   // On Edit (Would be useEffect later)
   const [onLoad, setLoad] = useState<boolean>(false);
-  const onEdit = async () => {
+
+  // Edit Mode or Add Mode
+  useEffect(() => {
     if (userID !== null && !onLoad) {
-      const member = await getSelectedMember(userID, "id");
-      setSelectedMember(member);
-      setRelationshipText(member?.relationship);
-      setRelationship(() => options.find((relation) => relation.text === member?.relationship)?.value || 0);
-      setAuthorization(() => member?.isAuthorized === "Authorized" ? true : false);
+      setRelationshipText(selectedMember?.relationship?.name);
+      setRelationship(() => options.find((relation) => relation.name === selectedMember?.relationship?.name)?.id || "");
+      setAuthorization(selectedMember?.isAuthorized ?? false);
+      setSubmitButtonStatusDisabled(false);
       setLoad(true);
     }
-  }
-
-  onEdit();
+    else {
+      setSelectedMember(null);
+      setRelationshipText("Select Relationship");
+      setRelationship("");
+      setAuthorization(true);
+      setSubmitButtonStatusDisabled(true);
+      setLoad(true);
+    }
+  }, [userID, type])
 
   // On Edit Changes
   useEffect(() => {
     // Check if Authorization and Relationship matches with current selected user
-    const getCurrentAuthorization = (selectedAuthorization) ? "Authorized" : "Not Authorized";
-    const relationshipComparison = selectedMember?.relationship === selectedRelationshipText;
+    const getCurrentAuthorization = selectedAuthorization;
+    const relationshipComparison = selectedMember?.relationship?.name === selectedRelationshipText;
     const authorizationComparison = selectedMember?.isAuthorized === getCurrentAuthorization;
-    
-    setSubmitButtonStatusDisabled(type === 'edit' && relationshipComparison && authorizationComparison);
-  }, [selectedRelationship, selectedAuthorization, selectedMember]);
+
+    setSubmitButtonStatusDisabled((type === 'edit' && relationshipComparison && authorizationComparison) || 
+    (type === "add" && selectedMember === null));
+
+  }, [selectedRelationship, selectedAuthorization, selectedMember, type]);
   
 
   const handleSubmitForm = useCallback(() => {
@@ -138,30 +171,58 @@ const MemberForm = () => {
     // Confirmation
     Alert.alert("Notice", `Are you sure you want to ${type} this user?`, [
       { text: "No" },
-      { text: "Yes", onPress: () => router.back() }
+      { text: "Yes", onPress: () => {
+        // Submission
+        switch(type) {
+          case "add":
+            handleAddMember({
+              IsAuthorized: selectedAuthorization,
+              MemberId: selectedMember?.id,
+              RelationshipId: selectedRelationship
+            }, AUID ?? "");
+          break;
+          
+          case "edit":
+            // console.log("DATA: ", [selectedMember]);
+
+            // return;
+            handleUpdateMember([{
+              GroupMemberId: selectedMember?.groupMemberId,
+              IsAuthorized: selectedAuthorization,
+              RelationshipId: selectedRelationship
+            }])
+          break;
+        }
+      }}
     ]);
+  }, [selectedMember, selectedAuthorization, selectedRelationship]);
 
-    // Submission
-    switch(type) {
-      case "add":
+  const handleAddMember = useCallback(async(creds: IUserGroupMember, USERID: string) => {
+    await addMember(creds, USERID);
+  }, []);
 
-      break;
-      case "edit":
-
-      break;
-    }
-  }, [selectedMember]);
+  const handleUpdateMember = useCallback(async(creds: IUpdateMemberRequest[]) => {
+    await updateMember(creds);
+  }, []);
 
   const handleCancelForm = useCallback(() => {
     // Check if theres any changes
-    if ((type === "edit" && !submitBtnStatusDisabled) || (type === "add" &&  selectedMember !== undefined)) {
+    if ((type === "edit" && !submitBtnStatusDisabled) || (type === "add" &&  selectedMember !== null)) {
       handleConfirmExitDialog();
       return;
     }
-
+    handleResetForm();
     router.back();
 
-  }, [submitBtnStatusDisabled, selectedMember]);
+  }, [submitBtnStatusDisabled, selectedMember]); 
+
+  const handleResetForm = useCallback(() => {
+    setSelectedMember(null);
+    setRelationshipText("Select Relationship");
+    setRelationship("");
+    setAuthorization(true);
+    setSubmitButtonStatusDisabled(true);
+  }, []);
 
   const handleConfirmExitDialog = useCallback(() => {
     Alert.alert("Notice", "Are you sure you want to cancel this form? Your progress will be discarded", [
@@ -169,6 +230,34 @@ const MemberForm = () => {
       {text: "Yes", onPress: () => router.back() }
     ]);
   }, []);
+
+  /// UseEffect
+  useEffect(() => {
+    if (AMData === null) return;
+
+    setMembers((current) => [...current, AMData]);
+    handleResetForm();
+    router.back();
+  }, [AMData]);
+
+  useEffect(() => {
+    if (UMData === null) return;
+
+    setMembers((current) =>
+      current.map((member) => {
+        if (selectedMember?.groupMemberId?.includes(member.id + "")) {
+          return { 
+            ...member, 
+            isAuthorized: selectedAuthorization, 
+            relationship: options.find(option => option.id === selectedRelationship) || undefined
+          };
+        }
+        return { ...member };
+      })
+    );
+    handleResetForm();
+    router.back();
+  }, [UMData]);
   
   return (
     <PaperProvider>
@@ -211,7 +300,7 @@ const MemberForm = () => {
                     minHeight: 0,
                     color: "black"
                   }}
-                  onClearIconPress={() => setSelectedMember(undefined)}
+                  onClearIconPress={() => setSelectedMember(null)}
                 />
               </View>
             )
@@ -226,7 +315,7 @@ const MemberForm = () => {
               }>
                 {/* Image */}
                 <Image
-                  source={(selectedMember !== undefined) ? require(`@/assets/images/icon.png`) : require(`@/assets/images/dashboard/homepage/package.png`)} // Replace with your local image
+                  source={(selectedMember !== null) ? require(`@/assets/images/icon.png`) : require(`@/assets/images/dashboard/homepage/package.png`)} // Replace with your local image
                   style={[manageAccessStyle.MemberImage]}
                 />
                 
@@ -235,15 +324,16 @@ const MemberForm = () => {
                   <LabeledTextInput 
                     label='User ID'
                     textBoxStyle={manageAccessStyle.textInput}
-                    value={(selectedMember !== undefined) ? selectedMember?.id : ""}
+                    value={(selectedMember !== null) ? shortenText(selectedMember?.id ?? "", 14) : ""}
                     viewStyle={manageAccessStyle.view}
                     readonly={true}
+                    scrollable={true}
                   />
                   
                   <LabeledTextInput 
                     label='Username'
                     textBoxStyle={manageAccessStyle.textInput}
-                    value={(selectedMember !== undefined) ? selectedMember?.username : ""}
+                    value={(selectedMember !== null) ? selectedMember?.username : ""}
                     viewStyle={manageAccessStyle.view}
                     readonly={true}
                   />
@@ -253,7 +343,7 @@ const MemberForm = () => {
               <LabeledTextInput 
                 label='First Name'
                 textBoxStyle={manageAccessStyle.textInput}
-                value={(selectedMember !== undefined) ? selectedMember?.firstName : ""}
+                value={(selectedMember !== null) ? selectedMember?.firstName : ""}
                 viewStyle={manageAccessStyle.view}
                 readonly={true}
               />
@@ -261,7 +351,7 @@ const MemberForm = () => {
               <LabeledTextInput 
                 label='Last Name'
                 textBoxStyle={manageAccessStyle.textInput}
-                value={(selectedMember !== undefined) ? selectedMember?.lastName : ""}
+                value={(selectedMember !== null) ? selectedMember?.lastName : ""}
                 viewStyle={manageAccessStyle.view}
                 readonly={true}
               />
@@ -301,7 +391,7 @@ const MemberForm = () => {
                       onPress={() => {
                         handleSelectRelationship(item);
                       }}
-                      title={item.text}
+                      title={item.name}
                     />
                   ))}
                 </Menu>
@@ -355,12 +445,11 @@ const MemberForm = () => {
                     manageAccessStyle.btnFormHalf, 
                     manageAccessStyle.btnPrimary,
                     {
-                      filter: submitBtnStatusDisabled && type === "edit" || 
-                      selectedMember === undefined && type === "add" ? "contrast(60%)" : "contrast(100%)",
+                      filter: submitBtnStatusDisabled ? "contrast(60%)" : "contrast(100%)",
                     }
                   ]}
                   onPress={handleSubmitForm}
-                  disabled={(type === "edit") ? submitBtnStatusDisabled : (selectedMember === undefined) ? true : false }
+                  disabled={ submitBtnStatusDisabled }
                 >
                   <Text style={[text.bold]}>{(type === "add") ? "Add" : "Save"}</Text>
                 </TouchableOpacity>

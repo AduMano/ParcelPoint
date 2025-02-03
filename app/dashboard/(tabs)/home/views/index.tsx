@@ -8,6 +8,7 @@ import MemberItem from "@/app/utilities/home/components/MemberItem";
 import { LogItem } from "@/app/utilities/home/components/LogItem";
 
 // Helpers
+import Colors from "@/constants/Colors";
 import { IonIconByName } from "@/helpers/IconsLoader";
 
 // Types
@@ -15,7 +16,7 @@ import { TParcelDetail, TData, TMember, TParcel } from "../../../../utilities/ho
 import { INotificationItem } from "../../../../utilities/notification/types/types";
 
 // Library
-import { ScrollView, TouchableOpacity } from "react-native";
+import { Alert, BackHandler, ScrollView, TouchableOpacity } from "react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { router } from "expo-router";
 import React from "react";
@@ -33,10 +34,13 @@ import {
 
 // Recoil
 import { userInformation as AUserInformation, userID as AUserID } from '@/app/utilities/home/atoms/atom';
+import { memberList as AMemberList } from "@/app/utilities/home/atoms/atom";
+import { userList as AUserList } from "@/app/utilities/home/atoms/atom";
 
 // Hooks
 import useGetUserInfo from "@/app/utilities/home/hooks/useGetUserInfo";
-import Colors from "@/constants/Colors";
+import useGetMemberList from "@/app/utilities/home/hooks/useGetMemberList";
+import useGetUserList from "@/app/utilities/home/hooks/useGetUserList";
 
 const index = () => {
   // Sample data for the time being
@@ -90,20 +94,6 @@ const index = () => {
         trackingId: "111-222-333",
         status: "Not Picked Up",
       },
-    ],
-    []
-  );
-
-  const members = useMemo<TMember[]>(
-    () => [
-      { id: "1", name: "DanDan", image: "icon.png" },
-      { id: "2", name: "DenDen", image: "icon.png" },
-      { id: "3", name: "DinDin", image: "icon.png" },
-      { id: "4", name: "DonDon", image: "icon.png" },
-      { id: "5", name: "DunDun", image: "icon.png" },
-      { id: "6", name: "Shane", image: "icon.png" },
-      { id: "7", name: "Juvit", image: "icon.png" },
-      { id: "8", name: "Ferdinand", image: "icon.png" },
     ],
     []
   );
@@ -194,22 +184,32 @@ const index = () => {
     []
   );
 
-  const [dataState, setDataState] = useState<string>("all");
-  const [data, setData] = useState<TData>({
-    parcels: parcels,
-    members: members,
-  });
-
   /// Init Data
+  // User Data
   const { fetchUserInfo, data: UIData, isLoading: UILoading, error: UIError } = useGetUserInfo();
+  // Member Data
+  const { fetchMembers, data: MLData, isLoading: MLLoading, error: MLError } = useGetMemberList();
+  // User List
+  const { fetchUserList, data: ULData, isLoading: ULLoading, error: ULError } = useGetUserList();
 
   /// States
   // Initial States
-  const [isLoading, setLoadingState] = useState<boolean>(false);
+  const [isLoading, setLoading] = useState<boolean>(true);
+  useEffect(() => {
+    setLoading(true);
+    
+    if ([UILoading, MLLoading, ULLoading].every(load => !load)){
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
+    }
+  }, [UILoading, MLLoading, ULLoading]);
 
   // User Information
   const [userID, setUserID] = useRecoilState(AUserID);
   const [userInformation, setUserInformation] = useRecoilState(AUserInformation);
+  const [members, setMembers] = useRecoilState(AMemberList);
+  const [userList, setUserList] = useRecoilState(AUserList);
   
   // For Modal
   const [modalPackageState, setModalPackageState] = useState<boolean>(false);
@@ -221,10 +221,6 @@ const index = () => {
   });
 
   /// Event Handlers
-  // For Debugging
-  const handleStateChange = useCallback((state: string) => {
-    setDataState(state);
-  }, []);
 
   // Modal for Parcel Status
   const onOpenPackageModal = useCallback(({trackingId, name}: TParcelDetail) => {
@@ -243,16 +239,21 @@ const index = () => {
   const onClosePackageLogModal = useCallback(() => {
     setModalPackageLogState(false);
   }, []);
+
+  /// Data Holder
+  const [data, setData] = useState<TData>({
+    parcels: parcels,
+    members: members,
+  });
   
   /// Use Effect
   // Get User ID
   useEffect(() => {
-    // Loading State
-    setLoadingState(true);
-
     const getUserId = async () => {
       const id = await AsyncStorage.getItem("USER_ID");
       await fetchUserInfo(id ?? "");
+      await fetchMembers(id ?? "");
+      await fetchUserList(id ?? "");
 
       setUserID(id);
     };
@@ -261,46 +262,47 @@ const index = () => {
   }, []);
 
   useEffect(() => {
+    if (UIError === null) return;
+
+    setLoading(true);
+    Alert.alert(
+      "Connection Issue", 
+      "Unable to load data due to internet connection issues.\nPlease Try again later.", 
+      [{ text: "I Understand", onPress: () => { BackHandler.exitApp() } }]
+    );
+
+    // Redirect user to no internet page
+  }, [UIError]);
+
+  useEffect(() => {
     if (UIData === null) return;
 
     const getUserInformation = async () => {
       setUserInformation(UIData);
-      setLoadingState(false);
     }
 
     getUserInformation();
   }, [UIData]);
 
-  /// For Debugging Purposes.
   useEffect(() => {
-    switch (dataState) {
-      case "all":
-        setData({
-          parcels: parcels,
-          members: members,
-        });
-        break;
-      case "parcels":
-        setData({
-          parcels: parcels,
-          members: [],
-        });
-        break;
-      case "members":
-        setData({
-          parcels: [],
-          members: members,
-        });
-        break;
+     if (MLData === null) return;
 
-      case "empty":
-        setData({
-          parcels: [],
-          members: [],
-        });
-        break;
-    }
-  }, [dataState]);
+     const getMemberList = async () => {
+      setMembers(MLData);
+     }
+
+     getMemberList();
+  }, [MLData]);
+
+  useEffect(() => {
+     if (ULData === null) return;
+
+     const getUserList = async () => {
+      setUserList(ULData);
+     }
+
+     getUserList();
+  }, [ULData]);
 
   return (
     <>
@@ -320,170 +322,160 @@ const index = () => {
 
         {/* Loading Screen */}
         { isLoading && (
-          <View style={styles.loading}>
+          <View style={[styles.loading, {gap: 20}]}>
             <ActivityIndicator size={100} color={Colors["light"].buttonAction} />
+            <Text style={[text.heading]}>Fetching Data...</Text>
+            <Text style={[text.mute]}>This may take a while. Plase wait</Text>
           </View>
         )}
       </Portal>
 
       {/* Content */}
-      <View style={styles.container}>
-        {/* Header Contains Name, Fixed MEssage and Notif */}
-        {/* Under in Header, shows the carousel cards that are ready to pick up */}
-        {/* This header is attached to the top, takes 30% height */}
-        <View style={[styles.headerSection]}>
-          {/* Greet And Notification Section */}
-          <View style={[styles.flex, styles.viewDefault]}>
-            <View style={styles.viewDefault}>
-              <Text style={[text.heading, { color: "white" }]}>
-                <Text style={{ color: "White" }}>
-                  Hi, {userInformation?.firstName} {userInformation?.lastName} {userInformation?.suffix}
-                </Text>
-              {/*                 
-                <Text style={{ color: "White" }} onPress={() => handleStateChange("all")}>
-                  Hi,
-                </Text>{" "}
-                <Text style={{ color: "White" }} onPress={() => handleStateChange("parcels")}>
-                  Jane
-                </Text>{" "}
-                <Text style={{ color: "White" }} onPress={() => handleStateChange("members")}>
-                  Dela
-                </Text>{" "}
-                <Text style={{ color: "White" }} onPress={() => handleStateChange("empty")}>
-                  Cruz
-                </Text> 
-              */}
-              </Text>
-              <Text style={text.subHeading}>
-                Have a great day managing your deliveries!
-              </Text>
-            </View>
-
-            <TouchableOpacity
-              // Pass Data Notifications as Parameter
-              onPress={() => router.push({
-                pathname: "/utilities/notification/view",
-                params: {
-                  data: JSON.stringify(notifications)
-                },
-              })}
-            >
-              <IonIconByName name="notifications" size={30} color={"white"} />
-            {
-              notifications.some((notif) => notif.status == "Not Read") && <View style={styles.notificationDot} />
-            }
-            </TouchableOpacity>
-          </View>
-
-          {/* Delivered Parcel (Ready to Pick Up) */}
-          <View style={styles.viewDefault}>
-            <Text style={[text.headingLast, { marginTop: 20 }]}>
-              {data.parcels.filter((parcel) => parcel.status == "Not Picked Up")
-                .length != 0
-                ? "Ready to Pick Up!"
-                : ""}
-            </Text>
-
-            <View style={[styles.viewDefault]}>
-              <ScrollView
-                horizontal={true}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={scroller.scrollContainer}
-              >
-                {data.parcels.filter(
-                  (parcel) => parcel.status == "Not Picked Up"
-                ).length != 0 ? (
-                  data.parcels.map((parcel: TParcel) => {
-                    if (parcel.status == "Not Picked Up") {
-                      return (
-                        <ParcelItem key={parcel.id} parcel={parcel} handleOpenPackageModal={() => onOpenPackageModal({
-                          name: parcel.name,
-                          trackingId: parcel.trackingId
-                        })} />
-                      );
-                    }
-                  })
-                ) : (
-                  <Text style={[text.heading, { color: "white" }]}>
-                    No parcels at the moment.
+      { UIError === null &&
+        <View style={styles.container}>
+          {/* Header Contains Name, Fixed MEssage and Notif */}
+          {/* Under in Header, shows the carousel cards that are ready to pick up */}
+          {/* This header is attached to the top, takes 30% height */}
+          <View style={[styles.headerSection]}>
+            {/* Greet And Notification Section */}
+            <View style={[styles.flex, styles.viewDefault]}>
+              <View style={styles.viewDefault}>
+                <Text style={[text.heading, { color: "white" }]}>
+                  <Text style={{ color: "White" }}>
+                    Hi, {userInformation?.firstName} {userInformation?.lastName} {userInformation?.suffix}
                   </Text>
-                )}
-              </ScrollView>
-            </View>
-          </View>
-        </View>
-
-        {/* Body Contains Household Members Carousel Pins and a direction button with parcel history logs */}
-        {/* This body is attached to the bottom, takes 70% height */}
-        {/* History logs has scrollable vertical for listing logs (Except the header of this section) */}
-        <View style={[[styles.bodySection]]}>
-          <View style={[styles.viewDefault, styles.membersSection]}>
-            {/* Members */}
-            <View style={[styles.viewDefault, styles.household]}>
-              <Text style={text.headingTwo}>Household Members</Text>
-
-              <ScrollView
-                horizontal={true}
-                showsHorizontalScrollIndicator={false}
-                style={[styles.memberScroller]}
-              >
-                {data.members.length != 0 ? (
-                  data.members.map((member) => {
-                    return (
-                      <MemberItem key={member.id} member={member} />
-                    );
-                  })
-                ) : (
-                  <Text style={[text.subHeading]}>No Shared Members.</Text>
-                )}
-              </ScrollView>
+                </Text>
+                <Text style={text.subHeading}>
+                  Have a great day managing your deliveries!
+                </Text>
+              </View>
 
               <TouchableOpacity
-                style={buttons.primary}
-                onPress={() => {
-                  router.replace("/dashboard/(tabs)/manageAccess/views");
-                }}
+                // Pass Data Notifications as Parameter
+                onPress={() => router.push({
+                  pathname: "/utilities/notification/view",
+                  params: {
+                    data: JSON.stringify(notifications)
+                  },
+                })}
               >
-                <Text style={text.bold}>Manage Household Members</Text>
+                <IonIconByName name="notifications" size={30} color={"white"} />
+              {
+                notifications.some((notif) => notif.status == "Not Read") && <View style={styles.notificationDot} />
+              }
               </TouchableOpacity>
             </View>
 
-            {/* History Logs */}
-            <View style={[styles.viewDefault, styles.historyContainer]}>
-              <View style={[styles.viewDefault, styles.historyHeader]}>
-                <Text style={[text.headingTwo]}>History Logs</Text>
+            {/* Delivered Parcel (Ready to Pick Up) */}
+            <View style={styles.viewDefault}>
+              <Text style={[text.headingLast, { marginTop: 20 }]}>
+                {data.parcels.filter((parcel) => parcel.status == "Not Picked Up")
+                  .length != 0
+                  ? "Ready to Pick Up!"
+                  : ""}
+              </Text>
+
+              <View style={[styles.viewDefault]}>
+                <ScrollView
+                  horizontal={true}
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={scroller.scrollContainer}
+                >
+                  {data.parcels.filter(
+                    (parcel) => parcel.status == "Not Picked Up"
+                  ).length != 0 ? (
+                    data.parcels.map((parcel: TParcel) => {
+                      if (parcel.status == "Not Picked Up") {
+                        return (
+                          <ParcelItem key={parcel.id} parcel={parcel} handleOpenPackageModal={() => onOpenPackageModal({
+                            name: parcel.name,
+                            trackingId: parcel.trackingId
+                          })} />
+                        );
+                      }
+                    })
+                  ) : (
+                    <Text style={[text.heading, { color: "white" }]}>
+                      No parcels at the moment.
+                    </Text>
+                  )}
+                </ScrollView>
+              </View>
+            </View>
+          </View>
+
+          {/* Body Contains Household Members Carousel Pins and a direction button with parcel history logs */}
+          {/* This body is attached to the bottom, takes 70% height */}
+          {/* History logs has scrollable vertical for listing logs (Except the header of this section) */}
+          <View style={[[styles.bodySection]]}>
+            <View style={[styles.viewDefault, styles.membersSection]}>
+              {/* Members */}
+              <View style={[styles.viewDefault, styles.household]}>
+                <Text style={text.headingTwo}>Household Members</Text>
+
+                <ScrollView
+                  horizontal={true}
+                  showsHorizontalScrollIndicator={false}
+                  style={[styles.memberScroller]}
+                >
+                  {members.length != 0 ? (
+                    members.map((member, index) => {
+                      return (
+                        <MemberItem key={index} member={member} />
+                      );
+                    })
+                  ) : (
+                    <Text style={[text.subHeading]}>No Shared Members.</Text>
+                  )}
+                </ScrollView>
 
                 <TouchableOpacity
-                  onPress={() =>
-                    router.replace("/dashboard/(tabs)/history/views")
-                  }
+                  style={buttons.primary}
+                  onPress={() => {
+                    router.replace("/dashboard/(tabs)/manageAccess/views");
+                  }}
                 >
-                  <Text style={{ fontSize: 16 }}>View All</Text>
+                  <Text style={text.bold}>Manage Household Members</Text>
                 </TouchableOpacity>
               </View>
 
-              <ScrollView
-                style={[styles.historyList]}
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-                horizontal={false}
-              >
-                {data.parcels.length != 0 ? (
-                  data.parcels.slice(0, 5).map((parcel: TParcel) => (
-                    <LogItem key={parcel.id} parcel={parcel} handleOpenPackageLogModal={() => onOpenPackageLogModal({
-                      name: parcel.name,
-                      trackingId: parcel.trackingId,
-                      status: parcel.status
-                    })} />
-                  ))
-                ) : (
-                  <Text style={text.subHeading}>No Recent Activity.</Text>
-                )}
-              </ScrollView>
+              {/* History Logs */}
+              <View style={[styles.viewDefault, styles.historyContainer]}>
+                <View style={[styles.viewDefault, styles.historyHeader]}>
+                  <Text style={[text.headingTwo]}>History Logs</Text>
+
+                  <TouchableOpacity
+                    onPress={() =>
+                      router.replace("/dashboard/(tabs)/history/views")
+                    }
+                  >
+                    <Text style={{ fontSize: 16 }}>View All</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <ScrollView
+                  style={[styles.historyList]}
+                  showsHorizontalScrollIndicator={false}
+                  showsVerticalScrollIndicator={false}
+                  horizontal={false}
+                >
+                  {data.parcels.length != 0 ? (
+                    data.parcels.slice(0, 5).map((parcel: TParcel) => (
+                      <LogItem key={parcel.id} parcel={parcel} handleOpenPackageLogModal={() => onOpenPackageLogModal({
+                        name: parcel.name,
+                        trackingId: parcel.trackingId,
+                        status: parcel.status
+                      })} />
+                    ))
+                  ) : (
+                    <Text style={text.subHeading}>No Recent Activity.</Text>
+                  )}
+                </ScrollView>
+              </View>
             </View>
           </View>
         </View>
-      </View>
+      }
     </>
   );
 };

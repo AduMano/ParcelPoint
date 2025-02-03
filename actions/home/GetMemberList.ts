@@ -1,15 +1,15 @@
 import axios from "axios";
 import { API_URL } from '@/actions/config';
-import { IUserInformation } from "@/app/utilities/home/types/type";
+import { IMember } from "@/app/utilities/manageAccess/types/types";
 
 export interface ApiResponse<T> {
   data: T | null;
   error: string | null;
 }
 
-export const getUserInformation = async ( userID: string ): Promise<ApiResponse<IUserInformation>> => {
+export const getMemberList = async ( userID: string ): Promise<ApiResponse<IMember[]>> => {
   try {
-    const { data } = await axios.get<IUserInformation>(API_URL + "Users/GetUserInformation/" + userID,
+    const { data } = await axios.get<IMember[]>(API_URL + "UserGroups/GetMemberList/" + userID,
       { headers: { 'Content-Type': 'application/json' } }
     );
 

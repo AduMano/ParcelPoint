@@ -29,10 +29,11 @@ const EditProfileForm = (props: {
   
   handleUpdateUserInformation: (userData: IUserUpdateInformation) => void;
   setIsLoading: (value: boolean) => void;
+  closeEditForm: () => void;
 }) => {
   // Drilled Prop
   const { userID, modalData: userProfile, defaultInformation, modalEditProfileState } = props;
-  const { setIsLoading, handleUpdateUserInformation } = props;
+  const { setIsLoading, handleUpdateUserInformation, closeEditForm } = props;
 
   // Animation
   const slideAnim = useRef(new Animated.Value(height)).current; // Start off-screen
@@ -49,13 +50,15 @@ const EditProfileForm = (props: {
   const [isDateModalVisible, setDateModalVisibility] = useState<boolean>(false);
 
   // Changes
+  const [isVisible, setVisibility] = useState<boolean>(false);
   const [isChanged, setChangeStatus] = useState<boolean>(false);
 
   // Toggler
   useEffect(() => {
     if (modalEditProfileState) {
-      setChangeStatus(handleCheckChanges());
+      setVisibility(true);
       openModal();
+      setChangeStatus(handleCheckChanges());
     }
     else {
       closeModal();
@@ -82,7 +85,10 @@ const EditProfileForm = (props: {
       toValue: height, 
       duration: 400,
       useNativeDriver: true,
-    }).start();
+    }).start(() => {
+      closeEditForm();
+      setVisibility(false);
+    });
   };
 
   // Change Checker Handler
@@ -154,7 +160,7 @@ const EditProfileForm = (props: {
         />
       </Portal>
 
-      { modalEditProfileState && 
+      { isVisible && 
         <View style={[ modalStyle.viewDefault, modalStyle.modalContainer ]}>
           {/* BackDrop */}
           <Pressable onPress={closeModal} style={[modalStyle.viewDefault, modalStyle.modalBackDrop]}>

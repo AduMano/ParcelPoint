@@ -1,24 +1,53 @@
-type Relationship =
-  | "Friend"
-  | "Father"
-  | "Mother"
-  | "Cousin"
-  | "Sister"
-  | "Brother"
-  | "Aunt"
-  | "Uncle"
-  | "Nephew";
+interface Relationship  {
+  id: string,
+  name: string,
+  createdAt: Date | null,
+  createdBy: string | null,
+  modifiedAt: Date | null,
+  modifiedBy: string | null,
+  userGroupMembers?: []
+}
 
-type AuthorizationStatus = "Authorized" | "Not Authorized";
-
-export interface IMember {
-  id: string;
+export interface IUserInformation {
+  id?: string;
   firstName: string;
+  middleName: string;
   lastName: string;
-  image: string;
-  relationship: Relationship;
-  isAuthorized: AuthorizationStatus;
+  suffix?: string | null;
+  birthDate: Date | string;
+  address: string;
+  contactNumber: string;
+  photoUrl: string;
+  email: string;
   username: string;
 }
 
+export interface IMember extends IUserInformation {
+  relationship?: Relationship;
+  isAuthorized?: boolean;
+  groupMemberId?: string;
+}
+
+export interface IUpdateMemberRequest {
+  GroupMemberId?: string;
+  RelationshipId?: string;
+  IsAuthorized?: boolean;
+}
+
 export type IsActive = "checked" | "unchecked";
+
+export interface IUserRelationship {
+  id: string;
+  name: string;
+  createdAt: Date;
+  createdBy: string;
+  modifiedAt: Date;
+  modifiedBy: string;
+}
+
+export interface IUserGroupMember {
+  MemberId?: string;
+  RelationshipId?: string;
+  IsAuthorized?: boolean;
+}
+

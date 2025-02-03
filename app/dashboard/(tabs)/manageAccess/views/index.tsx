@@ -4,8 +4,9 @@ import MemberGestureItem from "@/app/utilities/manageAccess/components/MemberGes
 
 // Library
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { Alert, FlatList, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Alert, FlatList, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import { Portal } from "react-native-paper";
 
 // Types
 import { IMember } from "@/app/utilities/manageAccess/types/types";
@@ -14,77 +15,47 @@ import { IMember } from "@/app/utilities/manageAccess/types/types";
 import { styles, manageAccessStyle } from "@/app/utilities/manageAccess/style/style";
 import { text } from "@/app/utilities/home/styles/styles";
 
+// Recoil
+import { useRecoilState } from "recoil";
+
+// Atoms
+import { memberList as AMemberList } from "../../../../utilities/home/atoms/atom";
+import { selectedMembers as ASelectedMembers, selectAllTrigger as ASelectAllTrigger } from "@/app/utilities/manageAccess/atoms/atom";
+
+// Hooks
+import useUpdateMember from "@/app/utilities/manageAccess/hooks/useUpdateMember";
+import useDeleteMember from "@/app/utilities/manageAccess/hooks/useDeleteMember";
+
+// COntent
+import Colors from "@/constants/Colors";
+
 const index = () => {
   /// Constants
   const router = useRouter();
-  /// States
-  const [members, setMembers] = useState<IMember[]>(
-    [
-      { id: "1", firstName: "Dan", lastName: "Danny", image: "icon.png", relationship: "Brother", isAuthorized: "Authorized", username: "dandan" },
-      { id: "2", firstName: "Den", lastName: "Den", image: "icon.png", relationship: "Friend", isAuthorized: "Not Authorized", username: "denden" },
-      { id: "3", firstName: "Din", lastName: "Din", image: "icon.png", relationship: "Cousin", isAuthorized: "Authorized", username: "dindin" },
-      { id: "4", firstName: "Don", lastName: "Don", image: "icon.png", relationship: "Father", isAuthorized: "Authorized", username: "dondon" },
-      { id: "5", firstName: "Dun", lastName: "Dun", image: "icon.png", relationship: "Mother", isAuthorized: "Not Authorized", username: "dundun" },
-      { id: "6", firstName: "Shane", lastName: "Smith", image: "icon.png", relationship: "Friend", isAuthorized: "Authorized", username: "shanesmith" },
-      { id: "7", firstName: "Juvit", lastName: "Jones", image: "icon.png", relationship: "Aunt", isAuthorized: "Not Authorized", username: "juvitjones" },
-      { id: "8", firstName: "Ferdinand", lastName: "Fischer", image: "icon.png", relationship: "Uncle", isAuthorized: "Authorized", username: "ferdinandfischer" },
-      { id: "9", firstName: "Lara", lastName: "Croft", image: "icon.png", relationship: "Sister", isAuthorized: "Authorized", username: "laracroft" },
-      { id: "10", firstName: "Tony", lastName: "Starks", image: "icon.png", relationship: "Friend", isAuthorized: "Not Authorized", username: "tonystarks" },
-      { id: "11", firstName: "Clark", lastName: "Kent", image: "icon.png", relationship: "Brother", isAuthorized: "Authorized", username: "clarkkent" },
-      { id: "12", firstName: "Bruce", lastName: "Wayne", image: "icon.png", relationship: "Cousin", isAuthorized: "Not Authorized", username: "brucewayne" },
-      { id: "13", firstName: "Diana", lastName: "Prince", image: "icon.png", relationship: "Sister", isAuthorized: "Authorized", username: "dianaprince" },
-      { id: "14", firstName: "Steve", lastName: "Rogers", image: "icon.png", relationship: "Friend", isAuthorized: "Authorized", username: "steverogers" },
-      { id: "15", firstName: "Natasha", lastName: "Romanoff", image: "icon.png", relationship: "Cousin", isAuthorized: "Not Authorized", username: "natasharomanoff" },
-      { id: "16", firstName: "Peter", lastName: "Parker", image: "icon.png", relationship: "Nephew", isAuthorized: "Authorized", username: "peterparker" },
-      { id: "17", firstName: "Wanda", lastName: "Maximoff", image: "icon.png", relationship: "Sister", isAuthorized: "Not Authorized", username: "wandamaximoff" },
-      { id: "18", firstName: "Thor", lastName: "Odinson", image: "icon.png", relationship: "Brother", isAuthorized: "Authorized", username: "thorodinson" },
-      { id: "19", firstName: "Loki", lastName: "Laufeyson", image: "icon.png", relationship: "Cousin", isAuthorized: "Not Authorized", username: "lokilaufeyson" },
-      { id: "20", firstName: "Pepper", lastName: "Potts", image: "icon.png", relationship: "Friend", isAuthorized: "Authorized", username: "pepperpotts" }
-    ]    
-  );
 
-  // When false, it means it doesnt have items, If true it means user had already selected items
-  // If false, then it must be "Select All", if true then it must be "De-Select All"
-  const [resetFlag, setResetFlag] = useState<boolean>(false);
-  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
-  const [resetFlagVersion, setResetFlagVersion] = useState<number>(0);
-  const [isQuickSelectionDisabled, setQuickSelectionState] = useState<boolean>(false);
+  /// Custom Hooks Api
+  const { updateMember, isLoading: UMLoading, data: UMData, error: UMError } = useUpdateMember();
+  const { deleteMember, isLoading: DMLoading, data: DMData, error: DMError } = useDeleteMember();
+
+  /// States
+  const [members, setMembers] = useRecoilState(AMemberList);
+  const [selectedMembers, setSelectedMembers] = useRecoilState(ASelectedMembers);
+  const [_, setSelectAllTriggerState] = useRecoilState(ASelectAllTrigger);
+  const [isLoading, setLoading] = useState<boolean>(false);
 
   /// Handlers
   const handleSelectAllMembers = () => {
-    if (isQuickSelectionDisabled) return;
+    const flag = selectedMembers.length === 0 ? true : false;
+    setSelectAllTriggerState(flag);
 
-    const flag = selectedMembers.length === 0 ? false : true;
-    setQuickSelectionState(true);
-    setResetFlagVersion(prev => prev + 1);
-    setResetFlag(flag);
-      
-    if (flag) setSelectedMembers([]);
-    setTimeout(() => setQuickSelectionState(false), 1000);
+    if (!flag) setSelectedMembers([]);
   };
-
-  const handleAddSelectedMember = useCallback((id: string) => {
-    setSelectedMembers((current) => {
-      return[...current, id];
-    });
-  }, [selectedMembers, resetFlagVersion]);
-
-  const handleRemoveSelectedMember = useCallback((val_id: string) => {
-    setSelectedMembers((current) => {
-      return current.filter(id => id != val_id);
-    })
-  }, [selectedMembers, resetFlagVersion]);
 
   const renderMemberItems = useCallback(({item}: {item: IMember}) => (
     <MemberGestureItem 
       item={item} 
-      resetFlag={resetFlag} 
-      resetFlagVersion={resetFlagVersion}
-      addSelectedMember = {handleAddSelectedMember}
-      removeSelectedMember = {handleRemoveSelectedMember}
-      members = {members}
     />
-  ), [resetFlag, resetFlagVersion]);
+  ), [members]);
 
   const isSelectedMemberListEmpty = useCallback(() => {
     if (selectedMembers.length === 0) {
@@ -101,57 +72,101 @@ const index = () => {
     if (isSelectedMemberListEmpty()) return;
 
     // Show confirmation alert
-    Alert.alert("Notice:", `Are you sure you want to remove these members?`, [
+    Alert.alert("Notice:", `Are you sure you want to remove this/these members?`, [
       { text: "No" },
       {
         text: "Yes",
-        onPress: () => {
-          setMembers((current) =>
-            current.filter((member) => !selectedMembers.includes(member.id))
-          );
-          setSelectedMembers([]);
-        },
-      },
-    ]);
-  }, [selectedMembers]);
+        onPress: async () => {
+          setLoading(true);
 
-  const handleModifyMemberAuthorizationAction = useCallback((action: string) => {
-    // Check if there are no selected members
-    if (isSelectedMemberListEmpty()) return;
+          const data = selectedMembers.map((member) => { return member.id ?? "" });
+          console.log(data);
 
-    // Show confirmation alert
-    Alert.alert("Notice:", `Are you sure you want to ${action} authorization from these members?`, [
-      { text: "No" },
-      {
-        text: "Yes",
-        onPress: () => {
-          if (action === "add") {
-            setMembers((current) =>
-              current.map((member) => {
-                if (selectedMembers.includes(member.id)) {
-                  return {...member, isAuthorized: "Authorized"}
-                }
-                return {...member}
-              })
-            );
+          try {
+            await deleteMember(data);
+            
+            if (DMError === null && !isLoading) {
+              setMembers((current) =>
+                current.filter((member) => !selectedMembers.map(mem => mem.id).includes(member.id + ""))
+              );
+              setSelectedMembers([]);
+              Alert.alert("Success", "Member/s Successfully Removed");
+            }
           }
-          else if (action === "remove") {
-            setMembers((current) =>
-              current.map((member) => {
-                if (selectedMembers.includes(member.id)) {
-                  return {...member, isAuthorized: "Not Authorized"}
-                }
-                return {...member}
-              })
-            );
+          catch (error) {
+            console.log(error);
+          }
+          finally {
+            setLoading(false);
           }
         },
       },
     ]);
   }, [selectedMembers]);
+
+  const handleModifyMemberAuthorizationAction = useCallback(async (isAdding: boolean) => {
+    Alert.alert("Confirm", `Are you sure you want to ${isAdding ? "add" : "remove"} authorization to this/these members?`, [
+      { text: "No" }, { text: "Yes", onPress: async () => {
+        setLoading(true);
+
+        const data = selectedMembers.map((member) => {
+          return {
+            GroupMemberId: member.groupMemberId,
+            IsAuthorized: isAdding,
+            RelationshipId: member.relationship?.id,
+          };
+        });
+        
+        console.log("Data: ", data);
+
+        try {
+          await updateMember(data); // Call the backend to update member authorization
+          if (UMError === null) {
+            setMembers((current) =>
+              current.map((member) => {
+                if (selectedMembers.map(mem => mem.id).includes(member.id + "")) {
+                  return { ...member, isAuthorized: isAdding };
+                }
+                return { ...member };
+              })
+            );
+            Alert.alert("Success", "Member/s Successfully " + (isAdding ? "Authorized":"Un Authorized"));
+          }
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setLoading(false);
+        }
+      }}
+    ]);
+  },
+  [selectedMembers]);
+
+  // UseEffect
+  useEffect(() => {
+    if (UMError === null) return;
+
+    Alert.alert("Oops!", UMError, [{ text: "I Understand", onPress: () => setLoading(false) }]);
+  }, [UMError]);
+
+  useEffect(() => {
+    if (DMError === null) return;
+    Alert.alert("Oops!", DMError, [{ text: "I Understand", onPress: () => setLoading(false) }]);
+  }, [DMError]);
 
   return (
     <>
+      {/* Modal */}
+      <Portal>
+        {/* Loading Screen */}
+        { isLoading && (
+          <View style={styles.loading}>
+            <ActivityIndicator size={100} color={Colors["light"].buttonAction} />
+          </View>
+        )}
+      </Portal>
+
+      {/* Content */}
       <View style={[styles.container]}>
         {/* Header */}
         <View style={manageAccessStyle.header}>
@@ -171,8 +186,6 @@ const index = () => {
 
               <TouchableOpacity 
                 onPress={handleSelectAllMembers} 
-                disabled={isQuickSelectionDisabled} 
-                style={{filter: isQuickSelectionDisabled ? "opacity(0.2)" : "opacity(1)"}}
               >
                 <Text>{selectedMembers.length === 0 ? "Select All" : "De-Select All"}</Text>
               </TouchableOpacity>
@@ -181,7 +194,7 @@ const index = () => {
             {/* FlatList */}
             <FlatList 
               data={members}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.id+"|"+Math.random()}
               renderItem={renderMemberItems}
               contentContainerStyle={{
                 width: "100%",
@@ -213,11 +226,10 @@ const index = () => {
               <TouchableOpacity 
                 style={[manageAccessStyle.actionSubmitButton, manageAccessStyle.btnFormHalf, manageAccessStyle.btnSecondary]}
                 onPress={() => {
-                  router.push({
+                  router.navigate({
                     pathname: "/utilities/manageAccess/forms/MemberForm",
                     params: {
-                      "type": "add",
-                      "memberList": JSON.stringify(members)
+                      "type": "add"
                     }
                   });
                 }}
@@ -230,7 +242,7 @@ const index = () => {
               style={[manageAccessStyle.actionSubmitButton, manageAccessStyle.btnFormFull, manageAccessStyle.btnSecondary, {
                 filter: selectedMembers.length > 0 ?  "contrast(100%)" : "contrast(50%)",
               }]}
-              onPress={() => handleModifyMemberAuthorizationAction("remove")}
+              onPress={() => handleModifyMemberAuthorizationAction(false)}
               disabled={selectedMembers.length > 0 ? false : true}
             >
               <Text style={text.bold}>Remove Authorization</Text>
@@ -240,7 +252,7 @@ const index = () => {
               style={[manageAccessStyle.actionSubmitButton, manageAccessStyle.btnFormFull, manageAccessStyle.btnPrimary, {
                 filter: selectedMembers.length > 0 ?  "contrast(100%)" : "contrast(50%)",
               }]}
-              onPress={() => handleModifyMemberAuthorizationAction("add")}
+              onPress={() => handleModifyMemberAuthorizationAction(true)}
               disabled={selectedMembers.length > 0 ? false : true}
             >
               <Text style={text.bold}>Authorize</Text>

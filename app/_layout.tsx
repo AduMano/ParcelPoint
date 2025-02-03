@@ -7,6 +7,7 @@ import "react-native-reanimated";
 // Library
 import { useEffect, useState } from "react";
 import { Stack, useRouter } from "expo-router";
+import { RecoilRoot } from "recoil";
 
 // Helper
 import { checkIfItemExists } from "@/helpers/LocalStorageHelper";
@@ -72,17 +73,19 @@ function RootLayoutNav() {
   useEffect(() => setLoaded(true), []);
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen name="utilities/notification/view/index" options={{
-        animation: "slide_from_right",
-      }} /> 
-      <Stack.Screen name="utilities/manageAccess/forms/MemberForm" options={{
-        animation: "slide_from_right",
-      }} /> 
-    </Stack>
+    <RecoilRoot> 
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="utilities/notification/view/index" options={{
+          animation: "slide_from_right",
+        }} /> 
+        <Stack.Screen name="utilities/manageAccess/forms/MemberForm" options={{
+          animation: "slide_from_right",
+        }} /> 
+      </Stack>
+    </RecoilRoot>
   );
 }

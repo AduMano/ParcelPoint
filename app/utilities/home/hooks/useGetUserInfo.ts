@@ -11,7 +11,7 @@ interface UseGetInfoReturn {
 
 const useGetUserInfo = (): UseGetInfoReturn => {
   const [data, setData] = useState<IUserInformation | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchUserInfo = async (userID: string) => {

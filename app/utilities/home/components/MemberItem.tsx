@@ -17,14 +17,14 @@ import {
 const MemberItem = ({member}: MemberItemProps) => {
   return (
     <TouchableOpacity
-        style={[styles.viewDefault, { marginHorizontal: 10 }]}
+        style={[styles.viewDefault, { marginHorizontal: 10, alignItems: "center", width: 80 }]}
         key={member.id}
         >
         <Image
             source={require(`@/assets/images/icon.png`)} // Replace with your local image
             style={styles.memberImage}
         />
-        <Text style={text.center}>{member.name}</Text>
+        <Text style={text.center}>{member.firstName} {member.lastName}</Text>
     </TouchableOpacity>
   )
 }

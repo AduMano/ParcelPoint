@@ -1,5 +1,6 @@
 // User Information
 export interface IUserInformation {
+  id?: string;
   firstName: string;
   middleName: string;
   lastName: string;
@@ -31,7 +32,7 @@ export type ParcelItemProps = {
 };
 
 export type MemberItemProps = {
-  member: TMember;
+  member: IUserInformation;
 };
 
 export type TParcelDetail = {
@@ -42,5 +43,5 @@ export type TParcelDetail = {
 
 export type TData = {
   parcels: TParcel[];
-  members: TMember[];
+  members: IUserInformation[];
 };

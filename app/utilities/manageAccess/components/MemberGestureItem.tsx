@@ -6,6 +6,7 @@ import MemberItem from "./MemberItem";
 import React from 'react'
 import { GestureHandlerRootView, Swipeable, TouchableOpacity } from 'react-native-gesture-handler';
 import { useRouter } from "expo-router";
+import { useRecoilState } from "recoil";
 
 // Style
 import { manageAccessStyle } from "../style/style";
@@ -13,16 +14,15 @@ import { manageAccessStyle } from "../style/style";
 // Types
 import { IMember } from "../types/types";
 
+// Recoil
+import { selectedMember as ASelectedMember } from "../atoms/atom";
+
 const MemberGestureItem = (props: {
   item: IMember;
-  resetFlag: boolean;
-  resetFlagVersion: number;
-  addSelectedMember: (id: string) => void;
-  removeSelectedMember: (id: string) => void;
-  members: IMember[]
 }) => {
-  const { item, resetFlag, resetFlagVersion, addSelectedMember, removeSelectedMember, members } = props;
+  const { item, } = props;
   const router = useRouter();
+  const [_, setSelectedMember] = useRecoilState(ASelectedMember);
 
   return (
     <GestureHandlerRootView style={manageAccessStyle.memberBody}>
@@ -31,14 +31,11 @@ const MemberGestureItem = (props: {
           <TouchableOpacity 
             style={manageAccessStyle.actionEditButton}
             onPress={() => {
+              setSelectedMember(item);
               router.push(
                 {
                   pathname: "/utilities/manageAccess/forms/MemberForm",
-                  params: {
-                    "type": "edit",
-                    "id": item.id,
-                    "memberList": JSON.stringify(members)
-                  }
+                  params: { "type": "edit" }
                 }
               )
             }}
@@ -52,10 +49,7 @@ const MemberGestureItem = (props: {
       >
         <MemberItem 
           member={item} 
-          resetFlag={resetFlag} 
-          resetFlagVersion={resetFlagVersion}
-          addToList={addSelectedMember}
-          removeToList={removeSelectedMember}
+          key={item.id}
         />
       </Swipeable>
     </GestureHandlerRootView>

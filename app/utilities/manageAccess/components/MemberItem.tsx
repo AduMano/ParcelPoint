@@ -5,6 +5,7 @@ import { Text, View } from '@/components/Themed';
 import React, { useState, useEffect } from 'react';
 import { Checkbox } from 'react-native-paper';
 import { Image } from 'react-native';
+import { useRecoilState } from 'recoil';
 
 // Types
 import { IMember, IsActive } from '../types/types';
@@ -17,47 +18,47 @@ import Colors from '@/constants/Colors';
 // Helper
 import { shortenText } from "@/helpers/textFormatter";
 
+// Atoms
+import { selectedMembers as ASelectedMembers, selectAllTrigger as ASelectAllTrigger } from '../atoms/atom';
+
 const MemberItem = (props: {
   member: IMember;
-  resetFlag: boolean;
-  resetFlagVersion: number;
-  addToList: (id: string) => void;
-  removeToList: (id: string) => void;
 }) => {
   // Prop Drilling
-  const { member, resetFlag, resetFlagVersion, addToList, removeToList } = props;
+  const { member, } = props; 
 
   // State
+  const [selectedMembers, setSelectedMembers] = useRecoilState(ASelectedMembers);
+  const [selectAllTrigger, setSelectAllTrigger] = useRecoilState(ASelectAllTrigger);
   const [isActive, setActive] = useState<IsActive>("unchecked");
-  const [justLoaded, setJustLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    if (justLoaded) {
-      if (!resetFlag) {
-        addToList(member.id);
-        setActive("checked");
-      }
-      else {
-        setActive("unchecked");
-      }
+    if (selectedMembers.length === 0 && selectAllTrigger) {
+      setSelectAllTrigger(false);
+      setSelectedMembers(current => [...current, member]);
+      setActive("checked");
     }
-  }, [resetFlagVersion]);
-
-  useEffect(() => { setJustLoaded(true) }, []);
+  }, [selectedMembers, selectAllTrigger])
 
   // Handler
-  const handleItemSelection = (() => {
-    setActive((current) => {
-      if (current === "checked") {
-        removeToList(member.id);
-        return "unchecked";
-      }
-      else {
-        addToList(member.id);
-        return "checked";
-      }
+  const handleItemSelection = () => {
+    // First update selectedMembers
+    setSelectedMembers((current) => {
+      const newMembers = current.some(curr_mem => curr_mem.id === member.id)
+        ? current.filter(curr_mem => curr_mem.id !== member.id)
+        : [...current, member];
+      // Now update isActive based on the current state of selectedMembers
+      setActive(newMembers.some(curr_mem => curr_mem.id === member.id) ? "checked" : "unchecked");
+      return newMembers;
     });
-  });
+  };
+
+
+  useEffect(() => {
+    // After selectedMembers changes, update isActive accordingly
+    setActive(selectedMembers.some(curr_mem => curr_mem.id === member.id) ? "checked" : "unchecked");
+  }, [selectedMembers]);  // Only run when selectedMembers changes
+  
 
   return (
     <View style={manageAccessStyle.memberBodyListItem}>
@@ -69,7 +70,7 @@ const MemberItem = (props: {
         <View style={[manageAccessStyle.flexRow, manageAccessStyle.alignItemsCenter]}>
           {/* Image */}
           <Image
-              source={require(`@/assets/images/icon.png`)} // Replace with your local image
+              source={require("@/assets/images/icon.png")} // Replace with your local image
               style={[styles.memberImage, {
                 marginHorizontal: 10,
                 width: 45,
@@ -79,12 +80,12 @@ const MemberItem = (props: {
 
           <View>
             <Text style={text.bold}>{`${member.firstName} ${shortenText(member.lastName, 8)}`}</Text>
-            <Text style={{color: Colors["light"].textMute}}>{member.relationship}</Text>
+            <Text style={{color: Colors["light"].textMute}}>{member.relationship?.name}</Text>
           </View>
         </View>
       </View>
 
-      <Text style={{color: Colors["light"].textMute, fontSize: 10}}>{member.isAuthorized}</Text>
+      <Text style={{color: Colors["light"].textMute, fontSize: 10}}>{member.isAuthorized ? "Authorized" : "Not Authorized"}</Text>
     </View>
   )
 }

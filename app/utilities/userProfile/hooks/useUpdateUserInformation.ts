@@ -23,9 +23,6 @@ const useUpdateUserInformation = (): UseUpdateInformation => {
     setLoading(true);
     setError(null);
 
-    // credentials.birthDate = new Date(credentials.birthDate);
-    console.log("CREEE: ", credentials);
-
     const result: ApiResponse<IUserUpdateInformation> = await UpdateUserInfo({
       ...credentials,
     });

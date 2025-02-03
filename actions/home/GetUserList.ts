@@ -7,16 +7,16 @@ export interface ApiResponse<T> {
   error: string | null;
 }
 
-export const getUserInformation = async ( userID: string ): Promise<ApiResponse<IUserInformation>> => {
+export const getUserList = async ( userID: string ): Promise<ApiResponse<IUserInformation[]>> => {
   try {
-    const { data } = await axios.get<IUserInformation>(API_URL + "Users/GetUserInformation/" + userID,
+    const { data } = await axios.get<IUserInformation[]>(API_URL + "UserGroups/GetUsersList?loggedInUserId=" + userID,
       { headers: { 'Content-Type': 'application/json' } }
     );
 
     return { data, error: null };
   } 
   catch (error: any) {
-    console.log("Home: ", error);
+    console.log("Home | UserList: ", error);
     const errorMessage = axios.isAxiosError(error)
       ? error.response?.data : "An unknown error had occured";
     return { data: null, error: errorMessage };
