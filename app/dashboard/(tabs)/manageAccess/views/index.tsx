@@ -16,10 +16,10 @@ import { styles, manageAccessStyle } from "@/app/utilities/manageAccess/style/st
 import { text } from "@/app/utilities/home/styles/styles";
 
 // Recoil
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 
 // Atoms
-import { memberList as AMemberList } from "../../../../utilities/home/atoms/atom";
+import { memberList as AMemberList, userID as AUID } from "../../../../utilities/home/atoms/atom";
 import { selectedMembers as ASelectedMembers, selectAllTrigger as ASelectAllTrigger } from "@/app/utilities/manageAccess/atoms/atom";
 
 // Hooks
@@ -42,6 +42,7 @@ const index = () => {
   const [selectedMembers, setSelectedMembers] = useRecoilState(ASelectedMembers);
   const [_, setSelectAllTriggerState] = useRecoilState(ASelectAllTrigger);
   const [isLoading, setLoading] = useState<boolean>(false);
+  const userID = useRecoilValue(AUID);
 
   /// Handlers
   const handleSelectAllMembers = () => {
@@ -80,10 +81,12 @@ const index = () => {
           setLoading(true);
 
           const data = selectedMembers.map((member) => { return member.id ?? "" });
-          console.log(data);
 
           try {
-            await deleteMember(data);
+            await deleteMember({
+              Members: data,
+              GroupOwnerId: userID ?? "",
+            });
             
             if (DMError === null && !isLoading) {
               setMembers((current) =>
@@ -114,10 +117,9 @@ const index = () => {
             GroupMemberId: member.groupMemberId,
             IsAuthorized: isAdding,
             RelationshipId: member.relationship?.id,
+            GroupOwnerId: userID ?? "",
           };
         });
-        
-        console.log("Data: ", data);
 
         try {
           await updateMember(data); // Call the backend to update member authorization

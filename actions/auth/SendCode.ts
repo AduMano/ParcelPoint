@@ -6,13 +6,11 @@ export interface ApiResponse<T> {
   error: string | null;
 }
 
-export const deleteMemberAction = async (creds: {Members: string[], GroupOwnerId: string}): Promise<ApiResponse<string | string[]>> => {
+export const SendCode = async ( email: string ): Promise<ApiResponse<string>> => {
   try {
-    const { data } = await axios.delete<string | string[]>(API_URL + "UserGroups/DeleteMember",
-      { 
-        headers: { 'Content-Type': 'application/json' },
-        data: creds
-      }
+    const { data } = await axios.post<string>(API_URL + "Auth/SendVerificationCode",
+      email,
+      { headers: { 'Content-Type': 'application/json' } }
     );
 
     return { data, error: null };

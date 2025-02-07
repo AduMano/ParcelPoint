@@ -26,12 +26,14 @@ export interface IMember extends IUserInformation {
   relationship?: Relationship;
   isAuthorized?: boolean;
   groupMemberId?: string;
+  GroupOwnerId?: string;
 }
 
 export interface IUpdateMemberRequest {
   GroupMemberId?: string;
   RelationshipId?: string;
   IsAuthorized?: boolean;
+  GroupOwnerId?: string;
 }
 
 export type IsActive = "checked" | "unchecked";

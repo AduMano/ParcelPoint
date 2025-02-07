@@ -26,11 +26,13 @@ import useUpdateUserInformation from "@/app/utilities/userProfile/hooks/useUpdat
 // Types
 import { IUserUpdateInformation } from "@/app/utilities/userProfile/types/types";
 import Colors from "@/constants/Colors";
+import useLogoutUser from "@/app/utilities/userProfile/hooks/useLogoutUser";
 
 const index = () => {
   /// Init Values
   // Hooks
   const { updateUserInfo, isLoading: UUILoading, data: UUIData, error: UUIError } = useUpdateUserInformation();
+  const { logoutUser } = useLogoutUser();
 
   /// States
   const [isLoading, setLoadingState] = useState<boolean>(false);
@@ -59,6 +61,7 @@ const index = () => {
   const handleLoggingOut = useCallback(async (callbackFunction: () => void) => {
     // Remove session data.
     await AsyncStorage.removeItem("USER_ID");
+    await logoutUser(userID ?? "");
     callbackFunction();
   }, []);
 

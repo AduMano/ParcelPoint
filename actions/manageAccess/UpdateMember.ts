@@ -22,7 +22,6 @@ export const updateMemberAction = async (creds: IUpdateMemberRequest[]): Promise
     console.log("ManageAccess | UpdateMember: ", error);
     const errorMessage = axios.isAxiosError(error)
       ? error.response?.data : "An unknown error had occured";
-      console.log(errorMessage);
     return { data: null, error: errorMessage };
   }
 };

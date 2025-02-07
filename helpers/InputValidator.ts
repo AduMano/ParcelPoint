@@ -9,7 +9,7 @@ export const validate_email = (email: string): {status: boolean; title: string; 
     message: "",
   };
 
-  const email_pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const email_pattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 
   if (!email.match(email_pattern)) {
     result.title = "Invalid Input";
@@ -53,5 +53,13 @@ export const minLength = (min: number): ValidationRule => (value) => {
   return `Invalid input type. Expected a string.`;
 };
 
+// Email validation rule
+export const isValidEmail: ValidationRule = (value) => {
+  if (typeof value !== "string") return "Invalid input type. Expected a string.";
+  
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+  
+  return emailRegex.test(value.trim()) ? null : "Invalid Gmail address.";
+};
 
 //#endregion

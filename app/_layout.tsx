@@ -11,6 +11,7 @@ import { RecoilRoot } from "recoil";
 
 // Helper
 import { checkIfItemExists } from "@/helpers/LocalStorageHelper";
+import { PaperProvider } from "react-native-paper";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -74,18 +75,20 @@ function RootLayoutNav() {
 
   return (
     <RecoilRoot> 
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="utilities/notification/view/index" options={{
-          animation: "slide_from_right",
-        }} /> 
-        <Stack.Screen name="utilities/manageAccess/forms/MemberForm" options={{
-          animation: "slide_from_right",
-        }} /> 
-      </Stack>
+      <PaperProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen name="utilities/notification/view/index" options={{
+            animation: "slide_from_right",
+          }} /> 
+          <Stack.Screen name="utilities/manageAccess/forms/MemberForm" options={{
+            animation: "slide_from_right",
+          }} /> 
+        </Stack>
+      </PaperProvider>
     </RecoilRoot>
   );
 }

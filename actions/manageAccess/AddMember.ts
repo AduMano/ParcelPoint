@@ -9,7 +9,6 @@ export interface ApiResponse<T> {
 
 export const updateMemberAction = async (creds: IUserGroupMember, userID: string): Promise<ApiResponse<IMember>> => {
   try {
-    console.log({...creds, CreatedBy: userID});
     const { data } = await axios.post<IMember>(API_URL + "UserGroups/CreateMember",
       {...creds, CreatedBy: userID},
       { headers: { 'Content-Type': 'application/json' } }
@@ -18,10 +17,8 @@ export const updateMemberAction = async (creds: IUserGroupMember, userID: string
     return { data, error: null };
   } 
   catch (error: any) {
-    console.log("ManageAccess | AddMember: ", error);
     const errorMessage = axios.isAxiosError(error)
       ? error.response?.data : "An unknown error had occured";
-      console.log(errorMessage);
     return { data: null, error: errorMessage };
   }
 };

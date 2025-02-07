@@ -4,29 +4,42 @@ import { Text, View } from "@/components/Themed";
 
 // Library
 import { Alert, TextInput, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useRecoilValue } from "recoil";
+
+// Hooks
+import useVerifyCode from "../hooks/useVerifyCode";
+
+// Atoms
+import { Code6 } from "@/app/auth/atoms/atom";
+
 
 const CodeRequest = (props: {
   styles: any;
   setVerified: (value: boolean) => void;
+  setLoading: (state: boolean) => void;
+  email: string;
+  setEmail: (text: string) => void;
 }) => {
   // Prop Drilling
-  const { styles, setVerified } = props;
+  const { styles, setVerified, setLoading, email, setEmail } = props;
 
   // Init
-  const [email, setEmail] = useState<string>("");
   const [pinCode, setPinCode] = useState<string>("");
 
+  // Recoil
+  const CODE = useRecoilValue(Code6);
+
+  // Hooks
+  const { verifyCode, data: VCData, isLoading: VCLoading, error: VCError } = useVerifyCode();
+
   // Functions
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validation
     if (email.trim() == "" || pinCode.trim() == "") {
       // Display toast or pop up component that fields cannot be empty
       Alert.alert("Invalid", "Input Fields cannot be empty.", [
-        {
-          text: "I Understand",
-          isPreferred: true,
-        },
+        { text: "I Understand" },
       ]);
       return;
     }
@@ -44,8 +57,26 @@ const CodeRequest = (props: {
 
     // Validate if Code is exact
 
-    setVerified(true);
+    await verifyCode(email, pinCode);
   };
+
+  // Check if Verified
+  useEffect(() => {
+    if (VCData === null) return;
+    else if (!VCData) {
+      Alert.alert("Invalid", "Code is Invalid. Please try again.");
+      return;
+    } 
+    else {
+      setVerified(true);
+    }
+    
+  }, [VCData]);
+
+  // Loaders
+  useEffect(() => {
+    setLoading(VCLoading);
+  }, [VCLoading]);
 
   return (
     <View style={{ justifyContent: "flex-start", width: "100%", gap: 20, }}>
@@ -57,6 +88,7 @@ const CodeRequest = (props: {
           email={email}
           setEmail={setEmail}
           style={styles.textField}
+          setLoading={setLoading}
         />
       </View>
 

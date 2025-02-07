@@ -24,7 +24,7 @@ const MemberItem = ({member}: MemberItemProps) => {
             source={require(`@/assets/images/icon.png`)} // Replace with your local image
             style={styles.memberImage}
         />
-        <Text style={text.center}>{member.firstName} {member.lastName}</Text>
+        <Text style={text.center}>{member.username}</Text>
     </TouchableOpacity>
   )
 }

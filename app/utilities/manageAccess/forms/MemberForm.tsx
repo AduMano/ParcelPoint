@@ -96,7 +96,6 @@ const MemberForm = () => {
   // Handlers 
   const handleSearchAction = useCallback(() => {
     const result = users?.find((member) => member.username === searchValue);
-    console.log(members.map(mim => mim.username)); 
 
     // Guard Clause
     if (result === undefined || result === null) {
@@ -118,8 +117,6 @@ const MemberForm = () => {
     setRelationship(item.id); // Store value
     setRelationshipText(item.name); // Store value
     setMenuVisibility(false);
-
-    console.log(item.id);
   };
 
   const handleSettingAuthorization = (status: boolean) => {
@@ -183,13 +180,11 @@ const MemberForm = () => {
           break;
           
           case "edit":
-            // console.log("DATA: ", [selectedMember]);
-
-            // return;
             handleUpdateMember([{
               GroupMemberId: selectedMember?.groupMemberId,
               IsAuthorized: selectedAuthorization,
-              RelationshipId: selectedRelationship
+              RelationshipId: selectedRelationship,
+              GroupOwnerId: AUID ?? "",
             }])
           break;
         }

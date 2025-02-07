@@ -8,14 +8,20 @@ import {
   setBackgroundColorAsync,
   setButtonStyleAsync,
 } from "expo-navigation-bar";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { StatusBar, Image, StyleSheet } from "react-native";
+import React from "react";
+import { ActivityIndicator, Portal } from "react-native-paper";
+
+// Forms
 import ResetPassword from "../forms/ResetPassword";
 import CodeRequest from "../forms/CodeRequest";
 
 const ForgotPassword = () => {
   // Phase State
   const [isVerified, setVerified] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("");
+  const [isLoading, setLoading] = useState<boolean>(false);
   const [headerText, setHeaderText] = useState<string>("");
   const [subText, setSubText] = useState<string>("");
 
@@ -37,45 +43,63 @@ const ForgotPassword = () => {
     setSubText("Enter your email to get Verification Code");
   }, [isVerified]);
 
+  // Handle Loader
+  const handleLoader = useCallback( (state: boolean) => {
+    setLoading(state);
+  }, [setLoading]);
+
   return (
-    <View style={styles.container}>
-      {/* Status Bar */}
-      <StatusBar
-        backgroundColor="#32A4DB00"
-        translucent={true}
-        barStyle={"light-content"}
-      />
+    <>
+      {/* Modals */}
+      <Portal>
+        {/* Loading Screen */}
+        { isLoading && (
+          <View style={[styles.loading, {gap: 20}]}>
+            <ActivityIndicator size={100} color={Colors["light"].buttonAction} />
+          </View>
+        )}
+      </Portal>
 
-      {/* Header Section */}
-      <View style={styles.viewHeader}>
-        <LinearGradient
-          colors={[
-            Colors["light"].backgroundDark,
-            Colors["light"].backgroundDark,
-          ]}
-          style={styles.gradient}
-        ></LinearGradient>
-
-        <Image
-          source={require("@/assets/images/auth/3dLock.png")} // Replace with your local image
-          style={styles.headerImage}
+      {/* Content */}
+      <View style={styles.container}>
+        {/* Status Bar */}
+        <StatusBar
+          backgroundColor="#32A4DB00"
+          translucent={true}
+          barStyle={"light-content"}
         />
 
-        <Text style={styles.header}>
-          <Text style={{ fontWeight: "bold" }}>{headerText}</Text>
-        </Text>
-        <Text style={styles.subText}>{subText}</Text>
-      </View>
+        {/* Header Section */}
+        <View style={styles.viewHeader}>
+          <LinearGradient
+            colors={[
+              Colors["light"].backgroundDark,
+              Colors["light"].backgroundDark,
+            ]}
+            style={styles.gradient}
+          ></LinearGradient>
 
-      {/* FORM */}
-      <View style={styles.form}>
-        {isVerified ? (
-          <ResetPassword styles={styles} />
-        ) : (
-          <CodeRequest styles={styles} setVerified={setVerified} />
-        )}
+          <Image
+            source={require("@/assets/images/auth/3dLock.png")} // Replace with your local image
+            style={styles.headerImage}
+          />
+
+          <Text style={styles.header}>
+            <Text style={{ fontWeight: "bold" }}>{headerText}</Text>
+          </Text>
+          <Text style={styles.subText}>{subText}</Text>
+        </View>
+
+        {/* FORM */}
+        <View style={styles.form}>
+          {isVerified ? (
+            <ResetPassword styles={styles} setLoading={handleLoader} email={email} />
+          ) : (
+            <CodeRequest styles={styles} setVerified={setVerified} setLoading={handleLoader} email={email} setEmail={setEmail} />
+          )}
+        </View>
       </View>
-    </View>
+    </>
   );
 };
 
@@ -105,7 +129,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // Components
+  // Component
+  loading: {
+    position: "absolute", 
+    top: 0, left: 0, 
+    width: "100%", 
+    height: "100%", 
+    flex: 1, 
+    backgroundColor: "#ffffff", 
+    justifyContent: "center", 
+    alignItems: "center",
+    zIndex: 9999, 
+  },
+
   header: {
     fontSize: 26,
     textAlign: "center",
