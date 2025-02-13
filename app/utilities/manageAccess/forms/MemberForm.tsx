@@ -4,7 +4,7 @@ import { LabeledTextInput } from '@/components/LabeledTextInput';
 
 // Library
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { PaperProvider, Portal, Searchbar, TextInput, Menu, Button, RadioButton } from 'react-native-paper';
+import { PaperProvider, Portal, Searchbar, TextInput, Menu, Button, RadioButton, ActivityIndicator } from 'react-native-paper';
 import { TouchableOpacity, Image, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -56,16 +56,22 @@ const MemberForm = () => {
   const [selectedMember, setSelectedMember] = useRecoilState(ASelectedMember);
   const [options, setUserRelationships] = useRecoilState<IUserRelationship[]>(AUserRelationship);
   const [users, setUsers] = useRecoilState(AUserList);
+  const [isLoading, setLoading] = useState<boolean>(false);
 
   // ID State
   const AUID = useRecoilValue(AUserID);
   const userID = useMemo(() => selectedMember?.id?.toString() || null, []);
   
+  // Loader
+  useEffect(() => {
+    setLoading(AMLoading || UMLoading);
+  }, [AMLoading, UMLoading]);
+
   // OnLoad
   useEffect(() => {
     // Set Relationships
     URFetch();
-  }, []);
+  }, [selectedMember]);
 
   // Load Fetched Datas
   useEffect(() => {
@@ -253,13 +259,25 @@ const MemberForm = () => {
     handleResetForm();
     router.back();
   }, [UMData]);
+
+  // Errors
+  useEffect(() => {
+    if (AMError === null) return;
+    
+    console.log(AMError);
+  }, [AMError])
   
   return (
     <PaperProvider>
       <>
         {/* Modals */}
         <Portal>
-          <View></View>
+          {/* Loading Screen */}
+          { isLoading && (
+            <View style={styles.loading}>
+              <ActivityIndicator size={100} color={Colors["light"].buttonAction} />
+            </View>
+          )}
         </Portal>
 
         <View style={styles.container}>

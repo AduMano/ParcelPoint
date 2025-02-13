@@ -17,6 +17,7 @@ import {
 
 // Types
 import { TParcelDetail } from "@/app/utilities/home/types/type";
+import { formatDateTime, getRemainingHours } from "@/helpers/textFormatter";
 
 // Dimension
 const { height } = Dimensions.get('screen');
@@ -78,25 +79,63 @@ export const PackageLogDetailModal = (props: {
 
               <View style={[modalStyle.viewDefault, { width: "80%", marginBottom: 20, marginTop: 20 }]}>
                 <Text style={[text.headingTwo]}>PARCEL DETAILS</Text>
-                <Text><Text style={[text.subHeading]}>Status</Text>: <Text style={text.bold}>{(parcel.status == "Picked Up") ? "Retrieved" : "Delivered"}</Text></Text>
+                
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Text style={[text.subHeading]}>Status: </Text>
+                  <Text style={text.bold}>{(parcel.status == "Picked Up") ? "Retrieved" : "Delivered"}</Text>
+                </View>
               </View>
 
-              <View style={[modalStyle.viewDefault, {width: "80%", marginBottom: 20 }]}>
-                <Text style={[text.bold, {marginBottom: 10}]}>DETAILS:</Text>
-                
+              <View style={[modalStyle.viewDefault, { width: "80%", marginBottom: 20 }]}>
+                <Text style={[text.bold, { marginBottom: 10 }]}>DETAILS:</Text>
+
                 <View style={styles.viewDefault}>
                   {/* Parcel ID */}
-                  <Text><Text style={text.bold}>Parcel ID</Text>: {parcel.trackingId}</Text>
+                  <View style={{ flexDirection: "row" }}>
+                    <Text style={text.bold}>Parcel ID: </Text>
+                    <Text>{parcel.parcelId?.split("-").join("").substring(0, 10)}</Text>
+                  </View>
+
                   {/* Parcel Name */}
-                  <Text><Text style={text.bold}>Parcel Name</Text>: {parcel.name}</Text>
+                  <View style={{ flexDirection: "row" }}>
+                    <Text style={text.bold}>Parcel Name: </Text>
+                    <Text>{parcel.parcelName} {parcel.parcelId?.substring(0, 5)}</Text>
+                  </View>
+
                   {/* Retrieved By */}
-                  {parcel.status !== "Not Picked Up" && <Text><Text style={text.bold}>Retrieved By</Text>: Aldwin Samano</Text>}
+                  {parcel.status !== "Not Picked Up" && (
+                    <View style={{ flexDirection: "row" }}>
+                      <Text style={text.bold}>Retrieved By: </Text>
+                      <Text>{parcel.retrievedBy}</Text>
+                    </View>
+                  )}
+
                   {/* Locker Number */}
-                  <Text><Text style={text.bold}>Locker Number</Text>: #02</Text>
+                  <View style={{ flexDirection: "row" }}>
+                    <Text style={text.bold}>Locker Number: </Text>
+                    <Text>{parcel.lockerNumber + ""}</Text>
+                  </View>
+
                   {/* Delivered On */}
-                  <Text><Text style={text.bold}>Delivered On</Text>: November 28, 2024 at 3:45 PM</Text>
+                  <View style={{ flexDirection: "row" }}>
+                    <Text style={text.bold}>Delivered On: </Text>
+                    <Text>{formatDateTime(new Date(parcel.arrivedAt ?? new Date()))}</Text>
+                  </View>
+
                   {/* Time Remaining */}
-                  {parcel.status !== "Picked Up" && <><Text><Text style={text.bold}>Time Remaining</Text>: 5 Hours Left</Text> <Text style={[text.mute]}>{"(Pick up before admin removes for space)"}</Text></>}
+                  {parcel.status !== "Picked Up" && (
+                    <>
+                      <View style={{ flexDirection: "row" }}>
+                        <Text style={text.bold}>Time Remaining: </Text>
+                        { (getRemainingHours(parcel.arrivedAt ?? new Date(), 10).toFixed(2) === "0.00") ?
+                          (<Text style={{color: "red"}}>Did not pick up. (Expired)</Text>)
+                          :
+                          (<Text>{getRemainingHours(parcel.arrivedAt ?? new Date(), 10).toFixed(2)} Hours Left</Text>)
+                        }
+                      </View>
+                      <Text style={[text.mute]}>(Pick up before admin removes for space)</Text>
+                    </>
+                  )}
                 </View>
               </View>
 

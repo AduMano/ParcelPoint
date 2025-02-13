@@ -2,8 +2,9 @@
 import { atom } from 'recoil';
 
 // Types
-import { IUserInformation } from '../types/type';
+import { IUserInformation, TParcelDetail } from '../types/type';
 import { IMember } from '../../manageAccess/types/types';
+import { INotificationItem } from '../../notification/types/types';
 
 export const userID = atom<string | null>({
   key: 'userID',
@@ -34,4 +35,19 @@ export const memberList = atom<IMember[]>({
 export const userList = atom<IUserInformation[]>({
   key: "userList",
   default: []
-})
+});
+
+export const parcelList = atom<TParcelDetail[]>({
+  key: "parcelList",
+  default: []
+});
+
+export const notificationList = atom<INotificationItem[]>({
+  key: "notificationList",
+  default: []
+});
+
+export const API_URL = atom<string>({ 
+  key: "API_URL",
+  default: ""
+});

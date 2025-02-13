@@ -7,11 +7,11 @@ import Colors from "@/constants/Colors";
 import { FA6IconByName } from "@/helpers/IconsLoader";
 
 // Library
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FlatList, TouchableOpacity } from "react-native";
-import { useSearchParams } from "expo-router/build/hooks";
 import { router } from "expo-router";
-import { PaperProvider, Portal } from "react-native-paper";
+import { ActivityIndicator, PaperProvider, Portal } from "react-native-paper";
+import { useRecoilState } from "recoil";
 
 // Types
 import { INotificationItem, TNotificationDetails } from "../types/types";
@@ -19,14 +19,25 @@ import React from "react";
 
 // Styles
 import { styles, notificationStyle } from "../styles/styles";
+import { text } from "../../home/styles/styles";
+
+// Helpers
+import { addHours, formatDateTime } from "@/helpers/textFormatter";
+
+// Atoms
+import { notificationList as ANotificationList } from "@/app/utilities/home/atoms/atom";
+
+// Hooks
+import useReadNotification from "../hooks/useReadNotification";
 
 const Index = () => {
 
-  /// Get Notification via Params
-  const searchParams = useSearchParams();
-  const notifications = useMemo(() => searchParams.get("data"), []); 
-  const [data, setData] = useState(notifications ? JSON.parse(notifications) : []);
-
+  /// Get Notification
+  const [data, setData] = useRecoilState(ANotificationList);
+  const [isLoading, setLoading] = useState<boolean>(false);
+  const [actionType, setActionType] = useState<string>("Item");
+  const { readNotification, data: RNData, isLoading: RNLoading, error: RNError } = useReadNotification();
+  
   /// Modal State
   const [modalNotificationState, setModalNotificationState] = useState<boolean>(false);
   const [selectedNotificationData, setSelectedNotificationData] = useState<TNotificationDetails>({
@@ -42,7 +53,12 @@ const Index = () => {
   /// Handlers
   // Mark as all read Handler
   const handleMarkAllAsRead = useCallback(() => {
-    setData((data: INotificationItem[]) => data.map((notif: INotificationItem) => ({...notif, status: "Read"})));
+    if (data.some(notif => !notif.isRead)) {
+      const notifIds = data.filter(notif => !notif.isRead).map(notif => notif.id);
+    
+      setActionType("All");
+      readNotification(notifIds);
+    }
   }, []);
 
   // Modal Handler
@@ -84,10 +100,13 @@ const Index = () => {
 
   // Update Status
   const handleUpdateStatus = useCallback((item: INotificationItem) => {
-    if (item.status !== "Read") {
+    setActionType("Item");
+
+    if (!item.isRead) {
+      readNotification([item.id]);
       setData((data: INotificationItem[]) => data.map((notif: INotificationItem) => {
         if (notif.id == item.id) {
-          return {...notif, status: "Read" };
+          return {...notif, isRead: true };
         }
         return {...notif};
       }));
@@ -97,16 +116,16 @@ const Index = () => {
     let modalData: TNotificationDetails = {
       id: item.id,
       modalTitle: item.title,
-      modalDescription: item.description,
-      dateTime: item.date,
-      lockerNumber: "#02",
+      modalDescription: item.context,
+      dateTime: formatDateTime(new Date(item.createdAt ?? new Date())),
+      lockerNumber: "#" + item.lockerNumber,
     }
 
     if (item.title.trim().toLowerCase().includes("retrieved")) {
-      modalData.retrievedBy = "Aldwin Samano";
+      modalData.retrievedBy = item.retrievedBy;
     }
     else if (item.title.trim().toLowerCase().includes("reminder")) {
-      modalData.expirationDate = "December 30, 2024 at 03:00 PM";
+      modalData.expirationDate = formatDateTime(addHours(item.createdAt ?? new Date(), 10));
     }
 
     onOpenNotificationModal(modalData);
@@ -119,7 +138,7 @@ const Index = () => {
           notificationStyle.notificationCard,
           {
             backgroundColor:
-              item.status == "Read"
+              item.isRead
                 ? Colors.light["notificationReadCard"]
                 : Colors.light["notificationCard"],
           },
@@ -127,12 +146,31 @@ const Index = () => {
         onPress={() => handleUpdateStatus(item)}
       >
         <Text style={notificationStyle.title}>{item.title}</Text>
-        <Text style={notificationStyle.description}>{item.description}</Text>
-        <Text style={notificationStyle.date}>{item.date}</Text>
+        <Text style={notificationStyle.description}>{item.context}</Text>
+        <Text style={notificationStyle.date}>{formatDateTime(new Date(item.createdAt ?? new Date()))}</Text>
       </TouchableOpacity>
     ),
     []
   );
+
+  // Loader
+  useEffect(() => {
+    setLoading(RNLoading);
+  }, [RNLoading]);
+
+  // Reader
+  useEffect(() => {
+    if (RNData === null) return;
+
+    if (actionType === "All") setData((data: INotificationItem[]) => data.map((notif: INotificationItem) => ({...notif, isRead: true})));
+  }, [RNData]);
+
+  // Errors
+  useEffect(() => {
+    if (RNError === null) return;
+    
+    console.log(RNError);
+  }, [RNError]);
 
   return (
     <PaperProvider>
@@ -144,6 +182,12 @@ const Index = () => {
             handleCloseNotificationModal={onClosePackageLogModal} 
             modalData={selectedNotificationData}
           />
+          {/* Loading Screen */}
+          { isLoading && (
+            <View style={styles.loading}>
+              <ActivityIndicator size={100} color={Colors["light"].buttonAction} />
+            </View>
+          )}
         </Portal>
 
         <View style={styles.container}>
@@ -160,18 +204,28 @@ const Index = () => {
 
           {/* Mark All as Read */}
           <View style={notificationStyle.markAllRead}>
-            <TouchableOpacity style={{ width: "auto" }} onPress={handleMarkAllAsRead}>
+            <TouchableOpacity 
+              style={[{ width: "auto" },
+                { filter: data.length === 0 ? "contrast(2%)" : "contrast(100%)" }
+              ]} 
+              onPress={handleMarkAllAsRead}
+              disabled={data.length === 0}
+            >
               <Text style={{ textAlign: "right" }}>Mark all as read</Text>
             </TouchableOpacity>
           </View>
 
           {/* Notifications List */}
-          <FlatList
-            data={data}
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
-            contentContainerStyle={notificationStyle.list}
-          />
+          {data.length > 0 ? (<>
+            <FlatList
+              data={data}
+              keyExtractor={(item) => item.id}
+              renderItem={renderItem}
+              contentContainerStyle={notificationStyle.list}
+            />
+          </>) : (<>
+            <Text style={[text.heading, {textAlign: "center", marginTop: 40}]}>Empty Notification</Text>
+          </>)}
         </View>
       </>
     </PaperProvider>
@@ -179,3 +233,7 @@ const Index = () => {
 };
 
 export default Index;
+function UseRecoilState(notifications: INotificationItem[]): [any, any] {
+  throw new Error("Function not implemented.");
+}
+

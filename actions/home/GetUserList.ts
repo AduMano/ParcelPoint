@@ -8,8 +8,10 @@ export interface ApiResponse<T> {
 }
 
 export const getUserList = async ( userID: string ): Promise<ApiResponse<IUserInformation[]>> => {
+  const API_URL = useRecoilValue(AAPIURL);
+  
   try {
-    const { data } = await axios.get<IUserInformation[]>(API_URL + "UserGroups/GetUsersList?loggedInUserId=" + userID,
+    const { data } = await axios.get<IUserInformation[]>(API_URL + "UserGroups/GetUsersList/" + userID,
       { headers: { 'Content-Type': 'application/json' } }
     );
 

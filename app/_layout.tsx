@@ -7,11 +7,16 @@ import "react-native-reanimated";
 // Library
 import { useEffect, useState } from "react";
 import { Stack, useRouter } from "expo-router";
-import { RecoilRoot } from "recoil";
+import { RecoilRoot, useRecoilState } from "recoil";
 
 // Helper
 import { checkIfItemExists } from "@/helpers/LocalStorageHelper";
 import { PaperProvider } from "react-native-paper";
+
+
+// Atoms
+import { API_URL as AAPIURL } from "./utilities/home/atoms/atom";
+import { ApiSetup } from "@/helpers/ApiSetup";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -52,24 +57,41 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>();
+  const [API_URL, setAPI_URL] = useRecoilState(AAPIURL);
+  const [user, setUser] = useState<string>("");
   const [justLoaded, setLoaded] = useState<boolean>(false);
   const router = useRouter();
 
+  // Check if Logged in already
   useEffect(() => {
     const checkIfAuthenticated = async () => {
       const hasItem = await checkIfItemExists("USER_ID");
-      setIsAuthenticated(hasItem);
+      setIsAuthenticated(hasItem.status);
+
+      if (hasItem.status) setUser(hasItem.item ?? "");
     }
 
     checkIfAuthenticated();
   }, []);
 
+    
   useEffect(() => {
-    if (!justLoaded) return;
+    const getApi = async () => {
+      const apiUrl = await ApiSetup.apiUrl;
+
+      setAPI_URL(apiUrl ?? "");
+    }
+
+    getApi();
+  }, []);
+  
+
+  useEffect(() => {
+    if (!justLoaded && API_URL === null) return;
 
     if (isAuthenticated) router.replace("/dashboard/(tabs)/home/views");
     else router.replace("/auth/view/LoginAuth");
-  }, [isAuthenticated]);
+  }, [isAuthenticated, API_URL]);
 
   useEffect(() => setLoaded(true), []);
 

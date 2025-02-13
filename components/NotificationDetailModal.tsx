@@ -78,7 +78,7 @@ const NotificationDetailModal = (props: {
               {/* Header */}
               <View style={[modalStyle.viewDefault, { width: "80%", marginBottom: 25, marginTop: 20 }]}>
                 <Text style={[text.heading, {marginBottom: 10}]}>{notification.modalTitle}</Text>
-                <Text style={[text.subHeading]}>{notification.modalDescription}</Text>
+                <Text style={[{width: "90%"}]}>{notification.modalDescription}</Text>
               </View>
 
               {/* Details */}

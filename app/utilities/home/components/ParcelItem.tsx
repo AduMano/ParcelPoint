@@ -16,10 +16,10 @@ import { shortenText } from "@/helpers/textFormatter";
 import { EIconByName } from '@/helpers/IconsLoader';
 
 // Types
-import { TParcel } from '../types/type';
+import { TParcelDetail } from '../types/type';
 
 const ParcelItem = (props: {
-    parcel: TParcel;
+    parcel: TParcelDetail;
     handleOpenPackageModal: () => void
 }) => {
 
@@ -30,10 +30,10 @@ const ParcelItem = (props: {
     <View key={parcel.id} style={scroller.card}>
         <View style={styles.viewDefault}>
             <Text style={scroller.cardTitle}>
-                {shortenText(parcel.name, 15)}
+                {parcel.parcelName} {parcel.parcelId?.substring(0, 5)}
             </Text>
             <Text style={scroller.cardSubtitle}>
-                ID: {shortenText(parcel.trackingId, 10)}
+                ID: {shortenText(parcel.parcelId ?? "", 10)}
             </Text>
         </View>
 

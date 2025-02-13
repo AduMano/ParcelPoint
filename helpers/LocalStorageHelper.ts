@@ -9,15 +9,15 @@ export const checkIfItemExists = async (key: string) => {
 
     // It Exists
     if (value !== null) {
-      return true;
+      return {status: true, item: value};
     } 
     // It doesnt Exists
     else {
-      return false; 
+      return {status: false, item: null}; 
     }
   } 
   catch (error) {
     console.error("Error checking item existence: ", error);
-    return false;
+    return {status: false, item: null};
   }
 };

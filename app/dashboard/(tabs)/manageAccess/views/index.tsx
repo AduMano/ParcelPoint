@@ -19,7 +19,7 @@ import { text } from "@/app/utilities/home/styles/styles";
 import { useRecoilState, useRecoilValue } from "recoil";
 
 // Atoms
-import { memberList as AMemberList, userID as AUID } from "../../../../utilities/home/atoms/atom";
+import { memberList as AMemberList, userID as AUID, userList as AUserList } from "../../../../utilities/home/atoms/atom";
 import { selectedMembers as ASelectedMembers, selectAllTrigger as ASelectAllTrigger } from "@/app/utilities/manageAccess/atoms/atom";
 
 // Hooks
@@ -43,6 +43,7 @@ const index = () => {
   const [_, setSelectAllTriggerState] = useRecoilState(ASelectAllTrigger);
   const [isLoading, setLoading] = useState<boolean>(false);
   const userID = useRecoilValue(AUID);
+  const [userList, setUserList] = useRecoilState(AUserList);
 
   /// Handlers
   const handleSelectAllMembers = () => {
@@ -87,14 +88,6 @@ const index = () => {
               Members: data,
               GroupOwnerId: userID ?? "",
             });
-            
-            if (DMError === null && !isLoading) {
-              setMembers((current) =>
-                current.filter((member) => !selectedMembers.map(mem => mem.id).includes(member.id + ""))
-              );
-              setSelectedMembers([]);
-              Alert.alert("Success", "Member/s Successfully Removed");
-            }
           }
           catch (error) {
             console.log(error);
@@ -145,6 +138,21 @@ const index = () => {
   [selectedMembers]);
 
   // UseEffect
+  useEffect(() => {
+    if (DMData === null) return;
+
+    setMembers((current) =>
+      current.filter((member) => !selectedMembers.map(mem => mem.id).includes(member.id + ""))
+    );
+
+    // Add them to the user list so we can add them again
+    selectedMembers.map((member) => setUserList((current) => [...current, member]));
+
+    setSelectedMembers([]);
+
+    Alert.alert("Success", "Member/s Successfully Removed");
+  }, [DMData]);
+
   useEffect(() => {
     if (UMError === null) return;
 

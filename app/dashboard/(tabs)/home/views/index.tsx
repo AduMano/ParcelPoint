@@ -33,164 +33,35 @@ import {
 } from "../../../../utilities/home/styles/styles";
 
 // Recoil
-import { userInformation as AUserInformation, userID as AUserID } from '@/app/utilities/home/atoms/atom';
+import { userInformation as AUserInformation, userID as AUserID, API_URL as AAPIURL } from '@/app/utilities/home/atoms/atom';
 import { memberList as AMemberList } from "@/app/utilities/home/atoms/atom";
 import { userList as AUserList } from "@/app/utilities/home/atoms/atom";
+import { parcelList as AParcelList } from "@/app/utilities/home/atoms/atom";
+import { notificationList as ANotificationList } from "@/app/utilities/home/atoms/atom";
 
 // Hooks
 import useGetUserInfo from "@/app/utilities/home/hooks/useGetUserInfo";
 import useGetMemberList from "@/app/utilities/home/hooks/useGetMemberList";
 import useGetUserList from "@/app/utilities/home/hooks/useGetUserList";
+import useGetParcelList from "@/app/utilities/home/hooks/useGetParcelList";
+import useGetNotificationList from "@/app/utilities/home/hooks/useGetNotificationList";
+import { ApiSetup } from "@/helpers/ApiSetup";
 
 const index = () => {
-  // Sample data for the time being
-  const parcels = useMemo<TParcel[]>(
-    () => [
-      {
-        id: "1",
-        name: "Mouse Pad XTra Long",
-        trackingId: "123-456-789",
-        status: "Picked Up",
-      },
-      {
-        id: "2",
-        name: "Parcel 2",
-        trackingId: "092-123-134-123-323-333",
-        status: "Not Picked Up",
-      },
-      {
-        id: "3",
-        name: "Parcel 3",
-        trackingId: "012-122-233",
-        status: "Picked Up",
-      },
-      {
-        id: "4",
-        name: "Parcel 4",
-        trackingId: "111-222-333",
-        status: "Picked Up",
-      },
-      {
-        id: "5",
-        name: "Keyboard",
-        trackingId: "123-456-789",
-        status: "Not Picked Up",
-      },
-      {
-        id: "6",
-        name: "Monitor",
-        trackingId: "092-123-134-123-323-333",
-        status: "Not Picked Up",
-      },
-      {
-        id: "7",
-        name: "Cup",
-        trackingId: "012-122-233",
-        status: "Not Picked Up",
-      },
-      {
-        id: "8",
-        name: "Floor Wax",
-        trackingId: "111-222-333",
-        status: "Not Picked Up",
-      },
-    ],
-    []
-  );
-
-  const notifications = useMemo<INotificationItem[]>(
-    () => [
-      {
-        id: "1",
-        title: "Your Parcel Has Been Delivered!",
-        description:
-          "Your parcel 11 has been successfully delivered and is ready to pickup in the locker.",
-        date: "11/30/2024 9:14 AM",
-        status: "Not Read",
-      },
-      {
-        id: "2",
-        title: "Reminder to Pick Up Your Parcel!",
-        description:
-          "Your Parcel 5 will expire in 5 hours. Please retrieve it before the expiration time to avoid issues.",
-        date: "11/30/2024 8:15 AM",
-        status: "Read",
-      },
-      {
-        id: "3",
-        title: "Your Parcel Has Been Retrieved",
-        description:
-          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
-        date: "11/09/2024 8:15 AM",
-        status: "Read",
-      },
-      {
-        id: "4",
-        title: "Your Parcel Has Been Retrieved",
-        description:
-          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
-        date: "11/09/2024 8:15 AM",
-        status: "Read",
-      },
-      {
-        id: "5",
-        title: "Your Parcel Has Been Retrieved",
-        description:
-          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
-        date: "11/09/2024 8:15 AM",
-        status: "Not Read",
-      },
-      {
-        id: "6",
-        title: "Your Parcel Has Been Retrieved",
-        description:
-          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
-        date: "11/09/2024 8:15 AM",
-        status: "Read",
-      },
-      {
-        id: "7",
-        title: "Your Parcel Has Been Retrieved",
-        description:
-          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
-        date: "11/09/2024 8:15 AM",
-        status: "Read",
-      },
-      {
-        id: "8",
-        title: "Your Parcel Has Been Retrieved",
-        description:
-          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
-        date: "11/09/2024 8:15 AM",
-        status: "Not Read",
-      },
-      {
-        id: "9",
-        title: "Your Parcel Has Been Retrieved",
-        description:
-          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
-        date: "11/09/2024 8:15 AM",
-        status: "Read",
-      },
-      {
-        id: "10",
-        title: "Your Parcel Has Been Retrieved",
-        description:
-          "Your Parcel 1 has been retrieved. Thank you for using the parcel locker!",
-        date: "11/09/2024 8:15 AM",
-        status: "Read",
-      },
-    ],
-    []
-  );
-
   /// Init Data
+  // URL
+  const [API_URL, SetApiUrl] = useRecoilState(AAPIURL);
+
   // User Data
   const { fetchUserInfo, data: UIData, isLoading: UILoading, error: UIError } = useGetUserInfo();
   // Member Data
   const { fetchMembers, data: MLData, isLoading: MLLoading, error: MLError } = useGetMemberList();
   // User List
   const { fetchUserList, data: ULData, isLoading: ULLoading, error: ULError } = useGetUserList();
+  // Fetch Parcel List
+  const { fetchParcelList, data: PLData, isLoading: PLLoading, error: PLError } = useGetParcelList();
+  // Fetch Notification List
+  const { fetchNotificationList, data: NLData, isLoading: NLLoading, error: NLError } = useGetNotificationList();
 
   /// States
   // Initial States
@@ -198,53 +69,48 @@ const index = () => {
   useEffect(() => {
     setLoading(true);
     
-    if ([UILoading, MLLoading, ULLoading].every(load => !load)){
+    if ([UILoading, MLLoading, ULLoading, PLLoading, NLLoading].every(load => !load)){
       setTimeout(() => {
         setLoading(false);
       }, 1000);
     }
-  }, [UILoading, MLLoading, ULLoading]);
+  }, [UILoading, MLLoading, ULLoading, PLLoading, NLLoading]);
 
   // User Information
   const [userID, setUserID] = useRecoilState(AUserID);
   const [userInformation, setUserInformation] = useRecoilState(AUserInformation);
   const [members, setMembers] = useRecoilState(AMemberList);
   const [userList, setUserList] = useRecoilState(AUserList);
+  const [parcels, setParcelList] = useRecoilState(AParcelList);
+  const [notifications, setNotificationList] = useRecoilState(ANotificationList);
+  
+  // SignalR
+  // const { connection } = useHomeService(API_URL ?? "", userID ?? "");
   
   // For Modal
   const [modalPackageState, setModalPackageState] = useState<boolean>(false);
   const [modalPackageLogState, setModalPackageLogState] = useState<boolean>(false);
-  const [selectedPackageData, setSelectedPackageData] = useState<TParcelDetail>({
-    name: "",
-    trackingId: "",
-    status: "",
-  });
+  const [selectedPackageData, setSelectedPackageData] = useState<TParcelDetail>({});
 
   /// Event Handlers
 
   // Modal for Parcel Status
-  const onOpenPackageModal = useCallback(({trackingId, name}: TParcelDetail) => {
-    setSelectedPackageData({ trackingId, name });
+  const onOpenPackageModal = useCallback(({parcelId, parcelName, status, lockerNumber, retrievedAt, retrievedBy, arrivedAt, userId, createdAt, id}: TParcelDetail) => {
+    setSelectedPackageData({ parcelId, parcelName, status, lockerNumber, retrievedAt, retrievedBy, arrivedAt, userId, createdAt, id });
     setModalPackageState(true);
-  }, []);
+  }, [parcels]);
   const onClosePackageModal = useCallback(() => {
     setModalPackageState(false);
   }, []);
 
   // Modal for Logs
-  const onOpenPackageLogModal = useCallback(({trackingId, name, status}: TParcelDetail) => {
-    setSelectedPackageData({ trackingId, name, status });
+  const onOpenPackageLogModal = useCallback(({parcelId, parcelName, status, lockerNumber, retrievedAt, retrievedBy, arrivedAt, userId, createdAt, id}: TParcelDetail) => {
+    setSelectedPackageData({ parcelId, parcelName, status, lockerNumber, retrievedAt, retrievedBy, arrivedAt, userId, createdAt, id });
     setModalPackageLogState(true);
-  }, []);
+  }, [parcels]);
   const onClosePackageLogModal = useCallback(() => {
     setModalPackageLogState(false);
   }, []);
-
-  /// Data Holder
-  const [data, setData] = useState<TData>({
-    parcels: parcels,
-    members: members,
-  });
   
   /// Use Effect
   // Get User ID
@@ -254,6 +120,8 @@ const index = () => {
       await fetchUserInfo(id ?? "");
       await fetchMembers(id ?? "");
       await fetchUserList(id ?? "");
+      await fetchParcelList(id ?? "");
+      await fetchNotificationList(id ?? "");
 
       setUserID(id);
     };
@@ -261,6 +129,7 @@ const index = () => {
     getUserId();
   }, []);
 
+  // ERRORS
   useEffect(() => {
     if (UIError === null) return;
 
@@ -274,6 +143,14 @@ const index = () => {
     // Redirect user to no internet page
   }, [UIError]);
 
+  useEffect(() => {
+    if (PLError === null) return;
+
+    // setLoading(true);
+    console.log(PLError);
+  }, [PLError]);
+  
+  // DATA RETRIEVAL
   useEffect(() => {
     if (UIData === null) return;
 
@@ -303,6 +180,26 @@ const index = () => {
 
      getUserList();
   }, [ULData]);
+
+  useEffect(() => {
+     if (PLData === null) return;
+
+     const getParceList = async () => {
+      setParcelList(PLData);
+     }
+
+     getParceList();
+  }, [PLData]);
+
+  useEffect(() => {
+    if (NLData === null) return;
+
+    const getNotificationList = async () => {
+      setNotificationList(NLData);
+    }
+
+    getNotificationList();
+  }, [NLData]);
 
   return (
     <>
@@ -361,7 +258,7 @@ const index = () => {
               >
                 <IonIconByName name="notifications" size={30} color={"white"} />
               {
-                notifications.some((notif) => notif.status == "Not Read") && <View style={styles.notificationDot} />
+                notifications.some((notif) => !notif.isRead) && <View style={styles.notificationDot} />
               }
               </TouchableOpacity>
             </View>
@@ -369,7 +266,7 @@ const index = () => {
             {/* Delivered Parcel (Ready to Pick Up) */}
             <View style={styles.viewDefault}>
               <Text style={[text.headingLast, { marginTop: 20 }]}>
-                {data.parcels.filter((parcel) => parcel.status == "Not Picked Up")
+                {parcels.filter((parcel) => parcel.status == "Not Picked Up")
                   .length != 0
                   ? "Ready to Pick Up!"
                   : ""}
@@ -381,15 +278,23 @@ const index = () => {
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={scroller.scrollContainer}
                 >
-                  {data.parcels.filter(
+                  {parcels.filter(
                     (parcel) => parcel.status == "Not Picked Up"
                   ).length != 0 ? (
-                    data.parcels.map((parcel: TParcel) => {
+                    parcels.map((parcel: TParcelDetail) => {
                       if (parcel.status == "Not Picked Up") {
                         return (
                           <ParcelItem key={parcel.id} parcel={parcel} handleOpenPackageModal={() => onOpenPackageModal({
-                            name: parcel.name,
-                            trackingId: parcel.trackingId
+                            parcelName: parcel.parcelName,
+                            parcelId: parcel.parcelId,
+                            status: parcel.status,
+                            lockerNumber: parcel.lockerNumber,
+                            retrievedAt: parcel.retrievedAt,
+                            retrievedBy: parcel.retrievedBy,
+                            arrivedAt: parcel.arrivedAt,
+                            userId: parcel.userId,
+                            createdAt: parcel.createdAt,
+                            id: parcel.id,
                           })} />
                         );
                       }
@@ -459,12 +364,19 @@ const index = () => {
                   showsVerticalScrollIndicator={false}
                   horizontal={false}
                 >
-                  {data.parcels.length != 0 ? (
-                    data.parcels.slice(0, 5).map((parcel: TParcel) => (
+                  {parcels.length != 0 ? (
+                    parcels.slice(0, 5).map((parcel: TParcelDetail) => (
                       <LogItem key={parcel.id} parcel={parcel} handleOpenPackageLogModal={() => onOpenPackageLogModal({
-                        name: parcel.name,
-                        trackingId: parcel.trackingId,
-                        status: parcel.status
+                        parcelName: parcel.parcelName,
+                        parcelId: parcel.parcelId,
+                        status: parcel.status,
+                        lockerNumber: parcel.lockerNumber,
+                        retrievedAt: parcel.retrievedAt,
+                        retrievedBy: parcel.retrievedBy,
+                        arrivedAt: parcel.arrivedAt,
+                        userId: parcel.userId,
+                        createdAt: parcel.createdAt,
+                        id: parcel.id,
                       })} />
                     ))
                   ) : (

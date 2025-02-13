@@ -15,10 +15,11 @@ import {
 import { EIconByName } from '@/helpers/IconsLoader';
 
 // Types
-import { TParcel } from '../../home/types/type';
+import { TParcelDetail } from '../../home/types/type';
+import { getMonthNameDayYearByDate } from '@/helpers/textFormatter';
 
 export const LogItem = (props: {
-    parcel: TParcel;
+    parcel: TParcelDetail;
     handleOpenPackageLogModal: () => void;
     additionalStyle?: {};
 }) => {
@@ -32,7 +33,7 @@ export const LogItem = (props: {
         key={parcel.id}
     >
         <View style={[styles.viewDefault, styles.historyInfo]}>
-            <Text style={[text.headingTwo]}>{parcel.name}</Text>
+            <Text style={[text.headingTwo]}>{parcel.parcelName}</Text>
             <Text>ID {parcel.id}</Text>
             <Text>
               <Text style={[text.mute]}>Status: </Text>
@@ -40,7 +41,7 @@ export const LogItem = (props: {
             </Text>
             <Text>
               <Text style={[text.mute]}>Delivered on: </Text>
-              <Text style={text.bold}>December 8, 2024</Text>
+              <Text style={text.bold}>{getMonthNameDayYearByDate(parcel.arrivedAt ?? new Date())}</Text>
             </Text>
         </View>
 

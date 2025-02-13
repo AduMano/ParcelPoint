@@ -35,6 +35,7 @@
       "typedRoutes": true
     },
     "extra": {
+      "SUPABASE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sbGp2bXdneGxuaGRpbnZrb2ZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkzODE4NzUsImV4cCI6MjA1NDk1Nzg3NX0.O30PoY_iunkPTTWVltheYHfaKBoOxL3iAN3Ktw1lwsk",
       "router": {
         "origin": false
       },

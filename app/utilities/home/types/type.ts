@@ -22,8 +22,8 @@ export type TMember = {
 
 export type TParcel = {
   id: string;
-  name: string;
-  trackingId: string;
+  parcelName: string;
+  parcelId: string;
   status: string;
 };
 
@@ -36,12 +36,20 @@ export type MemberItemProps = {
 };
 
 export type TParcelDetail = {
-  name: string;
-  trackingId: string;
+  id?: string;
+  parcelId?: string;
+  parcelName?: string;
+  lockerNumber?: number;
   status?: string;
+  action?: string;
+  arrivedAt?: Date;
+  retrievedAt?: Date;
+  retrievedBy?: string;
+  createdAt?: Date;
+  userId?: string;
 }
 
 export type TData = {
-  parcels: TParcel[];
+  parcels: TParcelDetail[];
   members: IUserInformation[];
 };

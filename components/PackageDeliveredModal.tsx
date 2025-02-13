@@ -16,6 +16,10 @@ import {
 
 // Types
 import { TParcelDetail } from "@/app/utilities/home/types/type";
+import { formatDateTime } from "@/helpers/textFormatter";
+
+// Contants
+import Colors from "@/constants/Colors";
 
 // Dimension
 const { height } = Dimensions.get('screen');
@@ -87,7 +91,7 @@ const PackageDeliveredModal = (props: {
 
               <View style={[modalStyle.viewDefault, { width: "80%", marginBottom: 20 }]}>
                 <Text style={[text.bold, text.center, {marginBottom: 10}]}>YOUR PARCEL IS READY FOR PICK-UP!</Text>
-                <Text style={[text.subHeading, text.center]}>Your parcel has been successfully Delivered and is now stored in the locker.</Text>
+                <Text style={[ text.center]}>Your parcel has been successfully Delivered and is now stored in the locker.</Text>
               </View>
 
               <View style={[modalStyle.viewDefault, {width: "80%", marginBottom: 40 }]}>
@@ -95,15 +99,20 @@ const PackageDeliveredModal = (props: {
                 
                 <View style={styles.viewDefault}>
                   {/* Parcel ID */}
-                  <Text><Text style={text.bold}>Parcel ID</Text>: {parcel.trackingId}</Text>
+                  <Text><Text style={text.bold}>Parcel ID</Text>: {parcel.parcelId?.split("-").join("").substring(0, 10)}</Text>
                   {/* Parcel Name */}
-                  <Text><Text style={text.bold}>Parcel Name</Text>: {parcel.name}</Text>
+                  <Text><Text style={text.bold}>Parcel Name</Text>: {parcel.parcelName} {parcel.parcelId?.substring(0, 5)}</Text>
                   {/* Locker Number */}
-                  <Text><Text style={text.bold}>Locker Number</Text>: #02</Text>
+                  <Text><Text style={text.bold}>Locker Number</Text>: #{parcel.lockerNumber !== undefined ? parcel.lockerNumber : "1" }</Text>
                   {/* Delivered On */}
-                  <Text><Text style={text.bold}>Delivered On</Text>: November 28, 2024 at 3:45 PM</Text>
+                  <Text><Text style={text.bold}>Delivered On</Text>: {formatDateTime(new Date(parcel.arrivedAt ?? new Date()))}</Text>
                 </View>
               </View>
+                            
+              {/* Okay Button */}
+              <TouchableOpacity style={[modalStyle.button, { marginBottom: 30 }]} onPress={closeModal}>
+                  <Text style={[text.headingTwo, {textAlign: "center"}]}>OK</Text>
+              </TouchableOpacity>
             </View>
           </Animated.View>
         </View>
@@ -157,6 +166,16 @@ const modalStyle = StyleSheet.create({
     gap: 10,
     justifyContent: "flex-start",
     alignItems: "center",
+  },
+  
+    
+  button: {
+    position: "relative",
+    width: "86%",
+    padding: 8,
+    backgroundColor: Colors["light"].buttonAction,
+
+    borderRadius: 10,
   }
 });
 

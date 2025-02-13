@@ -29,6 +29,7 @@ registerTranslation('en', {
   minute: "Minute"
 });
 import { DatePickerModal } from "react-native-paper-dates";
+import { useRecoilState } from "recoil";
 
 // Style
 import { historyStyle, text, buttons, padding } from "@/app/utilities/history/styles/styles";
@@ -42,82 +43,27 @@ import { TParcel, TParcelDetail } from "@/app/utilities/home/types/type";
 import Colors from "@/constants/Colors";
 
 // Helpers
-import { getMonthNameDayYearByDate } from "@/helpers/textFormatter";
+import { getMinMaxArrivedAt, getMonthNameDayYearByDate } from "@/helpers/textFormatter";
 import { isDateMonthNameDayYearEqual } from "@/helpers/InputValidator";
+
+// Atoms
+import { parcelList as AParcelList } from "@/app/utilities/home/atoms/atom";
 
 const index = () => {
   /// Init Values
-  // Parcel Logs Values
-  const parcels = useMemo<TParcel[]>(
-    () => [
-      {
-        id: "1",
-        name: "Mouse Pad XTra Long",
-        trackingId: "123-456-789",
-        status: "Picked Up",
-      },
-      {
-        id: "2",
-        name: "Parcel 2",
-        trackingId: "092-123-134-123-323-333",
-        status: "Not Picked Up",
-      },
-      {
-        id: "3",
-        name: "Parcel 3",
-        trackingId: "012-122-233",
-        status: "Picked Up",
-      },
-      {
-        id: "4",
-        name: "Parcel 4",
-        trackingId: "111-222-333",
-        status: "Picked Up",
-      },
-      {
-        id: "5",
-        name: "Keyboard",
-        trackingId: "123-456-789",
-        status: "Not Picked Up",
-      },
-      {
-        id: "6",
-        name: "Monitor",
-        trackingId: "092-123-134-123-323-333",
-        status: "Not Picked Up",
-      },
-      {
-        id: "7",
-        name: "Cup",
-        trackingId: "012-122-233",
-        status: "Not Picked Up",
-      },
-      {
-        id: "8",
-        name: "Floor Wax",
-        trackingId: "111-222-333",
-        status: "Not Picked Up",
-      },
-    ],
-    []
-  );
+  const [parcels, setParcelList] = useRecoilState(AParcelList);
+  const [renderedParcels, setRenderedParcels] = useState<TParcelDetail[]>([]);
 
   // Ranged Date Picker Values
-  const rangeDateGap = useMemo(() => {
-    return 30;
-  }, []);
-
+  const minMaxDate = getMinMaxArrivedAt(parcels);
+  
   const startDateDefault = useMemo(() => {
-    const currentDate = new Date();
-    const getDaysBeforeCurrent = new Date(currentDate);
-    getDaysBeforeCurrent.setDate(currentDate.getDate() - rangeDateGap);
-
-    return getDaysBeforeCurrent;
-  }, []);
+    return minMaxDate.minDate ?? new Date();
+  }, [minMaxDate, parcels]);
 
   const endDateDefault = useMemo(() => {
-    return new Date();
-  }, []);
+    return minMaxDate.maxDate ?? new Date();
+  }, [minMaxDate, parcels]);
 
   // Status Filter Values
   const statusFilterOptions = useMemo<TStatusOptions[]>(() => {
@@ -129,8 +75,8 @@ const index = () => {
   const [modalPackageState, setModalPackageState] = useState<boolean>(false);
   const [modalPackageLogState, setModalPackageLogState] = useState<boolean>(false);
   const [selectedPackageData, setSelectedPackageData] = useState<TParcelDetail>({
-    name: "",
-    trackingId: "",
+    parcelName: "",
+    parcelId: "",
     status: "",
   });
 
@@ -144,8 +90,8 @@ const index = () => {
 
   /// Handlers
   // Modal for Logs
-  const handleOpenPackageLogModal = useCallback(({trackingId, name, status}: TParcelDetail) => {
-    setSelectedPackageData({ trackingId, name, status });
+  const handleOpenPackageLogModal = useCallback(({parcelId, parcelName, status, lockerNumber, retrievedAt, retrievedBy, arrivedAt, userId, createdAt, id}: TParcelDetail) => {
+    setSelectedPackageData({ parcelId, parcelName, status, lockerNumber, retrievedAt, retrievedBy, arrivedAt, userId, createdAt, id });
     setModalPackageLogState(true);
   }, []);
 
@@ -156,7 +102,10 @@ const index = () => {
   // Ranged Date Picker Handler
   const handleDateOnConfirm = useCallback(({startDate, endDate}: IRangedDate) => {
     setDateModalVisibility(false);
-    setDateRange({startDate, endDate});
+    const newEndDate = endDate;
+    newEndDate?.setHours(23, 59, 59, 0);
+
+    setDateRange({startDate, endDate: newEndDate});
   }, [setDateModalVisibility, setDateRange]);
 
   const handleDateOnDismiss = useCallback(() => {
@@ -171,9 +120,30 @@ const index = () => {
 
   // Reset Filter Handler
   const handleResetFilter = useCallback(() => {
-    handleDateOnConfirm({startDate: startDateDefault, endDate: endDateDefault});
+    handleDateOnConfirm({startDate: startDateDefault ?? new Date(), endDate: endDateDefault ?? new Date()});
     setSelectedStatus("All");
   }, []);
+
+  const handleFilter = useCallback(() => {
+    // Filter by Date
+    const filterProcess = parcels.filter(parcel => {
+      if (!parcel.arrivedAt || !dateRange.startDate || !dateRange.endDate) return false; // Skip if no arrivedAt date
+      const arrivedAt = new Date(parcel.arrivedAt);
+
+      if (arrivedAt >= dateRange.startDate && arrivedAt <= dateRange.endDate) {
+        if (selectedStatus === "All") return parcel;
+        else if (selectedStatus === "Retrieved" && parcel.status === "Picked Up") return parcel; 
+        else if (selectedStatus === "Delivered" && parcel.status === "Not Picked Up") return parcel; 
+      }
+    });
+
+    setRenderedParcels(filterProcess);
+  }, [dateRange, selectedStatus]);
+
+  /// Onload
+  useEffect(() => {
+    handleFilter();
+  }, [dateRange, selectedStatus]);
 
   return (
     <>
@@ -194,6 +164,7 @@ const index = () => {
           endLabel="To"
           presentationStyle="pageSheet"
           dateMode="start"
+          validRange={{startDate: startDateDefault, endDate: endDateDefault}}
         />
       
         {/* Package Log Modal */}
@@ -216,15 +187,23 @@ const index = () => {
             {/* Datetime Picker */}
             <View style={[historyStyle.view]}>  
               <TouchableOpacity 
-                style={[historyStyle.flex, historyStyle.justifyCenter, padding.six, historyStyle.rangedDatePicker, historyStyle.gap4]} 
+                disabled={(parcels.length === 0) ? true : false}
+                style={[historyStyle.flex, historyStyle.justifyCenter, padding.six, historyStyle.rangedDatePicker, historyStyle.gap4,
+                  { filter: (parcels.length === 0) ? "contrast(60%)" : "contrast(100%)", }
+                ]} 
                 onPress={() => setDateModalVisibility(true)}
               >
-                <FIconByName name="calendar" size={24} color={Colors["light"].backgroundDark} />
-                <Text>
-                  {getMonthNameDayYearByDate(dateRange.startDate ?? new Date())} 
-                  {" "}to{" "}
-                  {getMonthNameDayYearByDate(dateRange.endDate ?? new Date())}
-                </Text>
+              { 
+                (parcels.length > 0) && 
+                <>
+                  <FIconByName name="calendar" size={24} color={Colors["light"].backgroundDark} />
+                  <Text>
+                    {getMonthNameDayYearByDate(dateRange.startDate ?? new Date())} 
+                    {" "}to{" "}
+                    {getMonthNameDayYearByDate(dateRange.endDate ?? new Date())}
+                  </Text>
+                </>
+              }
               </TouchableOpacity>
             </View>
 
@@ -232,14 +211,18 @@ const index = () => {
             <View style={[historyStyle.view, historyStyle.flex, historyStyle.justifyCenter, historyStyle.gap4]}>
               {/* All */}
               <TouchableOpacity 
+                disabled={(parcels.length === 0) ? true : false}
                 style={[historyStyle.flex, padding.four, historyStyle.roundedBoarder, historyStyle.gap2, 
                   buttons.btnStatusWidth, historyStyle.justifyCenter,
-                  selectedStatus === "All" ? buttons.btnPail : buttons.btnInactive
+                  selectedStatus === "All" && parcels.length > 0 ? buttons.btnPail : buttons.btnInactive,
+                  { filter: (parcels.length === 0) ? "contrast(60%)" : "contrast(100%)", }
                 ]}
                 onPress={() => handleSelectStatus("All")}
               >
-                {selectedStatus === "All" && <FIconByName name="check" size={24} color="black" />}
-                <Text style={{color: selectedStatus !== "All" ? "white" : "black"}}>
+                {selectedStatus === "All" && parcels.length > 0 && <FIconByName name="check" size={24} color="black" />}
+                <Text style={[
+                    {color: parcels.length === 0 ? "white" : selectedStatus !== "All" ? "white" : "black"}
+                  ]}>
                   All
                 </Text>
               </TouchableOpacity>
@@ -253,8 +236,10 @@ const index = () => {
                       <TouchableOpacity 
                         style={[historyStyle.flex, padding.four, historyStyle.roundedBoarder, historyStyle.gap2, 
                           buttons.btnStatusWidth, historyStyle.justifyCenter,
-                          selectedStatus !== "All" ? buttons.btnPail : buttons.btnInactive
+                          selectedStatus !== "All" ? buttons.btnPail : buttons.btnInactive,
+                          { filter: (parcels.length === 0) ? "contrast(60%)" : "contrast(100%)", }
                         ]} 
+                        disabled={(parcels.length === 0) ? true : false}
                         onPress={() => setMenuVisibility(true)}
                       >
                         <Text style={{color: selectedStatus === "All" ? "white" : "black"}}>
@@ -279,8 +264,8 @@ const index = () => {
             
             {/* Reset Button */}
             {(( 
-                !isDateMonthNameDayYearEqual(startDateDefault, dateRange.startDate ?? new Date()) ||
-                !isDateMonthNameDayYearEqual(endDateDefault, dateRange.endDate ?? new Date())
+                !isDateMonthNameDayYearEqual(startDateDefault ?? new Date(), dateRange.startDate ?? new Date()) ||
+                !isDateMonthNameDayYearEqual(endDateDefault ?? new Date(), dateRange.endDate ?? new Date())
               ) ||
               (
                 selectedStatus !== "All"
@@ -308,12 +293,19 @@ const index = () => {
             showsVerticalScrollIndicator={false}
             horizontal={false}
           >
-            {parcels.length != 0 ? (
-              parcels.map((parcel: TParcel) => (
+            {renderedParcels.length != 0 ? (
+              renderedParcels.map((parcel: TParcelDetail) => (
                 <LogItem key={parcel.id} parcel={parcel} handleOpenPackageLogModal={() => handleOpenPackageLogModal({
-                  name: parcel.name,
-                  trackingId: parcel.trackingId,
-                  status: parcel.status
+                  parcelName: parcel.parcelName,
+                  parcelId: parcel.parcelId,
+                  status: parcel.status,
+                  lockerNumber: parcel.lockerNumber,
+                  retrievedAt: parcel.retrievedAt,
+                  retrievedBy: parcel.retrievedBy,
+                  arrivedAt: parcel.arrivedAt,
+                  userId: parcel.userId,
+                  createdAt: parcel.createdAt,
+                  id: parcel.id,
                 })}
                   additionalStyle={{
                     paddingHorizontal: 40,
@@ -322,7 +314,7 @@ const index = () => {
                 />
               ))
             ) : (
-              <Text style={text.subHeading}>No Recent Activity.</Text>
+              <Text style={[text.subHeading, {textAlign: "center", marginTop: 40}]}>No Logs.</Text>
             )}
           </ScrollView>
         </View>

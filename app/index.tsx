@@ -1,5 +1,10 @@
 import Colors from "@/constants/Colors";
+import { ApiSetup } from "@/helpers/ApiSetup";
+import { useEffect } from "react";
 import { StyleSheet, Text, View, Image } from "react-native";
+import { API_URL as AAPIURL } from "./utilities/home/atoms/atom";
+import { useRecoilState } from "recoil";
+import { router } from "expo-router";
 
 export default function Page() {
   return (
