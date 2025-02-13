@@ -1,15 +1,11 @@
 import axios from "axios";
-import { API_URL as AAPIURL } from "@/app/utilities/home/atoms/atom";
-import { useRecoilValue } from "recoil";
 
 export interface ApiResponse<T> {
   data: T | null;
   error: string | null;
 }
 
-export const ReadNotificationAction = async (creds: string[]): Promise<ApiResponse<boolean>> => {
-  const API_URL = useRecoilValue(AAPIURL);
-  
+export const ReadNotificationAction = async (creds: string[], API_URL: string): Promise<ApiResponse<boolean>> => {
   try {
     const { data } = await axios.put<boolean>(API_URL + "Users/ReadNotification",
       creds,

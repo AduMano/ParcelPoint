@@ -1,6 +1,4 @@
 import axios from "axios";
-import { API_URL as AAPIURL } from "@/app/utilities/home/atoms/atom";
-import { useRecoilValue } from "recoil";
 import { IUserRelationship } from "@/app/utilities/manageAccess/types/types"; 
 
 export interface ApiResponse<T> {
@@ -8,9 +6,7 @@ export interface ApiResponse<T> {
   error: string | null;
 }
 
-export const getAllUserRelationships = async (): Promise<ApiResponse<IUserRelationship[]>> => {
-  const API_URL = useRecoilValue(AAPIURL);
-  
+export const getAllUserRelationships = async (API_URL: string): Promise<ApiResponse<IUserRelationship[]>> => {
   try {
     const { data } = await axios.get<IUserRelationship[]>(API_URL + "UserRelationship",
       { headers: { 'Content-Type': 'application/json' } }

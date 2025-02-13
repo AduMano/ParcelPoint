@@ -45,13 +45,14 @@ import useGetMemberList from "@/app/utilities/home/hooks/useGetMemberList";
 import useGetUserList from "@/app/utilities/home/hooks/useGetUserList";
 import useGetParcelList from "@/app/utilities/home/hooks/useGetParcelList";
 import useGetNotificationList from "@/app/utilities/home/hooks/useGetNotificationList";
-import { ApiSetup } from "@/helpers/ApiSetup";
+import useGetApiUrl from "@/app/utilities/home/hooks/useGetApiUrl";
+import { useSignalR } from "@/services/signalRService/signalRService";
+import { useHomeService } from "@/services/signalRService/HomeService";
 
 const index = () => {
   /// Init Data
   // URL
-  const [API_URL, SetApiUrl] = useRecoilState(AAPIURL);
-
+  const { fetchAPIUrl, data: AUData, isLoading: AULoading, error: AUError } = useGetApiUrl();
   // User Data
   const { fetchUserInfo, data: UIData, isLoading: UILoading, error: UIError } = useGetUserInfo();
   // Member Data
@@ -62,6 +63,8 @@ const index = () => {
   const { fetchParcelList, data: PLData, isLoading: PLLoading, error: PLError } = useGetParcelList();
   // Fetch Notification List
   const { fetchNotificationList, data: NLData, isLoading: NLLoading, error: NLError } = useGetNotificationList();
+  // Load SignalR Service
+  const { connectHub, isLoading: CHLoading } = useHomeService();
 
   /// States
   // Initial States
@@ -69,23 +72,21 @@ const index = () => {
   useEffect(() => {
     setLoading(true);
     
-    if ([UILoading, MLLoading, ULLoading, PLLoading, NLLoading].every(load => !load)){
+    if ([UILoading, MLLoading, ULLoading, PLLoading, NLLoading, AULoading, CHLoading].every(load => !load)){
       setTimeout(() => {
         setLoading(false);
       }, 1000);
     }
-  }, [UILoading, MLLoading, ULLoading, PLLoading, NLLoading]);
+  }, [UILoading, MLLoading, ULLoading, PLLoading, NLLoading, AULoading, CHLoading]);
 
   // User Information
   const [userID, setUserID] = useRecoilState(AUserID);
+  const [API_URL, setApi] = useRecoilState(AAPIURL);
   const [userInformation, setUserInformation] = useRecoilState(AUserInformation);
   const [members, setMembers] = useRecoilState(AMemberList);
   const [userList, setUserList] = useRecoilState(AUserList);
   const [parcels, setParcelList] = useRecoilState(AParcelList);
   const [notifications, setNotificationList] = useRecoilState(ANotificationList);
-  
-  // SignalR
-  // const { connection } = useHomeService(API_URL ?? "", userID ?? "");
   
   // For Modal
   const [modalPackageState, setModalPackageState] = useState<boolean>(false);
@@ -93,7 +94,6 @@ const index = () => {
   const [selectedPackageData, setSelectedPackageData] = useState<TParcelDetail>({});
 
   /// Event Handlers
-
   // Modal for Parcel Status
   const onOpenPackageModal = useCallback(({parcelId, parcelName, status, lockerNumber, retrievedAt, retrievedBy, arrivedAt, userId, createdAt, id}: TParcelDetail) => {
     setSelectedPackageData({ parcelId, parcelName, status, lockerNumber, retrievedAt, retrievedBy, arrivedAt, userId, createdAt, id });
@@ -112,16 +112,13 @@ const index = () => {
     setModalPackageLogState(false);
   }, []);
   
+  
   /// Use Effect
   // Get User ID
   useEffect(() => {
     const getUserId = async () => {
       const id = await AsyncStorage.getItem("USER_ID");
-      await fetchUserInfo(id ?? "");
-      await fetchMembers(id ?? "");
-      await fetchUserList(id ?? "");
-      await fetchParcelList(id ?? "");
-      await fetchNotificationList(id ?? "");
+      await fetchAPIUrl();
 
       setUserID(id);
     };
@@ -200,6 +197,38 @@ const index = () => {
 
     getNotificationList();
   }, [NLData]);
+
+  // Fetch Data
+  useEffect(() => {
+    if (AUData === null) return;
+
+    const fetchURL= async () => {
+      await setApi(AUData);
+    };
+
+    fetchURL();
+    console.log(AUData.url);
+
+  }, [AUData]);
+
+  useEffect(() => {
+    if (API_URL === null) return;
+    
+    const fetchData = async () => {
+      await fetchUserInfo(userID ?? "");
+      await fetchMembers(userID ?? "");
+      await fetchUserList(userID ?? "");
+      await fetchParcelList(userID ?? "");
+      await fetchNotificationList(userID ?? "");
+      await connectHub(API_URL, userID ?? "");
+    }
+
+    fetchData();
+  }, [API_URL]);
+
+  useEffect(() => {
+    console.log(AUError);
+  }, [AUError]);
 
   return (
     <>

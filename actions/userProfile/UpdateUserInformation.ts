@@ -1,6 +1,4 @@
 import axios from "axios";
-import { API_URL as AAPIURL } from "@/app/utilities/home/atoms/atom";
-import { useRecoilValue } from "recoil";
 import { IUserUpdateInformation } from "@/app/utilities/userProfile/types/types";
 
 export interface ApiResponse<T> {
@@ -8,9 +6,7 @@ export interface ApiResponse<T> {
   error: string | null;
 }
 
-export const updateUserInformation = async ( credentials: IUserUpdateInformation ): Promise<ApiResponse<IUserUpdateInformation>> => {
-  const API_URL = useRecoilValue(AAPIURL);
-  
+export const updateUserInformation = async ( credentials: IUserUpdateInformation, API_URL: string ): Promise<ApiResponse<IUserUpdateInformation>> => {
   try {
     const { data } = await axios.put<IUserUpdateInformation>(API_URL + "Users/UpdateInformation",
       { ...credentials },

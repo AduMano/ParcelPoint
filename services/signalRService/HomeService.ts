@@ -6,14 +6,19 @@ import { notificationList as ANotificationList } from "@/app/utilities/home/atom
 import { HomeList, INotificationItem } from "@/app/utilities/notification/types/types";
 import { TParcelDetail } from "@/app/utilities/home/types/type";
 
-export const useHomeService = (apiUrl: string, userId: string) => {
+export const useHomeService = () => {
   const [connection, setConnection] = useState<HubConnection | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const setNotificationList = useSetRecoilState(ANotificationList); // ✅ Recoil State for Notifications
   const setParcelList = useSetRecoilState(AParcelList); // ✅ Recoil State for Notifications
 
-  useEffect(() => {
+  const connectHub = useCallback(async (apiUrl: string, userId: string) => {
+    console.log("🔌 Connecting to SignalR...");
+    console.log("🔌 Connecting to SignalR...", apiUrl, userId);
+
+    setIsLoading(true);
     const newConnection = new HubConnectionBuilder()
-      .withUrl(`${apiUrl}notificationHub`, {
+      .withUrl(`${apiUrl}homeHub`, {
         accessTokenFactory: () => userId,
         transport: HttpTransportType.WebSockets, // ✅ Use WebSockets
         skipNegotiation: true,                  // ✅ Fix negotiation failure
@@ -28,25 +33,18 @@ export const useHomeService = (apiUrl: string, userId: string) => {
 
     setConnection(newConnection);
 
-    return () => {
-      newConnection.stop();
-    };
-  }, [apiUrl, userId]);
-
-  const startConnection = useCallback(async () => {
-    if (!connection) return;
     try {
-      await connection.start();
+      await newConnection.start();
       console.log("✅ SignalR connected successfully!");
-      setupListeners();
+      setupListeners(newConnection);
     } catch (err) {
       console.log("❌ Error establishing SignalR connection:", err);
+    } finally {
+      setIsLoading(false);
     }
-  }, [connection]);
+  }, []);
 
-  const setupListeners = useCallback(() => {
-    if (!connection) return;
-
+  const setupListeners = useCallback((connection: HubConnection) => {
     connection.on("HomeListUpdate", (updateData: HomeList) => { 
       const parcel: TParcelDetail = updateData.parcel;
       const notification: INotificationItem = updateData.notification;
@@ -54,13 +52,15 @@ export const useHomeService = (apiUrl: string, userId: string) => {
       setNotificationList((current) => [notification as INotificationItem, ...current]); 
       setParcelList((current) => [parcel as TParcelDetail, ...current]); 
     });
-  }, [connection, setNotificationList]);
+  }, [setNotificationList, setParcelList]);
 
   useEffect(() => {
-    if (connection) {
-      startConnection();
-    }
-  }, [connection, startConnection]);
+    return () => {
+      if (connection) {
+        connection.stop();
+      }
+    };
+  }, [connection]);
 
-  return { connection };
+  return { connectHub, isLoading };
 };

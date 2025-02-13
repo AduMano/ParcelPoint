@@ -1,6 +1,4 @@
 import axios from "axios";
-import { API_URL as AAPIURL } from "@/app/utilities/home/atoms/atom";
-import { useRecoilValue } from "recoil";
 import { IUpdateMemberRequest } from "@/app/utilities/manageAccess/types/types"; 
 
 export interface ApiResponse<T> {
@@ -8,9 +6,7 @@ export interface ApiResponse<T> {
   error: string | null;
 }
 
-export const updateMemberAction = async (creds: IUpdateMemberRequest[]): Promise<ApiResponse<IUpdateMemberRequest[]>> => {
-  const API_URL = useRecoilValue(AAPIURL);
-  
+export const updateMemberAction = async (creds: IUpdateMemberRequest[], API_URL: string): Promise<ApiResponse<IUpdateMemberRequest[]>> => {
   try {
     const param = { Members: creds };
 

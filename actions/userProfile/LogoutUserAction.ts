@@ -1,10 +1,6 @@
 import axios, { Axios, AxiosError } from "axios";
-import { API_URL as AAPIURL } from "@/app/utilities/home/atoms/atom";
-import { useRecoilValue } from "recoil";
 
-export const LogoutUserAction = async ( userID: string ): Promise<void> => {
-  const API_URL = useRecoilValue(AAPIURL);
-  
+export const LogoutUserAction = async ( userID: string, API_URL: string ): Promise<void> => {
   try {
     await axios.post(API_URL + "Auth/LogoutUser",
       userID,

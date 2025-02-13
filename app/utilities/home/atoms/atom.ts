@@ -47,7 +47,7 @@ export const notificationList = atom<INotificationItem[]>({
   default: []
 });
 
-export const API_URL = atom<string>({ 
+export const API_URL = atom<string | null>({ 
   key: "API_URL",
-  default: ""
+  default: null
 });

@@ -1,15 +1,11 @@
 import axios from "axios";
-import { API_URL as AAPIURL } from "@/app/utilities/home/atoms/atom";
-import { useRecoilValue } from "recoil";
 
 export interface ApiResponse<T> {
   data: T | null;
   error: string | null;
 }
 
-export const deleteMemberAction = async (creds: {Members: string[], GroupOwnerId: string}): Promise<ApiResponse<string | string[]>> => {
-  const API_URL = useRecoilValue(AAPIURL);
-  
+export const deleteMemberAction = async (creds: {Members: string[], GroupOwnerId: string}, API_URL: string): Promise<ApiResponse<string | string[]>> => {
   try {
     const { data } = await axios.delete<string | string[]>(API_URL + "UserGroups/DeleteMember",
       { 

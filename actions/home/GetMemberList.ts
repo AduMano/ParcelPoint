@@ -1,16 +1,12 @@
 import axios from "axios";
 import { IMember } from "@/app/utilities/manageAccess/types/types";
-import { API_URL as AAPIURL } from "@/app/utilities/home/atoms/atom";
-import { useRecoilValue } from "recoil";
 
 export interface ApiResponse<T> {
   data: T | null;
   error: string | null;
 }
 
-export const getMemberList = async ( userID: string ): Promise<ApiResponse<IMember[]>> => {
-  const API_URL = useRecoilValue(AAPIURL);
-  
+export const getMemberList = async ( userID: string, API_URL: string ): Promise<ApiResponse<IMember[]>> => {
   try {
     const { data } = await axios.get<IMember[]>(API_URL + "UserGroups/GetMemberList/" + userID,
       { headers: { 'Content-Type': 'application/json' } }

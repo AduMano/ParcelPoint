@@ -8,6 +8,10 @@ import { ApiResponse } from "@/actions/manageAccess/UpdateMember"
 import { IUpdateMemberRequest } from "../types/types";
 import { updateMemberAction } from "@/actions/manageAccess/UpdateMember";
 
+// Hooks
+import { useRecoilValue } from "recoil";
+import { API_URL as AAPIURL } from "@/app/utilities/home/atoms/atom";
+
 interface UpdateMember {
   updateMember: (credentials: IUpdateMemberRequest[]) => Promise<void>;
   data: IUpdateMemberRequest[] | null;
@@ -19,12 +23,13 @@ const useUpdateMember = (): UpdateMember => {
   const [data, setData] = useState<IUpdateMemberRequest[] | null>(null);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const API_URL = useRecoilValue(AAPIURL);
 
   const updateMember = async (credentials: IUpdateMemberRequest[]) => {
     setLoading(true);
     setError(null);
 
-    const result: ApiResponse<IUpdateMemberRequest[]> = await updateMemberAction(credentials);
+    const result: ApiResponse<IUpdateMemberRequest[]> = await updateMemberAction(credentials, API_URL ?? ""); 
 
     if (result.data) {
       setData(result.data);

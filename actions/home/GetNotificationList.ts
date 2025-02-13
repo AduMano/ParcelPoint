@@ -1,16 +1,12 @@
 import axios from "axios";
 import { INotificationItem } from "@/app/utilities/notification/types/types";
-import { API_URL as AAPIURL } from "@/app/utilities/home/atoms/atom";
-import { useRecoilValue } from "recoil";
 
 export interface ApiResponse<T> {
   data: T | null;
   error: string | null;
 }
 
-export const getNotificationList = async ( userID: string ): Promise<ApiResponse<INotificationItem[]>> => {
-  const API_URL = useRecoilValue(AAPIURL);
-  
+export const getNotificationList = async ( userID: string, API_URL: string ): Promise<ApiResponse<INotificationItem[]>> => {
   try {
     const { data } = await axios.get<INotificationItem[]>(API_URL + "Users/GetUserNotifications/" + userID,
       { headers: { 'Content-Type': 'application/json' } }

@@ -1,5 +1,4 @@
 import axios from "axios";
-import { API_URL } from '@/actions/config';
 import { IUserInformation } from "@/app/utilities/home/types/type";
 
 export interface ApiResponse<T> {
@@ -7,9 +6,7 @@ export interface ApiResponse<T> {
   error: string | null;
 }
 
-export const getUserList = async ( userID: string ): Promise<ApiResponse<IUserInformation[]>> => {
-  const API_URL = useRecoilValue(AAPIURL);
-  
+export const getUserList = async ( userID: string, API_URL: string ): Promise<ApiResponse<IUserInformation[]>> => {
   try {
     const { data } = await axios.get<IUserInformation[]>(API_URL + "UserGroups/GetUsersList/" + userID,
       { headers: { 'Content-Type': 'application/json' } }

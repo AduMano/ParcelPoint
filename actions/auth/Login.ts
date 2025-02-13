@@ -1,6 +1,4 @@
 import axios from "axios";
-import { API_URL as AAPIURL } from "@/app/utilities/home/atoms/atom";
-import { useRecoilValue } from "recoil";
 
 export interface LoginRequest {
   username: string;
@@ -17,9 +15,7 @@ export interface ApiResponse<T> {
   error: string | null;
 }
 
-export const loginUser = async ( loginData: LoginRequest ): Promise<ApiResponse<LoginResponse>> => {
-  const API_URL = useRecoilValue(AAPIURL);
-  
+export const loginUser = async ( loginData: LoginRequest, API_URL: string ): Promise<ApiResponse<LoginResponse>> => {
   try {
     const { data } = await axios.post<LoginResponse>(API_URL + "Auth/login",
       { ...loginData, type: "user" },

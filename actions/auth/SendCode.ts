@@ -1,15 +1,11 @@
 import axios from "axios";
-import { API_URL as AAPIURL } from "@/app/utilities/home/atoms/atom";
-import { useRecoilValue } from "recoil";
 
 export interface ApiResponse<T> {
   data: T | null;
   error: string | null;
 }
 
-export const SendCode = async ( email: string ): Promise<ApiResponse<string>> => {
-  const API_URL = useRecoilValue(AAPIURL);
-  
+export const SendCode = async ( email: string, API_URL: string ): Promise<ApiResponse<string>> => {
   try {
     const { data } = await axios.post<string>(API_URL + "Auth/SendVerificationCode",
       email,

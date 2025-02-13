@@ -4,11 +4,15 @@ import { useSetRecoilState } from "recoil";
 import { notificationList as ANotificationList } from "@/app/utilities/home/atoms/atom";
 import { INotificationItem } from "@/app/utilities/notification/types/types";
 
-export const useSignalR = (apiUrl: string, userId: string) => {
+export const useSignalR = () => {
   const [connection, setConnection] = useState<HubConnection | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const setNotificationList = useSetRecoilState(ANotificationList); // ✅ Recoil State for Notifications
 
-  useEffect(() => {
+  const connectHub = useCallback(async (apiUrl: string, userId: string) => {
+    console.log("🔌 Connecting to SignalR...", apiUrl, userId);
+    
+    setIsLoading(true);
     const newConnection = new HubConnectionBuilder()
       .withUrl(`${apiUrl}baseHub`, {
         accessTokenFactory: () => userId,
@@ -20,30 +24,23 @@ export const useSignalR = (apiUrl: string, userId: string) => {
       .build();
 
     newConnection.onclose((err) => {
-      console.error("❌ SignalR connection closed:", err);
+      console.log("❌ SignalR connection closed:", err);
     });
 
     setConnection(newConnection);
 
-    return () => {
-      newConnection.stop();
-    };
-  }, [apiUrl, userId]);
-
-  const startConnection = useCallback(async () => {
-    if (!connection) return;
     try {
-      await connection.start();
+      await newConnection.start();
       console.log("✅ SignalR connected successfully!");
-      setupListeners();
+      setupListeners(newConnection);
     } catch (err) {
-      console.error("❌ Error establishing SignalR connection:", err);
+      console.log("❌ Error establishing SignalR connection:", err);
+    } finally {
+      setIsLoading(false);
     }
-  }, [connection]);
+  }, []);
 
-  const setupListeners = useCallback(() => {
-    if (!connection) return;
-
+  const setupListeners = useCallback((connection: HubConnection) => {
     connection.on("ReceiveUpdate", (message) => {
       const { type, data } = message;
       console.log(`📩 New message on ${type}:`, data);
@@ -52,13 +49,15 @@ export const useSignalR = (apiUrl: string, userId: string) => {
         setNotificationList((current) => [...current, data as INotificationItem]); // ✅ Update Recoil State
       }
     });
-  }, [connection, setNotificationList]);
+  }, [setNotificationList]);
 
   useEffect(() => {
-    if (connection) {
-      startConnection();
-    }
-  }, [connection, startConnection]);
+    return () => {
+      if (connection) {
+        connection.stop();
+      }
+    };
+  }, [connection]);
 
-  return { connection };
+  return { connectHub, isLoading };
 };
