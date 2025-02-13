@@ -19,7 +19,7 @@ const useLoginUser = (): UseLoginReturn => {
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
     setError(null);
-
+    console.log(API_URL);
     const result: ApiResponse<LoginResponse> = await loginUser(credentials, API_URL ?? "");
 
     if (result.data) {

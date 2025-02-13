@@ -4,6 +4,12 @@
     "appVersionSource": "remote"
   },
   "build": {
+    "apk": {
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:bundleRelease"
+      }
+    },
     "development": {
       "developmentClient": true,
       "distribution": "internal"
