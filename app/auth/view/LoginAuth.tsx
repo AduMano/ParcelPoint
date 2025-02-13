@@ -27,6 +27,9 @@ import useLoginUser from "../hooks/useLoginUser";
 
 // Helpers
 import { isNotEmpty, minLength, validateInput } from "@/helpers/InputValidator";
+import { useRecoilState } from "recoil";
+import useGetApiUrl from "@/app/utilities/home/hooks/useGetApiUrl";
+import { API_URL as AAPIURL } from "@/app/utilities/home/atoms/atom";
 
 const index = () => {
   // Init
@@ -34,7 +37,32 @@ const index = () => {
   
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  
+
+  // API
+
+  const [loading, setLoading] = useState<boolean>(false);
+  const {fetchAPIUrl, isLoading: AULoading, data: AUData, error:AUError} = useGetApiUrl();
+  const [API_URL, setAPI_URL] = useRecoilState(AAPIURL);
+
+  // Loaders
+  useEffect(() => {
+    setLoading(AULoading);
+  }, [AULoading]);
+
+  useEffect(() => {
+    const getAPI = async () => {
+      await fetchAPIUrl();
+    }
+
+    getAPI();
+  }, []);
+
+  useEffect(() => {
+    if (AUData === null) return;
+
+    setAPI_URL(AUData);
+  }, [AUData]);
+    
   // Login Module
   const { login, data, isLoading, error } = useLoginUser();
 
@@ -116,6 +144,7 @@ const index = () => {
   useEffect(() => {
     const loginProcess = async () => {
       if (data) { 
+        await setAPI_URL(null);
         await handleDataStorage(data.userId);
         await handleLoginSuccess(data.username); 
       } 

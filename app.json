@@ -23,6 +23,9 @@
         "foregroundImage": "./assets/images/splash-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "permission": [],
+      "versionCode": 1,
+      "useNextNotificationsApi": true,
       "package": "com.aldomano.ParcelPoint"
     },
     "web": {

@@ -51,6 +51,8 @@ import { useHomeService } from "@/services/signalRService/HomeService";
 
 const index = () => {
   /// Init Data
+  const [loadFlag, setLoadFlag] = useState<boolean>(false);
+
   // URL
   const { fetchAPIUrl, data: AUData, isLoading: AULoading, error: AUError } = useGetApiUrl();
   // User Data
@@ -207,7 +209,6 @@ const index = () => {
     };
 
     fetchURL();
-    console.log(AUData.url);
 
   }, [AUData]);
 
@@ -220,7 +221,7 @@ const index = () => {
       await fetchUserList(userID ?? "");
       await fetchParcelList(userID ?? "");
       await fetchNotificationList(userID ?? "");
-      await connectHub(API_URL, userID ?? "");
+      await connectHub(API_URL ?? "", userID ?? "");
     }
 
     fetchData();

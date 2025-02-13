@@ -16,6 +16,7 @@ const useGetUserInfo = (): UseGetInfoReturn => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const API_URL = useRecoilValue(AAPIURL);
+  console.log(API_URL);
 
   const fetchUserInfo = async (userID: string) => {
     setIsLoading(true);

@@ -8,6 +8,7 @@ export interface ApiResponse<T> {
 
 export const getUserInformation = async ( userID: string, API_URL: string ): Promise<ApiResponse<IUserInformation>> => {
   try {
+    console.log("API_URL: ", API_URL);
     const { data } = await axios.get<IUserInformation>(API_URL + "Users/GetUserInformation/" + userID,
       { headers: { 'Content-Type': 'application/json' } }
     );
