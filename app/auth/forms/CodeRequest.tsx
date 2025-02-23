@@ -3,7 +3,7 @@ import EmailFieldRequestCode from "@/components/EmailFieldRequestCode";
 import { Text, View } from "@/components/Themed";
 
 // Library
-import { Alert, TextInput, TouchableOpacity } from "react-native";
+import { Alert, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 
@@ -12,6 +12,7 @@ import useVerifyCode from "../hooks/useVerifyCode";
 
 // Atoms
 import { Code6 } from "@/app/auth/atoms/atom";
+import { TextInput } from "react-native-paper";
 
 
 const CodeRequest = (props: {

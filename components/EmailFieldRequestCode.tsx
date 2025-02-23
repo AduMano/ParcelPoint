@@ -8,7 +8,6 @@ import { isNotEmpty, isValidEmail, validateInput } from "@/helpers/InputValidato
 // Library
 import {
   View,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   Alert,
@@ -22,6 +21,7 @@ import useSendCode from "@/app/auth/hooks/useSendCode";
 
 // Atoms
 import { Code6 } from "@/app/auth/atoms/atom";
+import { TextInput } from "react-native-paper";
 
 const CodeRequest = (props: {
   btnText: string;

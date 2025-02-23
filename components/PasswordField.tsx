@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { View, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // Correct import
+import { TextInput } from "react-native-paper";
 
 const PasswordField = (props: {
   password: string;

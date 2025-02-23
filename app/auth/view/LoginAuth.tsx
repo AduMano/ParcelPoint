@@ -10,7 +10,6 @@ import {
   Image,
   StatusBar,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
 } from "react-native";
 import {
@@ -19,7 +18,7 @@ import {
 } from "expo-navigation-bar";
 import { useCallback, useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, TextInput } from "react-native-paper";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Hooks

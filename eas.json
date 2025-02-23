@@ -7,8 +7,7 @@
     "apk": {
       "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:bundleRelease",
-        "enableHermes": true
+        "gradleCommand": ":app:bundleRelease"
       }
     },
     "development": {
@@ -19,6 +18,10 @@
       "distribution": "internal"
     },
     "production": {
+      "android": {
+        "buildType": "app-bundle",
+        "gradleCommand": ":app:bundleRelease"
+      },
       "autoIncrement": true
     }
   },
