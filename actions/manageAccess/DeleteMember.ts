@@ -7,6 +7,7 @@ export interface ApiResponse<T> {
 
 export const deleteMemberAction = async (creds: {Members: string[], GroupOwnerId: string}, API_URL: string): Promise<ApiResponse<string | string[]>> => {
   try {
+    console.log("CONNECTING");
     const { data } = await axios.delete<string | string[]>(API_URL + "UserGroups/DeleteMember",
       { 
         headers: { 'Content-Type': 'application/json' },

@@ -100,12 +100,13 @@ const CodeRequest = (props: {
           keyboardType="number-pad"
           maxLength={6}
           numberOfLines={1}
-          style={styles.textField}
+          style={[styles.textField, {height: 44}]}
           value={pinCode}
           onChangeText={(text) => {
             const numericValue = text.replace(/[^0-9]/g, "");
             setPinCode(numericValue);
           }}
+          contentStyle={{color: "black"}} 
         />
       </View>
 

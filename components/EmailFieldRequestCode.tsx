@@ -159,10 +159,12 @@ const CodeRequest = (props: {
               borderTopRightRadius: 0,
               borderBottomRightRadius: 0,
               marginBottom: 0,
+              height: 44
             },
           ]}
           value={email}
           onChangeText={(text) => setEmail(text)}
+          contentStyle={{color: "black"}} 
         />
 
         {/* Send Button */}

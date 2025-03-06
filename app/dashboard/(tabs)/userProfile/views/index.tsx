@@ -179,12 +179,12 @@ const index = () => {
                 style={[styles.userImage, {backgroundColor: "gray"}]}
               />
 
-              <TouchableOpacity 
+              {/* <TouchableOpacity 
                 style={[userProfileStyle.cameraIcon]}
                 onPress={() => {}}
               >
                 <EIconByName name="camera" size={24} color="black" />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
             {/* Name */}
             <Text style={[text.heading, text.center]}>{firstName} {lastName} {suffix}</Text>

@@ -37,11 +37,13 @@ const PasswordField = (props: {
             props.style,
             {
               width: "100%",
+              height: 44
             },
           ]}
           value={password}
           onChangeText={(text) => setPassword(text)}
           secureTextEntry={!isPasswordVisible}
+          contentStyle={{color: "black"}} 
         />
 
         {/* Eye Icon */}

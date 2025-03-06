@@ -194,6 +194,7 @@ const index = () => {
             style={styles.textField}
             value={username}
             onChangeText={(text) => setUsername(text)}
+            contentStyle={{color: "black"}} 
           />
         </View>
 
@@ -293,6 +294,7 @@ const styles = StyleSheet.create({
   textField: {
     width: "86%",
     margin: "auto",
+    height: 44,
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
