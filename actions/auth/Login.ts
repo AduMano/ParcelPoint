@@ -17,6 +17,8 @@ export interface ApiResponse<T> {
 
 export const loginUser = async ( loginData: LoginRequest, API_URL: string ): Promise<ApiResponse<LoginResponse>> => {
   try {
+    console.log("Login Data: ", loginData);
+    
     const { data } = await axios.post<LoginResponse>(API_URL + "Auth/login",
       { ...loginData, type: "user" },
       { headers: { 'Content-Type': 'application/json' } }

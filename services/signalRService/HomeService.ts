@@ -5,10 +5,13 @@ import { parcelList as AParcelList } from "@/app/utilities/home/atoms/atom";
 import { notificationList as ANotificationList } from "@/app/utilities/home/atoms/atom";
 import { HomeList, INotificationItem } from "@/app/utilities/notification/types/types";
 import { TParcelDetail } from "@/app/utilities/home/types/type";
+import useGetParcelList from "@/app/utilities/home/hooks/useGetParcelList";
+import useGetNotificationList from "@/app/utilities/home/hooks/useGetNotificationList";
 
 export const useHomeService = () => {
   const [connection, setConnection] = useState<HubConnection | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [updateFlag, setUpdateFlag] = useState(false);
   const setNotificationList = useSetRecoilState(ANotificationList); // ✅ Recoil State for Notifications
   const setParcelList = useSetRecoilState(AParcelList); // ✅ Recoil State for Notifications
 
@@ -46,11 +49,17 @@ export const useHomeService = () => {
 
   const setupListeners = useCallback((connection: HubConnection) => {
     connection.on("HomeListUpdate", (updateData: HomeList) => { 
+      console.log(updateData);
+      
       const parcel: TParcelDetail = updateData.parcel;
       const notification: INotificationItem = updateData.notification;
 
       setNotificationList((current) => [notification as INotificationItem, ...current]); 
       setParcelList((current) => [parcel as TParcelDetail, ...current]); 
+    });
+
+    connection.on("ParcelAndNotifUpdate", (updateData: HomeList) => {
+      setUpdateFlag(true);
     });
   }, [setNotificationList, setParcelList]);
 
@@ -62,5 +71,5 @@ export const useHomeService = () => {
     };
   }, [connection]);
 
-  return { connectHub, isLoading };
+  return { connectHub, isLoading, updateFlag, setUpdateFlag };
 };

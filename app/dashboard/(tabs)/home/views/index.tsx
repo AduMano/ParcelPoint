@@ -66,9 +66,24 @@ const index = () => {
   // Fetch Notification List
   const { fetchNotificationList, data: NLData, isLoading: NLLoading, error: NLError } = useGetNotificationList();
   // Load SignalR Service
-  const { connectHub, isLoading: CHLoading } = useHomeService();
+  const { connectHub, isLoading: CHLoading, updateFlag, setUpdateFlag } = useHomeService();
 
   /// States
+  // Update Flag
+  useEffect(() => {
+    if (!updateFlag) return;
+
+    const refetch = async () => {
+      // Refetch
+      await fetchParcelList(userID ?? "");
+      await fetchNotificationList(userID ?? "");
+    }
+
+    refetch();
+
+    setUpdateFlag(false);
+  }, [updateFlag])
+
   // Initial States
   const [isLoading, setLoading] = useState<boolean>(true);
   useEffect(() => {
@@ -113,6 +128,29 @@ const index = () => {
   const onClosePackageLogModal = useCallback(() => {
     setModalPackageLogState(false);
   }, []);
+
+  /// BAGAFUNCTION
+  const expandParcelLogs = (logs: TParcelDetail[]) => {
+    const expandedLogs: TParcelDetail[] = [];
+  
+    logs.forEach((log: TParcelDetail) => {
+      // 1) Add an "Arrived" record if arrivedAt is present
+      if (log.arrivedAt) {
+        expandedLogs.push({
+          ...log,
+        });
+      }
+  
+      // 2) Add a "Retrieved" record if retrievedAt is present
+      if (log.retrievedAt) {
+        expandedLogs.push({
+          ...log,
+        });
+      }
+    });
+  
+    return expandedLogs;
+  }
   
   
   /// Use Effect

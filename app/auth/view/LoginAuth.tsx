@@ -112,6 +112,7 @@ const index = () => {
   
   const handleLoginError = (error: string) => {
     const lowerError = error.toLowerCase();
+    console.log(lowerError);
   
     if (lowerError === "user not found.") {
       showAlert("Invalid Credentials", "Invalid Username or Password. Please try again.");
