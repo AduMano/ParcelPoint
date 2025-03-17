@@ -170,6 +170,10 @@ const MemberForm = () => {
       Alert.alert("Notice", "Select a user in able to do this action")
       return;
     }
+    else if (selectedRelationship === "") {
+      Alert.alert("Notice", "Select a relationship in able to do this action");
+      return;
+    }
 
     // Confirmation
     Alert.alert("Notice", `Are you sure you want to ${type} this user?`, [
