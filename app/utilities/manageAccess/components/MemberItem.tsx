@@ -44,11 +44,12 @@ const MemberItem = (props: {
   const handleItemSelection = () => {
     // First update selectedMembers
     setSelectedMembers((current) => {
-      const newMembers = current.some(curr_mem => curr_mem.id === member.id)
-        ? current.filter(curr_mem => curr_mem.id !== member.id)
+      console.log("CURRENT: ", current)
+      const newMembers = current.some(curr_mem => curr_mem.groupMemberId === member.groupMemberId)
+        ? current.filter(curr_mem => curr_mem.groupMemberId !== member.groupMemberId)
         : [...current, member];
       // Now update isActive based on the current state of selectedMembers
-      setActive(newMembers.some(curr_mem => curr_mem.id === member.id) ? "checked" : "unchecked");
+      setActive(newMembers.some(curr_mem => curr_mem.groupMemberId === member.groupMemberId) ? "checked" : "unchecked");
       return newMembers;
     });
   };
@@ -56,7 +57,7 @@ const MemberItem = (props: {
 
   useEffect(() => {
     // After selectedMembers changes, update isActive accordingly
-    setActive(selectedMembers.some(curr_mem => curr_mem.id === member.id) ? "checked" : "unchecked");
+    setActive(selectedMembers.some(curr_mem => curr_mem.groupMemberId === member.groupMemberId) ? "checked" : "unchecked");
   }, [selectedMembers]);  // Only run when selectedMembers changes
   
 

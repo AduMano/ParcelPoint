@@ -81,7 +81,8 @@ const index = () => {
         onPress: async () => {
           setLoading(true);
 
-          const data = selectedMembers.map((member) => { return member.id ?? "" });
+          const data = selectedMembers.map((member) => { return member.groupMemberId ?? "" });
+          console.log("Remove Data: ", data);
 
           try {
             await deleteMember({
@@ -106,20 +107,26 @@ const index = () => {
         setLoading(true);
 
         const data = selectedMembers.map((member) => {
+          console.log("MEMBER DATA: ", member);
+
           return {
-            GroupMemberId: member.groupMemberId,
+            GroupMemberId: member.groupMemberId ?? "",
             IsAuthorized: isAdding,
             RelationshipId: member.relationship?.id,
             GroupOwnerId: userID ?? "",
           };
         });
 
+        console.log("DATA: ", data);
+        console.log("MEMBERS: ", members);
+
         try {
           await updateMember(data); // Call the backend to update member authorization
           if (UMError === null) {
             setMembers((current) =>
               current.map((member) => {
-                if (selectedMembers.map(mem => mem.id).includes(member.id + "")) {
+                console.log("MEMBER HA: ", member);
+                if (selectedMembers.map(mem => mem.groupMemberId).includes(member.groupMemberId + "")) {
                   return { ...member, isAuthorized: isAdding };
                 }
                 return { ...member };
@@ -142,7 +149,7 @@ const index = () => {
     if (DMData === null) return;
 
     setMembers((current) =>
-      current.filter((member) => !selectedMembers.map(mem => mem.id).includes(member.id + ""))
+      current.filter((member) => !selectedMembers.map(mem => mem.groupMemberId).includes(member.groupMemberId + ""))
     );
 
     // Add them to the user list so we can add them again
@@ -191,7 +198,7 @@ const index = () => {
             <View style={[manageAccessStyle.memberHeader, {backgroundColor: "transparent", marginBottom: 10}]}>
               <Text>
                 <Text style={text.headingTwo}>Household Members {'\n'}</Text>
-                <Text style={text.subHeading}>(Swipe Left to Edit)</Text>
+                {/* <Text style={text.subHeading}>(Swipe Left to Edit)</Text> */}
               </Text>
 
               <TouchableOpacity 

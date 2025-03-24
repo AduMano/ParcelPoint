@@ -116,6 +116,7 @@ const MemberForm = () => {
       return;
     }
 
+    console.log("RESULT: ", result);
     setSelectedMember(result);
   }, [searchValue]);
 
@@ -170,7 +171,7 @@ const MemberForm = () => {
       Alert.alert("Notice", "Select a user in able to do this action")
       return;
     }
-    else if (selectedRelationship === "") {
+    else if (selectedRelationship === "" && type === "add") {
       Alert.alert("Notice", "Select a relationship in able to do this action");
       return;
     }
@@ -182,16 +183,17 @@ const MemberForm = () => {
         // Submission
         switch(type) {
           case "add":
+            console.log("ADD MEMBER DATA: ", selectedMember)
             handleAddMember({
               IsAuthorized: selectedAuthorization,
-              MemberId: selectedMember?.id,
+              MemberId: selectedMember?.id?.toString() ?? "",
               RelationshipId: selectedRelationship
             }, AUID ?? "");
           break;
           
           case "edit":
             handleUpdateMember([{
-              GroupMemberId: selectedMember?.groupMemberId,
+              GroupMemberId: selectedMember?.id?.toString() ?? "",
               IsAuthorized: selectedAuthorization,
               RelationshipId: selectedRelationship,
               GroupOwnerId: AUID ?? "",
@@ -250,7 +252,7 @@ const MemberForm = () => {
 
     setMembers((current) =>
       current.map((member) => {
-        if (selectedMember?.groupMemberId?.includes(member.id + "")) {
+        if (selectedMember?.groupMemberId?.includes(member.groupMemberId + "")) {
           return { 
             ...member, 
             isAuthorized: selectedAuthorization, 
